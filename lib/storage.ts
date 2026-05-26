@@ -44,6 +44,9 @@ const MUSHROOM_TONKATSU_IMAGE = "/recipe-media/king-oyster-mushroom-tonkatsu.jpg
 const AGLIO_OLIO_MEAL_PREP_RECIPE_KEY = "whats-cookin-jin-migration-youtube-bRbjuOri248-v1";
 const AGLIO_OLIO_MEAL_PREP_SOURCE = "https://www.youtube.com/watch?v=bRbjuOri248";
 const AGLIO_OLIO_MEAL_PREP_IMAGE = "/recipe-media/aglio-olio-meal-prep.jpg";
+const DIET_WRAP_MEAL_PREP_RECIPE_KEY = "whats-cookin-jin-migration-youtube-X9QXgRN5Nko-v1";
+const DIET_WRAP_MEAL_PREP_SOURCE = "https://www.youtube.com/watch?v=X9QXgRN5Nko";
+const DIET_WRAP_MEAL_PREP_IMAGE = "/recipe-media/diet-wrap-meal-prep.jpg";
 const SAMPLE_RECIPE_IDS = new Set(sampleRecipes.map((recipe) => recipe.id));
 
 function canUseStorage() {
@@ -544,6 +547,53 @@ function makeAglioOlioMealPrepRecipe(): Recipe {
   };
 }
 
+function makeDietWrapMealPrepRecipe(): Recipe {
+  const now = new Date().toISOString();
+
+  return {
+    id: `youtube-diet-wrap-meal-prep-${Date.now()}`,
+    title: "다이어트 랩 밀프렙",
+    sourceUrl: DIET_WRAP_MEAL_PREP_SOURCE,
+    sourceType: "YouTube",
+    category: "다이어트",
+    mealType: "Lunch",
+    dietGoal: "Meal Prep",
+    time: "30 min",
+    difficulty: "Easy",
+    servings: 4,
+    ingredients: [
+      "통밀 또띠아",
+      "버섯",
+      "닭가슴살",
+      "달걀",
+      "양상추",
+      "토마토",
+      "양파",
+      "저당 소스",
+      "소금",
+      "후추"
+    ],
+    steps: [
+      "버섯은 먹기 좋게 썰어 팬에 볶아 수분을 날려요.",
+      "닭가슴살은 익힌 뒤 결대로 찢거나 한입 크기로 썰어요.",
+      "달걀은 스크램블하거나 지단처럼 부쳐 준비해요.",
+      "양상추, 토마토, 양파처럼 수분이 있는 채소는 씻은 뒤 물기를 잘 제거해요.",
+      "통밀 또띠아 위에 채소, 버섯, 닭가슴살, 달걀을 올려요.",
+      "저당 소스를 조금 넣고 단단하게 말아요.",
+      "랩을 종이호일이나 랩으로 감싸 냉장 보관하고, 먹을 때 반으로 잘라요."
+    ],
+    tags: ["밀프렙", "다이어트랩", "고단백", "버섯", "체중감량"],
+    notes:
+      "유튜브 설명란에는 정확한 재료와 계량이 공개되어 있지 않아, 영상 제목과 보이는 구성 기준으로 따라 하기 쉬운 밀프렙 버전으로 정리했어요. 정확한 재료를 알게 되면 수정하면 됩니다.",
+    imageUrl: DIET_WRAP_MEAL_PREP_IMAGE,
+    favorite: false,
+    bookmarked: true,
+    deleted: false,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
 function removeSampleRecipes(recipes: Recipe[]) {
   return recipes.filter((recipe) => !SAMPLE_RECIPE_IDS.has(recipe.id));
 }
@@ -590,6 +640,8 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     storageAvailable && window.localStorage.getItem(MUSHROOM_TONKATSU_RECIPE_KEY) === "done";
   const aglioOlioMealPrepDone =
     storageAvailable && window.localStorage.getItem(AGLIO_OLIO_MEAL_PREP_RECIPE_KEY) === "done";
+  const dietWrapMealPrepDone =
+    storageAvailable && window.localStorage.getItem(DIET_WRAP_MEAL_PREP_RECIPE_KEY) === "done";
   const correctTitle = "육수에 푹 적신 알배추롤 & 구운 주먹밥";
   const samplesRemoved = recipes.some((recipe) => SAMPLE_RECIPE_IDS.has(recipe.id));
   const hadWrongRecipe = recipes.some(
@@ -719,6 +771,15 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     existingAglioOlioMealPrep.deleted;
   nextRecipes = upsertManagedRecipe(nextRecipes, makeAglioOlioMealPrepRecipe());
 
+  const existingDietWrapMealPrep = nextRecipes.find(
+    (recipe) => recipe.sourceUrl === DIET_WRAP_MEAL_PREP_SOURCE || recipe.title === "다이어트 랩 밀프렙"
+  );
+  const dietWrapMealPrepNeedsUpdate =
+    !existingDietWrapMealPrep ||
+    existingDietWrapMealPrep.imageUrl !== DIET_WRAP_MEAL_PREP_IMAGE ||
+    existingDietWrapMealPrep.deleted;
+  nextRecipes = upsertManagedRecipe(nextRecipes, makeDietWrapMealPrepRecipe());
+
   if (
     storageAvailable &&
     (samplesRemoved ||
@@ -744,7 +805,9 @@ function migrateManagedRecipes(recipes: Recipe[]) {
       !mushroomTonkatsuDone ||
       mushroomTonkatsuNeedsUpdate ||
       !aglioOlioMealPrepDone ||
-      aglioOlioMealPrepNeedsUpdate)
+      aglioOlioMealPrepNeedsUpdate ||
+      !dietWrapMealPrepDone ||
+      dietWrapMealPrepNeedsUpdate)
   ) {
     writeJson(RECIPES_KEY, nextRecipes);
     window.localStorage.setItem(CORRECT_INSTAGRAM_RECIPE_KEY, "done");
@@ -758,6 +821,7 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     window.localStorage.setItem(ANCHOVY_JAMON_KIMBAP_RECIPE_KEY, "done");
     window.localStorage.setItem(MUSHROOM_TONKATSU_RECIPE_KEY, "done");
     window.localStorage.setItem(AGLIO_OLIO_MEAL_PREP_RECIPE_KEY, "done");
+    window.localStorage.setItem(DIET_WRAP_MEAL_PREP_RECIPE_KEY, "done");
   }
 
   return nextRecipes;
