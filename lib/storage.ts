@@ -35,6 +35,9 @@ const HOME_CHEESE_PASTA_IMAGE = "/recipe-media/home-cheese-pasta.jpg";
 const LEE_DAHEE_TOFU_RICE_RECIPE_KEY = "whats-cookin-jin-migration-youtube-g7MonAmFDYw-v1";
 const LEE_DAHEE_TOFU_RICE_SOURCE = "https://www.youtube.com/watch?v=g7MonAmFDYw";
 const LEE_DAHEE_TOFU_RICE_IMAGE = "/recipe-media/lee-dahee-quick-diet-recipe.jpg";
+const ANCHOVY_JAMON_KIMBAP_RECIPE_KEY = "whats-cookin-jin-migration-youtube-TBKpKegeDx0-v1";
+const ANCHOVY_JAMON_KIMBAP_SOURCE = "https://www.youtube.com/watch?v=TBKpKegeDx0";
+const ANCHOVY_JAMON_KIMBAP_IMAGE = "/recipe-media/anchovy-jamon-kimbap.jpg";
 const SAMPLE_RECIPE_IDS = new Set(sampleRecipes.map((recipe) => recipe.id));
 
 function canUseStorage() {
@@ -386,6 +389,55 @@ function makeLeeDaheeTofuRiceRecipe(): Recipe {
   };
 }
 
+function makeAnchovyJamonKimbapRecipe(): Recipe {
+  const now = new Date().toISOString();
+
+  return {
+    id: `youtube-anchovy-jamon-kimbap-${Date.now()}`,
+    title: "엔초비 김밥 & 하몽 김밥",
+    sourceUrl: ANCHOVY_JAMON_KIMBAP_SOURCE,
+    sourceType: "YouTube",
+    category: "한식 / 밥",
+    mealType: "Lunch",
+    dietGoal: "None",
+    time: "25 min",
+    difficulty: "Medium",
+    servings: 2,
+    ingredients: [
+      "김",
+      "밥",
+      "설탕",
+      "레몬즙",
+      "피쉬소스",
+      "올리브오일",
+      "계란말이",
+      "엔초비",
+      "바질",
+      "고수",
+      "하몽",
+      "썬드라이드 토마토"
+    ],
+    steps: [
+      "따뜻한 밥에 설탕, 레몬즙, 피쉬소스, 올리브오일을 넣고 고루 섞어 밥을 조미해요.",
+      "엔초비 김밥은 김 위에 조미한 밥을 적당량 펴요.",
+      "계란말이, 엔초비, 바질 또는 고수를 올린 뒤 단단하게 말아요.",
+      "엔초비는 너무 적게 넣으면 비릴 수 있으니 한 줄로 곱게 넣어 맛을 살려요.",
+      "하몽 김밥은 하몽을 한 장씩 떼어 잘 펴고 그 위에 김을 올려요.",
+      "조미한 밥, 엔초비, 썬드라이드 토마토, 바질 또는 고수를 올려 돌돌 말아요.",
+      "먹기 좋은 두께로 썰어 도시락이나 피크닉 메뉴로 즐겨요."
+    ],
+    tags: ["김밥", "엔초비", "하몽", "피크닉", "살롱드태윤"],
+    notes:
+      "유튜브 설명란 기반 정리. 밥 조미의 레몬즙은 식초로 대체 가능하고, 계란말이는 영상에서 별도 비법 레시피를 참고하라고 안내되어 있어요.",
+    imageUrl: ANCHOVY_JAMON_KIMBAP_IMAGE,
+    favorite: false,
+    bookmarked: true,
+    deleted: false,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
 function removeSampleRecipes(recipes: Recipe[]) {
   return recipes.filter((recipe) => !SAMPLE_RECIPE_IDS.has(recipe.id));
 }
@@ -426,6 +478,8 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     storageAvailable && window.localStorage.getItem(HOME_CHEESE_PASTA_RECIPE_KEY) === "done";
   const leeDaheeTofuRiceDone =
     storageAvailable && window.localStorage.getItem(LEE_DAHEE_TOFU_RICE_RECIPE_KEY) === "done";
+  const anchovyJamonKimbapDone =
+    storageAvailable && window.localStorage.getItem(ANCHOVY_JAMON_KIMBAP_RECIPE_KEY) === "done";
   const correctTitle = "육수에 푹 적신 알배추롤 & 구운 주먹밥";
   const samplesRemoved = recipes.some((recipe) => SAMPLE_RECIPE_IDS.has(recipe.id));
   const hadWrongRecipe = recipes.some(
@@ -528,6 +582,15 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     existingLeeDaheeTofuRice.deleted;
   nextRecipes = upsertManagedRecipe(nextRecipes, makeLeeDaheeTofuRiceRecipe());
 
+  const existingAnchovyJamonKimbap = nextRecipes.find(
+    (recipe) => recipe.sourceUrl === ANCHOVY_JAMON_KIMBAP_SOURCE || recipe.title === "엔초비 김밥 & 하몽 김밥"
+  );
+  const anchovyJamonKimbapNeedsUpdate =
+    !existingAnchovyJamonKimbap ||
+    existingAnchovyJamonKimbap.imageUrl !== ANCHOVY_JAMON_KIMBAP_IMAGE ||
+    existingAnchovyJamonKimbap.deleted;
+  nextRecipes = upsertManagedRecipe(nextRecipes, makeAnchovyJamonKimbapRecipe());
+
   if (
     storageAvailable &&
     (samplesRemoved ||
@@ -547,7 +610,9 @@ function migrateManagedRecipes(recipes: Recipe[]) {
       !homeCheesePastaDone ||
       homeCheesePastaNeedsUpdate ||
       !leeDaheeTofuRiceDone ||
-      leeDaheeTofuRiceNeedsUpdate)
+      leeDaheeTofuRiceNeedsUpdate ||
+      !anchovyJamonKimbapDone ||
+      anchovyJamonKimbapNeedsUpdate)
   ) {
     writeJson(RECIPES_KEY, nextRecipes);
     window.localStorage.setItem(CORRECT_INSTAGRAM_RECIPE_KEY, "done");
@@ -558,6 +623,7 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     window.localStorage.setItem(CRISPY_DONUT_RECIPE_KEY, "done");
     window.localStorage.setItem(HOME_CHEESE_PASTA_RECIPE_KEY, "done");
     window.localStorage.setItem(LEE_DAHEE_TOFU_RICE_RECIPE_KEY, "done");
+    window.localStorage.setItem(ANCHOVY_JAMON_KIMBAP_RECIPE_KEY, "done");
   }
 
   return nextRecipes;
