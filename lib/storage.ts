@@ -38,6 +38,9 @@ const LEE_DAHEE_TOFU_RICE_IMAGE = "/recipe-media/lee-dahee-quick-diet-recipe.jpg
 const ANCHOVY_JAMON_KIMBAP_RECIPE_KEY = "whats-cookin-jin-migration-youtube-TBKpKegeDx0-v1";
 const ANCHOVY_JAMON_KIMBAP_SOURCE = "https://www.youtube.com/watch?v=TBKpKegeDx0";
 const ANCHOVY_JAMON_KIMBAP_IMAGE = "/recipe-media/anchovy-jamon-kimbap.jpg";
+const MUSHROOM_TONKATSU_RECIPE_KEY = "whats-cookin-jin-migration-youtube-1nZw3EmWfg8-v1";
+const MUSHROOM_TONKATSU_SOURCE = "https://www.youtube.com/watch?v=1nZw3EmWfg8";
+const MUSHROOM_TONKATSU_IMAGE = "/recipe-media/king-oyster-mushroom-tonkatsu.jpg";
 const SAMPLE_RECIPE_IDS = new Set(sampleRecipes.map((recipe) => recipe.id));
 
 function canUseStorage() {
@@ -438,6 +441,56 @@ function makeAnchovyJamonKimbapRecipe(): Recipe {
   };
 }
 
+function makeMushroomTonkatsuRecipe(): Recipe {
+  const now = new Date().toISOString();
+
+  return {
+    id: `youtube-mushroom-tonkatsu-${Date.now()}`,
+    title: "새송이 버섯 돈가스",
+    sourceUrl: MUSHROOM_TONKATSU_SOURCE,
+    sourceType: "YouTube",
+    category: "간단 요리",
+    mealType: "Dinner",
+    dietGoal: "None",
+    time: "10 min",
+    difficulty: "Easy",
+    servings: 3,
+    ingredients: [
+      "새송이 버섯",
+      "돼지고기 앞다리살 불고기용",
+      "라이스페이퍼",
+      "모짜렐라 피자치즈",
+      "소금",
+      "후추",
+      "물",
+      "현미유",
+      "돈가스 소스",
+      "타르타르소스"
+    ],
+    steps: [
+      "새송이 버섯 3개를 찜기나 전자레인지로 5분 정도 익힌 뒤 식혀요.",
+      "식힌 버섯을 돌려 깎듯이 저며 넓게 펼쳐요.",
+      "다시 말리지 않게 격자 칼집을 내고 물기를 제거해요.",
+      "버섯 앞뒤에 소금과 후추를 한두 꼬집씩 뿌려 밑간해요.",
+      "라이스페이퍼를 물에 담갔다 바로 빼요.",
+      "라이스페이퍼 위에 고기, 버섯, 모짜렐라 치즈, 고기 순서로 올리고 감싸요.",
+      "팬에 현미유를 조금 두른 뒤 키친타월로 얇게 바르듯 닦아요.",
+      "중불에서 돈가스 겉면을 앞뒤로 먼저 익혀요.",
+      "물 100ml를 붓고 뚜껑을 닫아 3분 익혀요.",
+      "뚜껑을 열고 물이 증발할 때까지 노릇하게 구워 돈가스 소스나 타르타르소스와 먹어요."
+    ],
+    tags: ["돈가스", "새송이버섯", "라이스페이퍼", "10분요리", "아이반찬"],
+    notes:
+      "유튜브 설명란 기반 정리. 새송이 3개 기준 성인 3~4인분이며, 1T는 15ml, 1t는 5ml, 1컵은 200ml 기준이에요.",
+    imageUrl: MUSHROOM_TONKATSU_IMAGE,
+    favorite: false,
+    bookmarked: true,
+    deleted: false,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
 function removeSampleRecipes(recipes: Recipe[]) {
   return recipes.filter((recipe) => !SAMPLE_RECIPE_IDS.has(recipe.id));
 }
@@ -480,6 +533,8 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     storageAvailable && window.localStorage.getItem(LEE_DAHEE_TOFU_RICE_RECIPE_KEY) === "done";
   const anchovyJamonKimbapDone =
     storageAvailable && window.localStorage.getItem(ANCHOVY_JAMON_KIMBAP_RECIPE_KEY) === "done";
+  const mushroomTonkatsuDone =
+    storageAvailable && window.localStorage.getItem(MUSHROOM_TONKATSU_RECIPE_KEY) === "done";
   const correctTitle = "육수에 푹 적신 알배추롤 & 구운 주먹밥";
   const samplesRemoved = recipes.some((recipe) => SAMPLE_RECIPE_IDS.has(recipe.id));
   const hadWrongRecipe = recipes.some(
@@ -591,6 +646,15 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     existingAnchovyJamonKimbap.deleted;
   nextRecipes = upsertManagedRecipe(nextRecipes, makeAnchovyJamonKimbapRecipe());
 
+  const existingMushroomTonkatsu = nextRecipes.find(
+    (recipe) => recipe.sourceUrl === MUSHROOM_TONKATSU_SOURCE || recipe.title === "새송이 버섯 돈가스"
+  );
+  const mushroomTonkatsuNeedsUpdate =
+    !existingMushroomTonkatsu ||
+    existingMushroomTonkatsu.imageUrl !== MUSHROOM_TONKATSU_IMAGE ||
+    existingMushroomTonkatsu.deleted;
+  nextRecipes = upsertManagedRecipe(nextRecipes, makeMushroomTonkatsuRecipe());
+
   if (
     storageAvailable &&
     (samplesRemoved ||
@@ -612,7 +676,9 @@ function migrateManagedRecipes(recipes: Recipe[]) {
       !leeDaheeTofuRiceDone ||
       leeDaheeTofuRiceNeedsUpdate ||
       !anchovyJamonKimbapDone ||
-      anchovyJamonKimbapNeedsUpdate)
+      anchovyJamonKimbapNeedsUpdate ||
+      !mushroomTonkatsuDone ||
+      mushroomTonkatsuNeedsUpdate)
   ) {
     writeJson(RECIPES_KEY, nextRecipes);
     window.localStorage.setItem(CORRECT_INSTAGRAM_RECIPE_KEY, "done");
@@ -624,6 +690,7 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     window.localStorage.setItem(HOME_CHEESE_PASTA_RECIPE_KEY, "done");
     window.localStorage.setItem(LEE_DAHEE_TOFU_RICE_RECIPE_KEY, "done");
     window.localStorage.setItem(ANCHOVY_JAMON_KIMBAP_RECIPE_KEY, "done");
+    window.localStorage.setItem(MUSHROOM_TONKATSU_RECIPE_KEY, "done");
   }
 
   return nextRecipes;
