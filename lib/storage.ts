@@ -32,6 +32,9 @@ const CRISPY_DONUT_IMAGE = "/recipe-media/crispy-donut-grilled.jpg";
 const HOME_CHEESE_PASTA_RECIPE_KEY = "whats-cookin-jin-migration-youtube-GiLssCwAsmw-v1";
 const HOME_CHEESE_PASTA_SOURCE = "https://www.youtube.com/watch?v=GiLssCwAsmw";
 const HOME_CHEESE_PASTA_IMAGE = "/recipe-media/home-cheese-pasta.jpg";
+const LEE_DAHEE_TOFU_RICE_RECIPE_KEY = "whats-cookin-jin-migration-youtube-g7MonAmFDYw-v1";
+const LEE_DAHEE_TOFU_RICE_SOURCE = "https://www.youtube.com/watch?v=g7MonAmFDYw";
+const LEE_DAHEE_TOFU_RICE_IMAGE = "/recipe-media/lee-dahee-quick-diet-recipe.jpg";
 const SAMPLE_RECIPE_IDS = new Set(sampleRecipes.map((recipe) => recipe.id));
 
 function canUseStorage() {
@@ -348,6 +351,41 @@ function makeHomeCheesePastaRecipe(): Recipe {
   };
 }
 
+function makeLeeDaheeTofuRiceRecipe(): Recipe {
+  const now = new Date().toISOString();
+
+  return {
+    id: `youtube-lee-dahee-tofu-rice-${Date.now()}`,
+    title: "이다희 두부 묵은지 비빔밥",
+    sourceUrl: LEE_DAHEE_TOFU_RICE_SOURCE,
+    sourceType: "YouTube",
+    category: "다이어트",
+    mealType: "Lunch",
+    dietGoal: "Light",
+    time: "10 min",
+    difficulty: "Easy",
+    servings: 1,
+    ingredients: ["두부", "묵은지", "현미밥", "김", "참기름", "깨", "후추"],
+    steps: [
+      "두부는 물기를 빼고 으깨요.",
+      "팬에 으깬 두부를 넣고 중약불에서 수분이 날아가도록 볶아요.",
+      "묵은지는 물기를 가볍게 짠 뒤 먹기 좋게 잘게 썰어요.",
+      "그릇에 현미밥, 볶은 두부, 묵은지를 넣고 섞어요.",
+      "참기름, 깨, 후추를 조금 넣어 고소하게 마무리해요.",
+      "김에 한입씩 싸서 먹어요."
+    ],
+    tags: ["급진급빠", "다이어트", "두부", "묵은지", "김쌈"],
+    notes:
+      "유튜브 영상과 공개 레시피 페이지를 참고해 정리했어요. 정확한 계량보다 두부로 포만감을 더하고 묵은지와 김으로 맛을 잡는 다이어트식 한 그릇으로 보면 좋아요.",
+    imageUrl: LEE_DAHEE_TOFU_RICE_IMAGE,
+    favorite: false,
+    bookmarked: true,
+    deleted: false,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
 function removeSampleRecipes(recipes: Recipe[]) {
   return recipes.filter((recipe) => !SAMPLE_RECIPE_IDS.has(recipe.id));
 }
@@ -386,6 +424,8 @@ function migrateManagedRecipes(recipes: Recipe[]) {
   const crispyDonutDone = storageAvailable && window.localStorage.getItem(CRISPY_DONUT_RECIPE_KEY) === "done";
   const homeCheesePastaDone =
     storageAvailable && window.localStorage.getItem(HOME_CHEESE_PASTA_RECIPE_KEY) === "done";
+  const leeDaheeTofuRiceDone =
+    storageAvailable && window.localStorage.getItem(LEE_DAHEE_TOFU_RICE_RECIPE_KEY) === "done";
   const correctTitle = "육수에 푹 적신 알배추롤 & 구운 주먹밥";
   const samplesRemoved = recipes.some((recipe) => SAMPLE_RECIPE_IDS.has(recipe.id));
   const hadWrongRecipe = recipes.some(
@@ -479,6 +519,15 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     existingHomeCheesePasta.deleted;
   nextRecipes = upsertManagedRecipe(nextRecipes, makeHomeCheesePastaRecipe());
 
+  const existingLeeDaheeTofuRice = nextRecipes.find(
+    (recipe) => recipe.sourceUrl === LEE_DAHEE_TOFU_RICE_SOURCE || recipe.title === "이다희 두부 묵은지 비빔밥"
+  );
+  const leeDaheeTofuRiceNeedsUpdate =
+    !existingLeeDaheeTofuRice ||
+    existingLeeDaheeTofuRice.imageUrl !== LEE_DAHEE_TOFU_RICE_IMAGE ||
+    existingLeeDaheeTofuRice.deleted;
+  nextRecipes = upsertManagedRecipe(nextRecipes, makeLeeDaheeTofuRiceRecipe());
+
   if (
     storageAvailable &&
     (samplesRemoved ||
@@ -496,7 +545,9 @@ function migrateManagedRecipes(recipes: Recipe[]) {
       !crispyDonutDone ||
       crispyDonutNeedsUpdate ||
       !homeCheesePastaDone ||
-      homeCheesePastaNeedsUpdate)
+      homeCheesePastaNeedsUpdate ||
+      !leeDaheeTofuRiceDone ||
+      leeDaheeTofuRiceNeedsUpdate)
   ) {
     writeJson(RECIPES_KEY, nextRecipes);
     window.localStorage.setItem(CORRECT_INSTAGRAM_RECIPE_KEY, "done");
@@ -506,6 +557,7 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     window.localStorage.setItem(LUNCHBOX_REFERENCE_RECIPE_KEY, "done");
     window.localStorage.setItem(CRISPY_DONUT_RECIPE_KEY, "done");
     window.localStorage.setItem(HOME_CHEESE_PASTA_RECIPE_KEY, "done");
+    window.localStorage.setItem(LEE_DAHEE_TOFU_RICE_RECIPE_KEY, "done");
   }
 
   return nextRecipes;
