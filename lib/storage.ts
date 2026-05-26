@@ -29,6 +29,9 @@ const LUNCHBOX_REFERENCE_IMAGES = [
 const CRISPY_DONUT_RECIPE_KEY = "whats-cookin-jin-migration-instagram-DXOZ1AFkeDz-v1";
 const CRISPY_DONUT_SOURCE = "https://www.instagram.com/p/DXOZ1AFkeDz/";
 const CRISPY_DONUT_IMAGE = "/recipe-media/crispy-donut-grilled.jpg";
+const HOME_CHEESE_PASTA_RECIPE_KEY = "whats-cookin-jin-migration-youtube-GiLssCwAsmw-v1";
+const HOME_CHEESE_PASTA_SOURCE = "https://www.youtube.com/watch?v=GiLssCwAsmw";
+const HOME_CHEESE_PASTA_IMAGE = "/recipe-media/home-cheese-pasta.jpg";
 const SAMPLE_RECIPE_IDS = new Set(sampleRecipes.map((recipe) => recipe.id));
 
 function canUseStorage() {
@@ -310,6 +313,41 @@ function makeCrispyDonutRecipe(): Recipe {
   };
 }
 
+function makeHomeCheesePastaRecipe(): Recipe {
+  const now = new Date().toISOString();
+
+  return {
+    id: `youtube-home-cheese-pasta-${Date.now()}`,
+    title: "홈파스타 치즈파스타",
+    sourceUrl: HOME_CHEESE_PASTA_SOURCE,
+    sourceType: "YouTube",
+    category: "면 / 파스타",
+    mealType: "Dinner",
+    dietGoal: "None",
+    time: "10 min",
+    difficulty: "Easy",
+    servings: 1,
+    ingredients: ["파스타면", "체다치즈", "우유", "버터", "다진 마늘", "소금", "후추", "면수"],
+    steps: [
+      "파스타면을 소금 넣은 물에 삶고, 면수는 조금 남겨둬요.",
+      "팬에 버터와 다진 마늘을 넣고 약불에서 향을 내요.",
+      "우유를 붓고 체다치즈를 넣어 녹이면서 치즈 소스를 만들어요.",
+      "삶은 면을 넣고 면수를 조금씩 더해가며 꾸덕하게 섞어요.",
+      "후추를 넉넉히 뿌리고 간이 부족하면 소금으로 맞춰요.",
+      "소스가 면에 잘 붙으면 따뜻할 때 바로 먹어요."
+    ],
+    tags: ["홈파스타", "치즈파스타", "10분컷", "집밥", "간단레시피"],
+    notes:
+      "유튜브 설명 기반 정리. 영상 설명에는 어남선생 치즈파스타를 변형한 느끼하고 고급스러운 치즈파스타라고 소개되어 있어요. 정확한 계량 텍스트는 공개되어 있지 않아 집에서 따라 하기 쉬운 기본 치즈파스타 흐름으로 정리했습니다.",
+    imageUrl: HOME_CHEESE_PASTA_IMAGE,
+    favorite: false,
+    bookmarked: true,
+    deleted: false,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
 function removeSampleRecipes(recipes: Recipe[]) {
   return recipes.filter((recipe) => !SAMPLE_RECIPE_IDS.has(recipe.id));
 }
@@ -346,6 +384,8 @@ function migrateManagedRecipes(recipes: Recipe[]) {
   const lunchboxReferenceDone =
     storageAvailable && window.localStorage.getItem(LUNCHBOX_REFERENCE_RECIPE_KEY) === "done";
   const crispyDonutDone = storageAvailable && window.localStorage.getItem(CRISPY_DONUT_RECIPE_KEY) === "done";
+  const homeCheesePastaDone =
+    storageAvailable && window.localStorage.getItem(HOME_CHEESE_PASTA_RECIPE_KEY) === "done";
   const correctTitle = "육수에 푹 적신 알배추롤 & 구운 주먹밥";
   const samplesRemoved = recipes.some((recipe) => SAMPLE_RECIPE_IDS.has(recipe.id));
   const hadWrongRecipe = recipes.some(
@@ -430,6 +470,15 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     !existingCrispyDonut || existingCrispyDonut.imageUrl !== CRISPY_DONUT_IMAGE || existingCrispyDonut.deleted;
   nextRecipes = upsertManagedRecipe(nextRecipes, makeCrispyDonutRecipe());
 
+  const existingHomeCheesePasta = nextRecipes.find(
+    (recipe) => recipe.sourceUrl === HOME_CHEESE_PASTA_SOURCE || recipe.title === "홈파스타 치즈파스타"
+  );
+  const homeCheesePastaNeedsUpdate =
+    !existingHomeCheesePasta ||
+    existingHomeCheesePasta.imageUrl !== HOME_CHEESE_PASTA_IMAGE ||
+    existingHomeCheesePasta.deleted;
+  nextRecipes = upsertManagedRecipe(nextRecipes, makeHomeCheesePastaRecipe());
+
   if (
     storageAvailable &&
     (samplesRemoved ||
@@ -445,7 +494,9 @@ function migrateManagedRecipes(recipes: Recipe[]) {
       !lunchboxReferenceDone ||
       lunchboxReferenceNeedsUpdate ||
       !crispyDonutDone ||
-      crispyDonutNeedsUpdate)
+      crispyDonutNeedsUpdate ||
+      !homeCheesePastaDone ||
+      homeCheesePastaNeedsUpdate)
   ) {
     writeJson(RECIPES_KEY, nextRecipes);
     window.localStorage.setItem(CORRECT_INSTAGRAM_RECIPE_KEY, "done");
@@ -454,6 +505,7 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     window.localStorage.setItem(BASIL_PROSCIUTTO_RECIPE_KEY, "done");
     window.localStorage.setItem(LUNCHBOX_REFERENCE_RECIPE_KEY, "done");
     window.localStorage.setItem(CRISPY_DONUT_RECIPE_KEY, "done");
+    window.localStorage.setItem(HOME_CHEESE_PASTA_RECIPE_KEY, "done");
   }
 
   return nextRecipes;
