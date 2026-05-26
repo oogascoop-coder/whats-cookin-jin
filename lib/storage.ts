@@ -47,6 +47,12 @@ const AGLIO_OLIO_MEAL_PREP_IMAGE = "/recipe-media/aglio-olio-meal-prep.jpg";
 const DIET_WRAP_MEAL_PREP_RECIPE_KEY = "whats-cookin-jin-migration-youtube-X9QXgRN5Nko-v1";
 const DIET_WRAP_MEAL_PREP_SOURCE = "https://www.youtube.com/watch?v=X9QXgRN5Nko";
 const DIET_WRAP_MEAL_PREP_IMAGE = "/recipe-media/diet-wrap-meal-prep.jpg";
+const SOY_EGG_PASTA_RECIPE_KEY = "whats-cookin-jin-migration-youtube-eIX8sxfQZjI-v1";
+const SOY_EGG_PASTA_SOURCE = "https://www.youtube.com/watch?v=eIX8sxfQZjI";
+const SOY_EGG_PASTA_IMAGE = "/recipe-media/soy-egg-pasta.jpg";
+const SPAM_TOFU_JJAGEULI_RECIPE_KEY = "whats-cookin-jin-migration-youtube-cImdJ_2Od4I-v1";
+const SPAM_TOFU_JJAGEULI_SOURCE = "https://www.youtube.com/watch?v=cImdJ_2Od4I";
+const SPAM_TOFU_JJAGEULI_IMAGE = "/recipe-media/spam-tofu-jjageuli.jpg";
 const SAMPLE_RECIPE_IDS = new Set(sampleRecipes.map((recipe) => recipe.id));
 
 function canUseStorage() {
@@ -594,6 +600,89 @@ function makeDietWrapMealPrepRecipe(): Recipe {
   };
 }
 
+function makeSoyEggPastaRecipe(): Recipe {
+  const now = new Date().toISOString();
+
+  return {
+    id: `youtube-soy-egg-pasta-${Date.now()}`,
+    title: "간장계란파스타",
+    sourceUrl: SOY_EGG_PASTA_SOURCE,
+    sourceType: "YouTube",
+    category: "면 / 파스타",
+    mealType: "Dinner",
+    dietGoal: "None",
+    time: "15 min",
+    difficulty: "Easy",
+    servings: 1,
+    ingredients: ["스파게티면", "달걀노른자", "간장", "버터", "마늘", "올리브오일", "후추", "치즈"],
+    steps: [
+      "스파게티면을 소금 넣은 물에 삶고 면수는 조금 남겨둬요.",
+      "팬에 올리브오일과 마늘을 넣고 약불에서 향을 내요.",
+      "삶은 면을 넣고 간장과 버터를 더해 고루 섞어요.",
+      "불을 약하게 줄인 뒤 달걀노른자를 넣고 빠르게 섞어 촉촉하게 만들어요.",
+      "필요하면 면수를 조금 넣어 농도를 맞춰요.",
+      "후추를 넉넉히 뿌리고 치즈를 올려 마무리해요."
+    ],
+    tags: ["간장계란", "파스타", "스파게티", "간단요리", "자취요리"],
+    notes:
+      "유튜브 제목과 썸네일 기준 정리. 설명란에 정확한 재료와 계량이 공개되어 있지 않아 집에서 따라 하기 쉬운 간장계란파스타 흐름으로 정리했어요.",
+    imageUrl: SOY_EGG_PASTA_IMAGE,
+    favorite: false,
+    bookmarked: true,
+    deleted: false,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
+function makeSpamTofuJjageuliRecipe(): Recipe {
+  const now = new Date().toISOString();
+
+  return {
+    id: `youtube-spam-tofu-jjageuli-${Date.now()}`,
+    title: "간단한 스팸두부짜글이",
+    sourceUrl: SPAM_TOFU_JJAGEULI_SOURCE,
+    sourceType: "YouTube",
+    category: "국 / 찌개",
+    mealType: "Dinner",
+    dietGoal: "None",
+    time: "20 min",
+    difficulty: "Easy",
+    servings: 2,
+    ingredients: [
+      "두부 1모",
+      "대파 1대",
+      "양파 1/2개",
+      "스팸 100~150g",
+      "고추장 2스푼",
+      "고춧가루 1스푼",
+      "설탕 1/2스푼",
+      "진간장 2스푼",
+      "물 600ml",
+      "마늘 1스푼",
+      "후추",
+      "청양고추"
+    ],
+    steps: [
+      "두부는 큼직하게 썰고, 양파와 대파는 먹기 좋게 썰어요.",
+      "스팸은 으깨거나 작게 잘라 준비해요.",
+      "냄비에 양파, 두부, 스팸을 담고 물을 부어요.",
+      "고추장, 고춧가루, 설탕, 진간장, 마늘을 넣고 끓여요.",
+      "국물이 끓으면 중불로 줄이고 두부에 양념이 배도록 졸여요.",
+      "대파와 청양고추를 넣고 한 번 더 끓인 뒤 후추로 마무리해요."
+    ],
+    tags: ["스팸", "두부", "짜글이", "밥도둑", "간단요리"],
+    notes:
+      "유튜브 설명란 재료 기준으로 정리. 설명에는 물 600ml가 종이컵 약 3.5컵이라고 안내되어 있어요. 스팸이 짭짤하니 간은 마지막에 보고 조절하면 좋아요.",
+    imageUrl: SPAM_TOFU_JJAGEULI_IMAGE,
+    favorite: false,
+    bookmarked: true,
+    deleted: false,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
 function removeSampleRecipes(recipes: Recipe[]) {
   return recipes.filter((recipe) => !SAMPLE_RECIPE_IDS.has(recipe.id));
 }
@@ -642,6 +731,9 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     storageAvailable && window.localStorage.getItem(AGLIO_OLIO_MEAL_PREP_RECIPE_KEY) === "done";
   const dietWrapMealPrepDone =
     storageAvailable && window.localStorage.getItem(DIET_WRAP_MEAL_PREP_RECIPE_KEY) === "done";
+  const soyEggPastaDone = storageAvailable && window.localStorage.getItem(SOY_EGG_PASTA_RECIPE_KEY) === "done";
+  const spamTofuJjageuliDone =
+    storageAvailable && window.localStorage.getItem(SPAM_TOFU_JJAGEULI_RECIPE_KEY) === "done";
   const correctTitle = "육수에 푹 적신 알배추롤 & 구운 주먹밥";
   const samplesRemoved = recipes.some((recipe) => SAMPLE_RECIPE_IDS.has(recipe.id));
   const hadWrongRecipe = recipes.some(
@@ -780,6 +872,22 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     existingDietWrapMealPrep.deleted;
   nextRecipes = upsertManagedRecipe(nextRecipes, makeDietWrapMealPrepRecipe());
 
+  const existingSoyEggPasta = nextRecipes.find(
+    (recipe) => recipe.sourceUrl === SOY_EGG_PASTA_SOURCE || recipe.title === "간장계란파스타"
+  );
+  const soyEggPastaNeedsUpdate =
+    !existingSoyEggPasta || existingSoyEggPasta.imageUrl !== SOY_EGG_PASTA_IMAGE || existingSoyEggPasta.deleted;
+  nextRecipes = upsertManagedRecipe(nextRecipes, makeSoyEggPastaRecipe());
+
+  const existingSpamTofuJjageuli = nextRecipes.find(
+    (recipe) => recipe.sourceUrl === SPAM_TOFU_JJAGEULI_SOURCE || recipe.title === "간단한 스팸두부짜글이"
+  );
+  const spamTofuJjageuliNeedsUpdate =
+    !existingSpamTofuJjageuli ||
+    existingSpamTofuJjageuli.imageUrl !== SPAM_TOFU_JJAGEULI_IMAGE ||
+    existingSpamTofuJjageuli.deleted;
+  nextRecipes = upsertManagedRecipe(nextRecipes, makeSpamTofuJjageuliRecipe());
+
   if (
     storageAvailable &&
     (samplesRemoved ||
@@ -807,7 +915,11 @@ function migrateManagedRecipes(recipes: Recipe[]) {
       !aglioOlioMealPrepDone ||
       aglioOlioMealPrepNeedsUpdate ||
       !dietWrapMealPrepDone ||
-      dietWrapMealPrepNeedsUpdate)
+      dietWrapMealPrepNeedsUpdate ||
+      !soyEggPastaDone ||
+      soyEggPastaNeedsUpdate ||
+      !spamTofuJjageuliDone ||
+      spamTofuJjageuliNeedsUpdate)
   ) {
     writeJson(RECIPES_KEY, nextRecipes);
     window.localStorage.setItem(CORRECT_INSTAGRAM_RECIPE_KEY, "done");
@@ -822,6 +934,8 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     window.localStorage.setItem(MUSHROOM_TONKATSU_RECIPE_KEY, "done");
     window.localStorage.setItem(AGLIO_OLIO_MEAL_PREP_RECIPE_KEY, "done");
     window.localStorage.setItem(DIET_WRAP_MEAL_PREP_RECIPE_KEY, "done");
+    window.localStorage.setItem(SOY_EGG_PASTA_RECIPE_KEY, "done");
+    window.localStorage.setItem(SPAM_TOFU_JJAGEULI_RECIPE_KEY, "done");
   }
 
   return nextRecipes;
