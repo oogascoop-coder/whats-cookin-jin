@@ -56,6 +56,9 @@ const SPAM_TOFU_JJAGEULI_IMAGE = "/recipe-media/spam-tofu-jjageuli.jpg";
 const CABBAGE_TTEOKBOKKI_RECIPE_KEY = "whats-cookin-jin-migration-youtube-K-hndP-Du3s-v1";
 const CABBAGE_TTEOKBOKKI_SOURCE = "https://www.youtube.com/watch?v=K-hndP-Du3s";
 const CABBAGE_TTEOKBOKKI_IMAGE = "/recipe-media/cabbage-tteokbokki.jpg";
+const SALTY_GIRL_SNACK_RECIPE_KEY = "whats-cookin-jin-migration-youtube-ms72lxZ6o44-v1";
+const SALTY_GIRL_SNACK_SOURCE = "https://www.youtube.com/watch?v=ms72lxZ6o44";
+const SALTY_GIRL_SNACK_IMAGE = "/recipe-media/salty-girl-snack.jpg";
 const SAMPLE_RECIPE_IDS = new Set(sampleRecipes.map((recipe) => recipe.id));
 
 function canUseStorage() {
@@ -730,6 +733,40 @@ function makeCabbageTteokbokkiRecipe(): Recipe {
   };
 }
 
+function makeSaltyGirlSnackRecipe(): Recipe {
+  const now = new Date().toISOString();
+
+  return {
+    id: `youtube-salty-girl-snack-${Date.now()}`,
+    title: "솔티걸 스낵",
+    sourceUrl: SALTY_GIRL_SNACK_SOURCE,
+    sourceType: "YouTube",
+    category: "간식",
+    mealType: "Snack",
+    dietGoal: "Light",
+    time: "5 min",
+    difficulty: "Easy",
+    servings: 1,
+    ingredients: ["샐러리", "레몬즙", "올리브오일", "후리카케", "파마산 치즈"],
+    steps: [
+      "샐러리는 깨끗하게 씻고 질긴 섬유질을 필러로 한 겹 벗겨요.",
+      "먹기 좋은 길이로 자르거나 손으로 집어먹기 좋게 준비해요.",
+      "샐러리에 레몬즙과 올리브오일을 뿌려요.",
+      "후리카케를 넉넉히 뿌리고 파마산 치즈를 갈아 올려요.",
+      "가볍게 섞은 뒤 바로 먹으면 아삭한 식감이 좋아요."
+    ],
+    tags: ["샐러리", "건강간식", "다이어트", "저칼로리", "아삭"],
+    notes:
+      "유튜브 설명란 기준 정리. 샐러리의 질긴 겉섬유를 벗기면 더 아삭하고 먹기 편해요. 과자 대신 가볍게 먹기 좋은 건강 간식 레시피예요.",
+    imageUrl: SALTY_GIRL_SNACK_IMAGE,
+    favorite: false,
+    bookmarked: true,
+    deleted: false,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
 function removeSampleRecipes(recipes: Recipe[]) {
   return recipes.filter((recipe) => !SAMPLE_RECIPE_IDS.has(recipe.id));
 }
@@ -783,6 +820,8 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     storageAvailable && window.localStorage.getItem(SPAM_TOFU_JJAGEULI_RECIPE_KEY) === "done";
   const cabbageTteokbokkiDone =
     storageAvailable && window.localStorage.getItem(CABBAGE_TTEOKBOKKI_RECIPE_KEY) === "done";
+  const saltyGirlSnackDone =
+    storageAvailable && window.localStorage.getItem(SALTY_GIRL_SNACK_RECIPE_KEY) === "done";
   const correctTitle = "육수에 푹 적신 알배추롤 & 구운 주먹밥";
   const samplesRemoved = recipes.some((recipe) => SAMPLE_RECIPE_IDS.has(recipe.id));
   const hadWrongRecipe = recipes.some(
@@ -946,6 +985,15 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     existingCabbageTteokbokki.deleted;
   nextRecipes = upsertManagedRecipe(nextRecipes, makeCabbageTteokbokkiRecipe());
 
+  const existingSaltyGirlSnack = nextRecipes.find(
+    (recipe) => recipe.sourceUrl === SALTY_GIRL_SNACK_SOURCE || recipe.title === "솔티걸 스낵"
+  );
+  const saltyGirlSnackNeedsUpdate =
+    !existingSaltyGirlSnack ||
+    existingSaltyGirlSnack.imageUrl !== SALTY_GIRL_SNACK_IMAGE ||
+    existingSaltyGirlSnack.deleted;
+  nextRecipes = upsertManagedRecipe(nextRecipes, makeSaltyGirlSnackRecipe());
+
   if (
     storageAvailable &&
     (samplesRemoved ||
@@ -979,7 +1027,9 @@ function migrateManagedRecipes(recipes: Recipe[]) {
       !spamTofuJjageuliDone ||
       spamTofuJjageuliNeedsUpdate ||
       !cabbageTteokbokkiDone ||
-      cabbageTteokbokkiNeedsUpdate)
+      cabbageTteokbokkiNeedsUpdate ||
+      !saltyGirlSnackDone ||
+      saltyGirlSnackNeedsUpdate)
   ) {
     writeJson(RECIPES_KEY, nextRecipes);
     window.localStorage.setItem(CORRECT_INSTAGRAM_RECIPE_KEY, "done");
@@ -997,6 +1047,7 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     window.localStorage.setItem(SOY_EGG_PASTA_RECIPE_KEY, "done");
     window.localStorage.setItem(SPAM_TOFU_JJAGEULI_RECIPE_KEY, "done");
     window.localStorage.setItem(CABBAGE_TTEOKBOKKI_RECIPE_KEY, "done");
+    window.localStorage.setItem(SALTY_GIRL_SNACK_RECIPE_KEY, "done");
   }
 
   return nextRecipes;
