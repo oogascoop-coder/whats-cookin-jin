@@ -53,6 +53,9 @@ const SOY_EGG_PASTA_IMAGE = "/recipe-media/soy-egg-pasta.jpg";
 const SPAM_TOFU_JJAGEULI_RECIPE_KEY = "whats-cookin-jin-migration-youtube-cImdJ_2Od4I-v1";
 const SPAM_TOFU_JJAGEULI_SOURCE = "https://www.youtube.com/watch?v=cImdJ_2Od4I";
 const SPAM_TOFU_JJAGEULI_IMAGE = "/recipe-media/spam-tofu-jjageuli.jpg";
+const CABBAGE_TTEOKBOKKI_RECIPE_KEY = "whats-cookin-jin-migration-youtube-K-hndP-Du3s-v1";
+const CABBAGE_TTEOKBOKKI_SOURCE = "https://www.youtube.com/watch?v=K-hndP-Du3s";
+const CABBAGE_TTEOKBOKKI_IMAGE = "/recipe-media/cabbage-tteokbokki.jpg";
 const SAMPLE_RECIPE_IDS = new Set(sampleRecipes.map((recipe) => recipe.id));
 
 function canUseStorage() {
@@ -683,6 +686,50 @@ function makeSpamTofuJjageuliRecipe(): Recipe {
   };
 }
 
+function makeCabbageTteokbokkiRecipe(): Recipe {
+  const now = new Date().toISOString();
+
+  return {
+    id: `youtube-cabbage-tteokbokki-${Date.now()}`,
+    title: "양배추 떡볶이",
+    sourceUrl: CABBAGE_TTEOKBOKKI_SOURCE,
+    sourceType: "YouTube",
+    category: "다이어트",
+    mealType: "Snack",
+    dietGoal: "Low Carb",
+    time: "10 min",
+    difficulty: "Easy",
+    servings: 1,
+    ingredients: [
+      "양배추 약 1/4개",
+      "물 250ml",
+      "저당 고추장 1스푼",
+      "고춧가루 2스푼",
+      "간장 2스푼",
+      "알룰로스 3스푼",
+      "후춧가루 0.5스푼",
+      "카레가루 1스푼"
+    ],
+    steps: [
+      "양배추를 사각형 모양으로 큼직하게 썰어요.",
+      "썬 양배추를 찜기에 넣고 전자레인지에 5분 돌려요.",
+      "팬에 물, 저당 고추장, 고춧가루, 간장, 알룰로스, 후춧가루를 넣어요.",
+      "카레가루를 넣고 싶다면 함께 넣은 뒤 한 번 끓여요.",
+      "찐 양배추를 넣고 반투명해질 때까지 졸여요.",
+      "양념이 잘 배면 따뜻할 때 바로 먹어요."
+    ],
+    tags: ["양배추", "떡볶이", "다이어트", "저당", "간식"],
+    notes:
+      "유튜브 설명란 기준 정리. 카레가루는 선택 재료라 취향에 따라 생략해도 좋아요. 떡 대신 양배추로 만드는 가벼운 떡볶이 느낌의 레시피예요.",
+    imageUrl: CABBAGE_TTEOKBOKKI_IMAGE,
+    favorite: false,
+    bookmarked: true,
+    deleted: false,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
 function removeSampleRecipes(recipes: Recipe[]) {
   return recipes.filter((recipe) => !SAMPLE_RECIPE_IDS.has(recipe.id));
 }
@@ -734,6 +781,8 @@ function migrateManagedRecipes(recipes: Recipe[]) {
   const soyEggPastaDone = storageAvailable && window.localStorage.getItem(SOY_EGG_PASTA_RECIPE_KEY) === "done";
   const spamTofuJjageuliDone =
     storageAvailable && window.localStorage.getItem(SPAM_TOFU_JJAGEULI_RECIPE_KEY) === "done";
+  const cabbageTteokbokkiDone =
+    storageAvailable && window.localStorage.getItem(CABBAGE_TTEOKBOKKI_RECIPE_KEY) === "done";
   const correctTitle = "육수에 푹 적신 알배추롤 & 구운 주먹밥";
   const samplesRemoved = recipes.some((recipe) => SAMPLE_RECIPE_IDS.has(recipe.id));
   const hadWrongRecipe = recipes.some(
@@ -888,6 +937,15 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     existingSpamTofuJjageuli.deleted;
   nextRecipes = upsertManagedRecipe(nextRecipes, makeSpamTofuJjageuliRecipe());
 
+  const existingCabbageTteokbokki = nextRecipes.find(
+    (recipe) => recipe.sourceUrl === CABBAGE_TTEOKBOKKI_SOURCE || recipe.title === "양배추 떡볶이"
+  );
+  const cabbageTteokbokkiNeedsUpdate =
+    !existingCabbageTteokbokki ||
+    existingCabbageTteokbokki.imageUrl !== CABBAGE_TTEOKBOKKI_IMAGE ||
+    existingCabbageTteokbokki.deleted;
+  nextRecipes = upsertManagedRecipe(nextRecipes, makeCabbageTteokbokkiRecipe());
+
   if (
     storageAvailable &&
     (samplesRemoved ||
@@ -919,7 +977,9 @@ function migrateManagedRecipes(recipes: Recipe[]) {
       !soyEggPastaDone ||
       soyEggPastaNeedsUpdate ||
       !spamTofuJjageuliDone ||
-      spamTofuJjageuliNeedsUpdate)
+      spamTofuJjageuliNeedsUpdate ||
+      !cabbageTteokbokkiDone ||
+      cabbageTteokbokkiNeedsUpdate)
   ) {
     writeJson(RECIPES_KEY, nextRecipes);
     window.localStorage.setItem(CORRECT_INSTAGRAM_RECIPE_KEY, "done");
@@ -936,6 +996,7 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     window.localStorage.setItem(DIET_WRAP_MEAL_PREP_RECIPE_KEY, "done");
     window.localStorage.setItem(SOY_EGG_PASTA_RECIPE_KEY, "done");
     window.localStorage.setItem(SPAM_TOFU_JJAGEULI_RECIPE_KEY, "done");
+    window.localStorage.setItem(CABBAGE_TTEOKBOKKI_RECIPE_KEY, "done");
   }
 
   return nextRecipes;
