@@ -1,0 +1,541 @@
+import { sampleRecipes } from "@/data/recipes";
+import { GroceryItem, MealPlan, Note, Recipe } from "@/lib/types";
+import { makeId } from "@/lib/recipe-utils";
+
+const RECIPES_KEY = "whats-cookin-jin-recipes";
+const INGREDIENTS_KEY = "whats-cookin-jin-ingredients";
+const GROCERY_KEY = "whats-cookin-jin-grocery";
+const NOTES_KEY = "whats-cookin-jin-notes";
+const MEAL_PLAN_KEY = "whats-cookin-jin-meal-plan";
+const CORRECT_INSTAGRAM_RECIPE_KEY = "whats-cookin-jin-migration-instagram-DUP5oZbEvN0-v2";
+const CORRECT_INSTAGRAM_SOURCE = "https://www.instagram.com/p/DUP5oZbEvN0/";
+const CORRECT_INSTAGRAM_IMAGE = "/recipe-media/albaechu-roll-riceball.jpg";
+const CHIPOTLE_RECIPE_KEY = "whats-cookin-jin-migration-instagram-DVk5kmrCSqA-v1";
+const CHIPOTLE_SOURCE = "https://www.instagram.com/p/DVk5kmrCSqA/";
+const CHIPOTLE_IMAGE = "/recipe-media/chipotle-chicken-kimbap.jpg";
+const MACKEREL_OCHAZUKE_RECIPE_KEY = "whats-cookin-jin-migration-instagram-DTzUfNIknjs-v1";
+const MACKEREL_OCHAZUKE_SOURCE = "https://www.instagram.com/p/DTzUfNIknjs/";
+const MACKEREL_OCHAZUKE_IMAGE = "/recipe-media/mackerel-ochazuke.jpg";
+const BASIL_PROSCIUTTO_RECIPE_KEY = "whats-cookin-jin-migration-instagram-DYZSk2uCDxt-v1";
+const BASIL_PROSCIUTTO_SOURCE = "https://www.instagram.com/p/DYZSk2uCDxt/";
+const BASIL_PROSCIUTTO_IMAGE = "/recipe-media/basil-prosciutto-sandwich.jpg";
+const LUNCHBOX_REFERENCE_RECIPE_KEY = "whats-cookin-jin-migration-lunchbox-reference-v1";
+const LUNCHBOX_REFERENCE_SOURCE = "https://www.instagram.com/p/CgJCfDKpNx_/?img_index=1";
+const LUNCHBOX_REFERENCE_IMAGES = [
+  "/recipe-media/lunchbox-reference-1.jpg",
+  "/recipe-media/lunchbox-reference-2.jpg",
+  "/recipe-media/lunchbox-reference-3.jpg"
+];
+const CRISPY_DONUT_RECIPE_KEY = "whats-cookin-jin-migration-instagram-DXOZ1AFkeDz-v1";
+const CRISPY_DONUT_SOURCE = "https://www.instagram.com/p/DXOZ1AFkeDz/";
+const CRISPY_DONUT_IMAGE = "/recipe-media/crispy-donut-grilled.jpg";
+const SAMPLE_RECIPE_IDS = new Set(sampleRecipes.map((recipe) => recipe.id));
+
+function canUseStorage() {
+  try {
+    return typeof window !== "undefined" && typeof window.localStorage !== "undefined";
+  } catch {
+    return false;
+  }
+}
+
+function readJson<T>(key: string, fallback: T): T {
+  if (!canUseStorage()) return fallback;
+
+  try {
+    const item = window.localStorage.getItem(key);
+    return item ? (JSON.parse(item) as T) : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+function writeJson<T>(key: string, value: T) {
+  if (!canUseStorage()) return;
+  window.localStorage.setItem(key, JSON.stringify(value));
+}
+
+function makeCorrectInstagramRecipe(): Recipe {
+  const now = new Date().toISOString();
+
+  return {
+    id: `instagram-cabbage-roll-riceball-${Date.now()}`,
+    title: "육수에 푹 적신 알배추롤 & 구운 주먹밥",
+    sourceUrl: CORRECT_INSTAGRAM_SOURCE,
+    sourceType: "Instagram",
+    category: "한식 / 밥",
+    mealType: "Dinner",
+    dietGoal: "None",
+    time: "30 min",
+    difficulty: "Easy",
+    servings: 1,
+    ingredients: [
+      "알배추",
+      "닭다리살",
+      "두부",
+      "소금",
+      "후추",
+      "물",
+      "쯔유",
+      "밥",
+      "간장",
+      "맛술",
+      "물엿",
+      "혼다시",
+      "참기름"
+    ],
+    steps: [
+      "닭다리살에 소금, 후추로 간한 뒤 팬에 볶고 잠시 빼둬요.",
+      "닭을 볶은 팬에 물 300ml와 쯔유를 넣어 간장 국물을 만들어요.",
+      "볶아둔 닭다리살을 다지고 두부 반 모와 섞어요.",
+      "알배추는 살짝 데쳐 준비해요.",
+      "알배추를 펼친 뒤 닭다리살과 두부 소를 넣고 돌돌 말아요. 심지가 억세면 칼집을 살짝 내면 잘 말려요.",
+      "알배추롤을 5분 정도 찐 뒤, 만들어둔 국물을 부어 먹어요.",
+      "구운 주먹밥은 간장 2스푼, 맛술 1스푼, 물엿 1스푼, 혼다시 0.5스푼을 밥과 섞어 모양을 잡아요.",
+      "참기름을 두른 팬에 주먹밥을 앞뒤로 노릇하게 구워요.",
+      "마지막에 주먹밥을 국물에 적셔 미니 오차츠케처럼 즐겨요."
+    ],
+    tags: ["알배추", "주먹밥", "오차츠케", "닭육수", "따뜻한 한 끼"],
+    notes: "인스타 캡션 기반 정리. 1스푼은 약 15ml 기준.",
+    imageUrl: CORRECT_INSTAGRAM_IMAGE,
+    favorite: false,
+    bookmarked: true,
+    deleted: false,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
+function makeChipotleKimbapRecipe(): Recipe {
+  const now = new Date().toISOString();
+
+  return {
+    id: `instagram-chipotle-chicken-kimbap-${Date.now()}`,
+    title: "치폴레 치킨김밥",
+    sourceUrl: CHIPOTLE_SOURCE,
+    sourceType: "Instagram",
+    category: "한식 / 밥",
+    mealType: "Lunch",
+    dietGoal: "High Protein",
+    time: "20 min",
+    difficulty: "Easy",
+    servings: 1,
+    ingredients: [
+      "김",
+      "밥",
+      "라이스소스",
+      "달걀",
+      "닭가슴살",
+      "할라치폴레",
+      "소금",
+      "후추",
+      "치즈",
+      "오이",
+      "궁채피클",
+      "우엉조림",
+      "청상추"
+    ],
+    steps: [
+      "닭가슴살은 익힌 뒤 결대로 잘게 찢어요.",
+      "찢은 닭가슴살에 할라치폴레 세 스푼을 넣고 촉촉하게 버무려요.",
+      "달걀은 소금 간을 살짝 해서 도톰하게 말거나 부쳐요.",
+      "밥에는 라이스소스를 넣어 간을 맞춰요.",
+      "김 위에 밥을 얇게 펴고 청상추, 치즈, 달걀, 오이, 우엉조림, 궁채피클, 치폴레 닭가슴살을 올려요.",
+      "재료가 흐트러지지 않게 단단히 말아 먹기 좋게 썰어요.",
+      "더 매콤하고 촉촉하게 먹고 싶으면 할라치폴레를 곁들여 찍어 먹어요."
+    ],
+    tags: ["김밥", "닭가슴살", "치폴레", "고단백", "도시락"],
+    notes: "인스타 캡션 기반 정리. 닭가슴살 한 덩이가 들어가는 고단백 김밥.",
+    imageUrl: CHIPOTLE_IMAGE,
+    favorite: false,
+    bookmarked: true,
+    deleted: false,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
+function makeMackerelOchazukeRecipe(): Recipe {
+  const now = new Date().toISOString();
+
+  return {
+    id: `instagram-mackerel-ochazuke-${Date.now()}`,
+    title: "고등어 오차즈케",
+    sourceUrl: MACKEREL_OCHAZUKE_SOURCE,
+    sourceType: "Instagram",
+    category: "한식 / 밥",
+    mealType: "Lunch",
+    dietGoal: "None",
+    time: "10 min",
+    difficulty: "Easy",
+    servings: 1,
+    ingredients: [
+      "밥",
+      "비비고 순살 고등어구이",
+      "따뜻한 녹차 또는 다시 육수",
+      "김가루",
+      "쪽파",
+      "깨",
+      "와사비"
+    ],
+    steps: [
+      "비비고 순살 고등어구이를 전자레인지에 데워요.",
+      "그릇에 따뜻한 밥을 담고 데운 고등어구이를 올려요.",
+      "김가루, 쪽파, 깨를 취향껏 올려요.",
+      "따뜻한 녹차나 다시 육수를 가장자리로 부어요.",
+      "기호에 따라 와사비를 조금 곁들여 가볍게 풀어 먹어요."
+    ],
+    tags: ["오차즈케", "고등어", "간단 점심", "전자레인지", "생선"],
+    notes:
+      "인스타 캡션 기반 정리. 캡션에는 순살 고등어구이를 전자레인지에 데워 간단히 먹는 오차즈케로 소개되어 있어요. 오차즈케 기본 토핑은 먹기 좋게 보완했습니다.",
+    imageUrl: MACKEREL_OCHAZUKE_IMAGE,
+    favorite: false,
+    bookmarked: true,
+    deleted: false,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
+function makeBasilProsciuttoSandwichRecipe(): Recipe {
+  const now = new Date().toISOString();
+
+  return {
+    id: `instagram-basil-prosciutto-sandwich-${Date.now()}`,
+    title: "바질 프로슈토 샌드위치",
+    sourceUrl: BASIL_PROSCIUTTO_SOURCE,
+    sourceType: "Instagram",
+    category: "간단 요리",
+    mealType: "Lunch",
+    dietGoal: "None",
+    time: "15 min",
+    difficulty: "Easy",
+    servings: 1,
+    ingredients: [
+      "포카치아",
+      "바질",
+      "올리브오일",
+      "잣",
+      "파르미지아노 레지아노",
+      "마늘",
+      "소금",
+      "후추",
+      "부라타치즈",
+      "프로슈토",
+      "과일잼",
+      "루바브 잼"
+    ],
+    steps: [
+      "바질, 올리브오일, 잣, 파르미지아노 레지아노, 마늘을 절구나 블렌더에 넣고 갈아요.",
+      "소금과 후추로 바질페스토 간을 맞춰요.",
+      "포카치아를 반으로 갈라 안쪽에 바질페스토를 넉넉히 발라요.",
+      "부라타치즈를 올리고 프로슈토를 겹겹이 얹어요.",
+      "과일잼이나 루바브 잼을 조금 곁들여 단맛과 산미를 더해요.",
+      "빵을 덮고 먹기 좋게 잘라 바로 먹어요."
+    ],
+    tags: ["샌드위치", "바질페스토", "프로슈토", "부라타", "포카치아"],
+    notes: "인스타 캡션 기반 정리. 바질페스토는 먹을 만큼만 바로 만들어 쓰는 것이 포인트.",
+    imageUrl: BASIL_PROSCIUTTO_IMAGE,
+    favorite: false,
+    bookmarked: true,
+    deleted: false,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
+function makeLunchboxReferenceRecipe(): Recipe {
+  const now = new Date().toISOString();
+
+  return {
+    id: `instagram-lunchbox-reference-${Date.now()}`,
+    title: "도시락 예시 모음",
+    sourceUrl: LUNCHBOX_REFERENCE_SOURCE,
+    sourceType: "Instagram",
+    category: "간단 요리",
+    mealType: "Lunch",
+    dietGoal: "None",
+    time: "0 min",
+    difficulty: "Easy",
+    servings: 1,
+    ingredients: ["키토김밥", "닭가슴살 큐브", "연어", "오이", "샐러드", "방울토마토", "단호박"],
+    steps: [
+      "레시피가 아니라 도시락 구성과 담음새를 참고하는 이미지 모음이에요.",
+      "김밥, 단백질, 채소, 작은 사이드 재료를 한 도시락 안에 나눠 담는 느낌을 참고해요.",
+      "상세창에서 세 장의 이미지를 같이 보면서 도시락 색감과 배치를 확인해요."
+    ],
+    tags: ["도시락", "참고용", "피크닉", "식단", "담음새"],
+    notes:
+      "인스타 참고 이미지 3장을 하나로 묶어둔 카드예요. 출처: https://www.instagram.com/p/CgJCfDKpNx_/?img_index=1, https://www.instagram.com/p/CjF0j0IpSpF/?img_index=2, https://www.instagram.com/p/CiM1CNGutRj/?img_index=2",
+    imageUrl: LUNCHBOX_REFERENCE_IMAGES[0],
+    galleryImages: LUNCHBOX_REFERENCE_IMAGES,
+    favorite: false,
+    bookmarked: true,
+    deleted: false,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
+function makeCrispyDonutRecipe(): Recipe {
+  const now = new Date().toISOString();
+
+  return {
+    id: `instagram-crispy-donut-grilled-${Date.now()}`,
+    title: "크리스피 도넛 굽먹",
+    sourceUrl: CRISPY_DONUT_SOURCE,
+    sourceType: "Instagram",
+    category: "간식",
+    mealType: "Snack",
+    dietGoal: "None",
+    time: "12 min",
+    difficulty: "Easy",
+    servings: 1,
+    ingredients: ["오리지널 글레이즈드 도넛"],
+    steps: [
+      "팬을 약불로 예열해요.",
+      "오리지널 글레이즈드 도넛을 팬에 올리고 2분 정도 구워요.",
+      "타지 않게 앞뒤로 자주 뒤집어가며 겉면을 바삭하게 만들어요.",
+      "팬에서 꺼낸 뒤 10분 정도 충분히 식혀요.",
+      "겉은 바삭하고 속은 쫄깃해졌을 때 바로 먹어요."
+    ],
+    tags: ["도넛", "간식", "굽먹", "크리스피크림", "오리지널글레이즈드"],
+    notes: "인스타 캡션 기반 정리. 약불에서 짧게 굽고, 10분 식혀 겉바속쫄 식감을 만드는 게 포인트.",
+    imageUrl: CRISPY_DONUT_IMAGE,
+    favorite: false,
+    bookmarked: true,
+    deleted: false,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
+function removeSampleRecipes(recipes: Recipe[]) {
+  return recipes.filter((recipe) => !SAMPLE_RECIPE_IDS.has(recipe.id));
+}
+
+function upsertManagedRecipe(recipes: Recipe[], recipe: Recipe) {
+  const existing = recipes.find((item) => item.sourceUrl === recipe.sourceUrl || item.title === recipe.title);
+
+  if (!existing) return [recipe, ...recipes];
+
+  return recipes.map((item) =>
+    item.id === existing.id
+      ? {
+          ...existing,
+          ...recipe,
+          id: existing.id,
+          favorite: existing.favorite,
+          bookmarked: existing.bookmarked || recipe.bookmarked,
+          createdAt: existing.createdAt,
+          deleted: false,
+          updatedAt: new Date().toISOString()
+        }
+      : item
+  );
+}
+
+function migrateManagedRecipes(recipes: Recipe[]) {
+  const storageAvailable = canUseStorage();
+  const migrationDone = storageAvailable && window.localStorage.getItem(CORRECT_INSTAGRAM_RECIPE_KEY) === "done";
+  const chipotleDone = storageAvailable && window.localStorage.getItem(CHIPOTLE_RECIPE_KEY) === "done";
+  const mackerelOchazukeDone =
+    storageAvailable && window.localStorage.getItem(MACKEREL_OCHAZUKE_RECIPE_KEY) === "done";
+  const basilProsciuttoDone =
+    storageAvailable && window.localStorage.getItem(BASIL_PROSCIUTTO_RECIPE_KEY) === "done";
+  const lunchboxReferenceDone =
+    storageAvailable && window.localStorage.getItem(LUNCHBOX_REFERENCE_RECIPE_KEY) === "done";
+  const crispyDonutDone = storageAvailable && window.localStorage.getItem(CRISPY_DONUT_RECIPE_KEY) === "done";
+  const correctTitle = "육수에 푹 적신 알배추롤 & 구운 주먹밥";
+  const samplesRemoved = recipes.some((recipe) => SAMPLE_RECIPE_IDS.has(recipe.id));
+  const hadWrongRecipe = recipes.some(
+    (recipe) =>
+      recipe.title === "냉털 나폴리탄 파스타" ||
+      (recipe.sourceUrl === CORRECT_INSTAGRAM_SOURCE && recipe.title !== correctTitle)
+  );
+
+  let nextRecipes = removeSampleRecipes(recipes).filter(
+    (recipe) =>
+      recipe.title !== "냉털 나폴리탄 파스타" &&
+      !(recipe.sourceUrl === CORRECT_INSTAGRAM_SOURCE && recipe.title !== correctTitle)
+  );
+
+  let hasCorrectRecipe = nextRecipes.some(
+    (recipe) => recipe.sourceUrl === CORRECT_INSTAGRAM_SOURCE && recipe.title === correctTitle
+  );
+  let updatedImage = false;
+
+  nextRecipes = nextRecipes.map((recipe) => {
+    if (
+      recipe.sourceUrl === CORRECT_INSTAGRAM_SOURCE &&
+      recipe.title === correctTitle &&
+      recipe.imageUrl !== CORRECT_INSTAGRAM_IMAGE
+    ) {
+      updatedImage = true;
+      return {
+        ...recipe,
+        imageUrl: CORRECT_INSTAGRAM_IMAGE,
+        deleted: false,
+        updatedAt: new Date().toISOString()
+      };
+    }
+
+    return recipe;
+  });
+
+  if (!hasCorrectRecipe) {
+    nextRecipes = [makeCorrectInstagramRecipe(), ...nextRecipes];
+    hasCorrectRecipe = true;
+  }
+
+  const existingChipotle = nextRecipes.find(
+    (recipe) => recipe.sourceUrl === CHIPOTLE_SOURCE || recipe.title === "치폴레 치킨김밥"
+  );
+  const chipotleNeedsUpdate =
+    !existingChipotle || existingChipotle.imageUrl !== CHIPOTLE_IMAGE || existingChipotle.deleted;
+  nextRecipes = upsertManagedRecipe(nextRecipes, makeChipotleKimbapRecipe());
+
+  const existingMackerelOchazuke = nextRecipes.find(
+    (recipe) => recipe.sourceUrl === MACKEREL_OCHAZUKE_SOURCE || recipe.title === "고등어 오차즈케"
+  );
+  const mackerelOchazukeNeedsUpdate =
+    !existingMackerelOchazuke ||
+    existingMackerelOchazuke.imageUrl !== MACKEREL_OCHAZUKE_IMAGE ||
+    existingMackerelOchazuke.deleted;
+  nextRecipes = upsertManagedRecipe(nextRecipes, makeMackerelOchazukeRecipe());
+
+  const existingBasilProsciutto = nextRecipes.find(
+    (recipe) => recipe.sourceUrl === BASIL_PROSCIUTTO_SOURCE || recipe.title === "바질 프로슈토 샌드위치"
+  );
+  const basilProsciuttoNeedsUpdate =
+    !existingBasilProsciutto ||
+    existingBasilProsciutto.imageUrl !== BASIL_PROSCIUTTO_IMAGE ||
+    existingBasilProsciutto.deleted;
+  nextRecipes = upsertManagedRecipe(nextRecipes, makeBasilProsciuttoSandwichRecipe());
+
+  const existingLunchboxReference = nextRecipes.find(
+    (recipe) => recipe.sourceUrl === LUNCHBOX_REFERENCE_SOURCE || recipe.title === "도시락 예시 모음"
+  );
+  const lunchboxReferenceNeedsUpdate =
+    !existingLunchboxReference ||
+    existingLunchboxReference.imageUrl !== LUNCHBOX_REFERENCE_IMAGES[0] ||
+    existingLunchboxReference.deleted ||
+    JSON.stringify(existingLunchboxReference.galleryImages || []) !== JSON.stringify(LUNCHBOX_REFERENCE_IMAGES);
+  nextRecipes = upsertManagedRecipe(nextRecipes, makeLunchboxReferenceRecipe());
+
+  const existingCrispyDonut = nextRecipes.find(
+    (recipe) => recipe.sourceUrl === CRISPY_DONUT_SOURCE || recipe.title === "크리스피 도넛 굽먹"
+  );
+  const crispyDonutNeedsUpdate =
+    !existingCrispyDonut || existingCrispyDonut.imageUrl !== CRISPY_DONUT_IMAGE || existingCrispyDonut.deleted;
+  nextRecipes = upsertManagedRecipe(nextRecipes, makeCrispyDonutRecipe());
+
+  if (
+    storageAvailable &&
+    (samplesRemoved ||
+      hadWrongRecipe ||
+      updatedImage ||
+      !migrationDone ||
+      !chipotleDone ||
+      chipotleNeedsUpdate ||
+      !mackerelOchazukeDone ||
+      mackerelOchazukeNeedsUpdate ||
+      !basilProsciuttoDone ||
+      basilProsciuttoNeedsUpdate ||
+      !lunchboxReferenceDone ||
+      lunchboxReferenceNeedsUpdate ||
+      !crispyDonutDone ||
+      crispyDonutNeedsUpdate)
+  ) {
+    writeJson(RECIPES_KEY, nextRecipes);
+    window.localStorage.setItem(CORRECT_INSTAGRAM_RECIPE_KEY, "done");
+    window.localStorage.setItem(CHIPOTLE_RECIPE_KEY, "done");
+    window.localStorage.setItem(MACKEREL_OCHAZUKE_RECIPE_KEY, "done");
+    window.localStorage.setItem(BASIL_PROSCIUTTO_RECIPE_KEY, "done");
+    window.localStorage.setItem(LUNCHBOX_REFERENCE_RECIPE_KEY, "done");
+    window.localStorage.setItem(CRISPY_DONUT_RECIPE_KEY, "done");
+  }
+
+  return nextRecipes;
+}
+
+export function getRecipes() {
+  const recipes = readJson<Recipe[]>(RECIPES_KEY, []);
+  if (recipes.length > 0) return migrateManagedRecipes(recipes);
+
+  const initialRecipes = migrateManagedRecipes(sampleRecipes);
+  writeJson(RECIPES_KEY, initialRecipes);
+  return initialRecipes;
+}
+
+export function saveRecipes(recipes: Recipe[]) {
+  writeJson(RECIPES_KEY, recipes);
+}
+
+export function upsertRecipe(recipes: Recipe[], recipe: Recipe) {
+  const exists = recipes.some((item) => item.id === recipe.id);
+  return exists ? recipes.map((item) => (item.id === recipe.id ? recipe : item)) : [recipe, ...recipes];
+}
+
+export function createRecipeFromInput(input: Omit<Recipe, "id" | "favorite" | "bookmarked" | "deleted" | "createdAt" | "updatedAt">) {
+  const now = new Date().toISOString();
+
+  return {
+    ...input,
+    id: makeId("recipe"),
+    favorite: false,
+    bookmarked: false,
+    deleted: false,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
+export function getSavedIngredients() {
+  return readJson<string[]>(INGREDIENTS_KEY, ["오이", "달걀", "두부", "양파", "대파"]);
+}
+
+export function saveSavedIngredients(ingredients: string[]) {
+  writeJson(INGREDIENTS_KEY, ingredients);
+}
+
+export function getGroceryItems() {
+  return readJson<GroceryItem[]>(GROCERY_KEY, []);
+}
+
+export function saveGroceryItems(items: GroceryItem[]) {
+  writeJson(GROCERY_KEY, items);
+}
+
+export function makeGroceryItem(label: string): GroceryItem {
+  return {
+    id: makeId("grocery"),
+    label,
+    checked: false,
+    createdAt: new Date().toISOString()
+  };
+}
+
+export function getNotes() {
+  return readJson<Note[]>(NOTES_KEY, []);
+}
+
+export function saveNotes(notes: Note[]) {
+  writeJson(NOTES_KEY, notes);
+}
+
+export function getMealPlan() {
+  return readJson<MealPlan>(MEAL_PLAN_KEY, {
+    월: [],
+    화: [],
+    수: [],
+    목: [],
+    금: [],
+    토: [],
+    일: []
+  });
+}
+
+export function saveMealPlan(plan: MealPlan) {
+  writeJson(MEAL_PLAN_KEY, plan);
+}

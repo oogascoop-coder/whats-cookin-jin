@@ -1,0 +1,73 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #fffdf8;
+  --surface: #ffffff;
+  --surface-warm: #fbf8f1;
+  --border: #eadfcd;
+  --accent: #d84a1b;
+  --accent-dark: #b93b15;
+  --text: #2f2924;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
+  background: var(--background);
+  color: var(--text);
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid rgba(216, 74, 27, 0.28);
+  outline-offset: 3px;
+}
+
+@layer components {
+  .soft-card {
+    @apply rounded-2xl border border-[#eadfcd] bg-white shadow-card;
+  }
+
+  .icon-button {
+    @apply inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#eadfcd] bg-white text-cocoa transition hover:border-tomato-500 hover:text-tomato-500;
+  }
+
+  .primary-button {
+    @apply inline-flex items-center justify-center gap-2 rounded-full bg-tomato-500 px-5 py-3 text-sm font-semibold text-white shadow-card transition hover:bg-tomato-600;
+  }
+
+  .secondary-button {
+    @apply inline-flex items-center justify-center gap-2 rounded-full border border-[#eadfcd] bg-white px-4 py-2 text-sm font-semibold text-cocoa transition hover:border-tomato-500 hover:text-tomato-500;
+  }
+
+  .input-field {
+    @apply w-full rounded-2xl border border-[#eadfcd] bg-white px-4 py-3 text-sm text-cocoa shadow-sm transition placeholder:text-[#8d7b6e] focus:border-tomato-500;
+  }
+
+  .chip {
+    @apply inline-flex items-center justify-center rounded-full border border-[#eadfcd] bg-white px-4 py-2 text-sm font-medium text-cocoa transition hover:border-tomato-500 hover:text-tomato-500;
+  }
+
+  .chip-active {
+    @apply border-tomato-500 bg-[#fff1e9] text-tomato-600;
+  }
+}
