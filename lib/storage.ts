@@ -41,6 +41,9 @@ const ANCHOVY_JAMON_KIMBAP_IMAGE = "/recipe-media/anchovy-jamon-kimbap.jpg";
 const MUSHROOM_TONKATSU_RECIPE_KEY = "whats-cookin-jin-migration-youtube-1nZw3EmWfg8-v1";
 const MUSHROOM_TONKATSU_SOURCE = "https://www.youtube.com/watch?v=1nZw3EmWfg8";
 const MUSHROOM_TONKATSU_IMAGE = "/recipe-media/king-oyster-mushroom-tonkatsu.jpg";
+const AGLIO_OLIO_MEAL_PREP_RECIPE_KEY = "whats-cookin-jin-migration-youtube-bRbjuOri248-v1";
+const AGLIO_OLIO_MEAL_PREP_SOURCE = "https://www.youtube.com/watch?v=bRbjuOri248";
+const AGLIO_OLIO_MEAL_PREP_IMAGE = "/recipe-media/aglio-olio-meal-prep.jpg";
 const SAMPLE_RECIPE_IDS = new Set(sampleRecipes.map((recipe) => recipe.id));
 
 function canUseStorage() {
@@ -491,6 +494,56 @@ function makeMushroomTonkatsuRecipe(): Recipe {
   };
 }
 
+function makeAglioOlioMealPrepRecipe(): Recipe {
+  const now = new Date().toISOString();
+
+  return {
+    id: `youtube-aglio-olio-meal-prep-${Date.now()}`,
+    title: "히든천재 알리오올리오 밀프렙",
+    sourceUrl: AGLIO_OLIO_MEAL_PREP_SOURCE,
+    sourceType: "YouTube",
+    category: "면 / 파스타",
+    mealType: "Lunch",
+    dietGoal: "Meal Prep",
+    time: "30 min",
+    difficulty: "Medium",
+    servings: 5,
+    ingredients: [
+      "스파게티면 500g",
+      "엑스트라버진 올리브오일 136g",
+      "마늘 48g",
+      "웨이파 24g",
+      "미원 2.8g",
+      "소금 23.2g",
+      "페페론치노 0.8g",
+      "파슬리 0.4g",
+      "헥산 I+G 0.2g",
+      "물 2680.6g",
+      "감자전분 4g",
+      "그라나파다노 치즈 30g"
+    ],
+    steps: [
+      "파스타 삶을 물 2500g에 소금 20g을 넣고 끓여요.",
+      "스파게티면 500g을 삶아 1인분당 삶은 면 120g 정도로 나눌 수 있게 준비해요.",
+      "마늘은 잘게 다지거나 슬라이스해요.",
+      "팬에 올리브오일, 마늘, 페페론치노를 넣고 약불에서 향을 내요.",
+      "물 180.6g에 웨이파, 미원, 소금 3.2g, 헥산 I+G, 감자전분을 풀어 소스 베이스를 만들어요.",
+      "마늘 향이 올라오면 소스 베이스를 넣고 농도가 살짝 잡히도록 끓여요.",
+      "삶은 면과 소스를 5등분해서 밀폐용기에 나눠 담아요.",
+      "먹기 전에 데운 뒤 그라나파다노 치즈와 파슬리를 뿌려 마무리해요."
+    ],
+    tags: ["밀프렙", "알리오올리오", "파스타", "성분레시피", "도시락"],
+    notes:
+      "유튜브 설명란 기준 정리. 5인분 기준이며 영상 설명에는 1인분 186g, 단백질 16.5g, 지방 29.7g, 탄수화물 71.2g, 당 3.9g으로 안내되어 있어요. 레시피가 짭조름한 편이라 간은 줄여도 좋아요.",
+    imageUrl: AGLIO_OLIO_MEAL_PREP_IMAGE,
+    favorite: false,
+    bookmarked: true,
+    deleted: false,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
 function removeSampleRecipes(recipes: Recipe[]) {
   return recipes.filter((recipe) => !SAMPLE_RECIPE_IDS.has(recipe.id));
 }
@@ -535,6 +588,8 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     storageAvailable && window.localStorage.getItem(ANCHOVY_JAMON_KIMBAP_RECIPE_KEY) === "done";
   const mushroomTonkatsuDone =
     storageAvailable && window.localStorage.getItem(MUSHROOM_TONKATSU_RECIPE_KEY) === "done";
+  const aglioOlioMealPrepDone =
+    storageAvailable && window.localStorage.getItem(AGLIO_OLIO_MEAL_PREP_RECIPE_KEY) === "done";
   const correctTitle = "육수에 푹 적신 알배추롤 & 구운 주먹밥";
   const samplesRemoved = recipes.some((recipe) => SAMPLE_RECIPE_IDS.has(recipe.id));
   const hadWrongRecipe = recipes.some(
@@ -655,6 +710,15 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     existingMushroomTonkatsu.deleted;
   nextRecipes = upsertManagedRecipe(nextRecipes, makeMushroomTonkatsuRecipe());
 
+  const existingAglioOlioMealPrep = nextRecipes.find(
+    (recipe) => recipe.sourceUrl === AGLIO_OLIO_MEAL_PREP_SOURCE || recipe.title === "히든천재 알리오올리오 밀프렙"
+  );
+  const aglioOlioMealPrepNeedsUpdate =
+    !existingAglioOlioMealPrep ||
+    existingAglioOlioMealPrep.imageUrl !== AGLIO_OLIO_MEAL_PREP_IMAGE ||
+    existingAglioOlioMealPrep.deleted;
+  nextRecipes = upsertManagedRecipe(nextRecipes, makeAglioOlioMealPrepRecipe());
+
   if (
     storageAvailable &&
     (samplesRemoved ||
@@ -678,7 +742,9 @@ function migrateManagedRecipes(recipes: Recipe[]) {
       !anchovyJamonKimbapDone ||
       anchovyJamonKimbapNeedsUpdate ||
       !mushroomTonkatsuDone ||
-      mushroomTonkatsuNeedsUpdate)
+      mushroomTonkatsuNeedsUpdate ||
+      !aglioOlioMealPrepDone ||
+      aglioOlioMealPrepNeedsUpdate)
   ) {
     writeJson(RECIPES_KEY, nextRecipes);
     window.localStorage.setItem(CORRECT_INSTAGRAM_RECIPE_KEY, "done");
@@ -691,6 +757,7 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     window.localStorage.setItem(LEE_DAHEE_TOFU_RICE_RECIPE_KEY, "done");
     window.localStorage.setItem(ANCHOVY_JAMON_KIMBAP_RECIPE_KEY, "done");
     window.localStorage.setItem(MUSHROOM_TONKATSU_RECIPE_KEY, "done");
+    window.localStorage.setItem(AGLIO_OLIO_MEAL_PREP_RECIPE_KEY, "done");
   }
 
   return nextRecipes;
