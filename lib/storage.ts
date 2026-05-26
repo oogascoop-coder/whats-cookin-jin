@@ -59,6 +59,9 @@ const CABBAGE_TTEOKBOKKI_IMAGE = "/recipe-media/cabbage-tteokbokki.jpg";
 const SALTY_GIRL_SNACK_RECIPE_KEY = "whats-cookin-jin-migration-youtube-ms72lxZ6o44-v1";
 const SALTY_GIRL_SNACK_SOURCE = "https://www.youtube.com/watch?v=ms72lxZ6o44";
 const SALTY_GIRL_SNACK_IMAGE = "/recipe-media/salty-girl-snack.jpg";
+const SALMON_POT_RICE_RECIPE_KEY = "whats-cookin-jin-migration-youtube-_FONTYv-fgo-v1";
+const SALMON_POT_RICE_SOURCE = "https://www.youtube.com/watch?v=_FONTYv-fgo";
+const SALMON_POT_RICE_IMAGE = "/recipe-media/salmon-pot-rice.jpg";
 const SAMPLE_RECIPE_IDS = new Set(sampleRecipes.map((recipe) => recipe.id));
 
 function canUseStorage() {
@@ -767,6 +770,59 @@ function makeSaltyGirlSnackRecipe(): Recipe {
   };
 }
 
+function makeSalmonPotRiceRecipe(): Recipe {
+  const now = new Date().toISOString();
+
+  return {
+    id: `youtube-salmon-pot-rice-${Date.now()}`,
+    title: "연어 솥밥",
+    sourceUrl: SALMON_POT_RICE_SOURCE,
+    sourceType: "YouTube",
+    category: "한식 / 밥",
+    mealType: "Dinner",
+    dietGoal: "None",
+    time: "25 min",
+    difficulty: "Medium",
+    servings: 1,
+    ingredients: [
+      "연어 150g",
+      "소금",
+      "후추",
+      "간장 1T",
+      "알룰로스 1T",
+      "맛술 1T",
+      "물 2T",
+      "쪽파 3대",
+      "쌀 180ml",
+      "물 150ml",
+      "참기름 1t",
+      "참치액 1/2T",
+      "스리라차 소스"
+    ],
+    steps: [
+      "쌀은 30분 이상 불려 준비해요.",
+      "연어에 소금과 후추를 앞뒤로 뿌려 밑간해요.",
+      "간장 1T, 알룰로스 1T, 맛술 1T, 물 2T를 섞어 연어 양념을 만들어요.",
+      "팬에 오일을 두르고 연어의 앞뒤와 옆면까지 노릇하게 구워요.",
+      "준비한 연어 양념을 붓고 약불에서 윤기 나게 조려요.",
+      "주물냄비에 불린 쌀과 참기름을 넣고 중약불에서 1-2분 볶아요.",
+      "물 150ml, 간장 1/2T, 참치액 1/2T를 넣고 강불로 끓여요.",
+      "끓기 시작하면 바닥까지 한 번 저은 뒤 뚜껑을 닫고 초약불로 15분 익혀요.",
+      "불을 끄고 조린 연어와 쪽파를 올린 뒤 뚜껑을 덮어 5분 뜸 들여요.",
+      "먹을 때 스리라차 소스를 살짝 곁들이면 더 맛있어요."
+    ],
+    tags: ["연어", "솥밥", "집밥", "한그릇", "1인가구"],
+    notes:
+      "유튜브 설명란 기준 정리. 쌀 180ml는 약 145g이며 30분 이상 불린 쌀 기준이에요. 불이 세면 바닥이 타기 쉬우니 솥밥을 익힐 때는 초약불을 유지해 주세요.",
+    imageUrl: SALMON_POT_RICE_IMAGE,
+    favorite: false,
+    bookmarked: true,
+    deleted: false,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
 function removeSampleRecipes(recipes: Recipe[]) {
   return recipes.filter((recipe) => !SAMPLE_RECIPE_IDS.has(recipe.id));
 }
@@ -822,6 +878,8 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     storageAvailable && window.localStorage.getItem(CABBAGE_TTEOKBOKKI_RECIPE_KEY) === "done";
   const saltyGirlSnackDone =
     storageAvailable && window.localStorage.getItem(SALTY_GIRL_SNACK_RECIPE_KEY) === "done";
+  const salmonPotRiceDone =
+    storageAvailable && window.localStorage.getItem(SALMON_POT_RICE_RECIPE_KEY) === "done";
   const correctTitle = "육수에 푹 적신 알배추롤 & 구운 주먹밥";
   const samplesRemoved = recipes.some((recipe) => SAMPLE_RECIPE_IDS.has(recipe.id));
   const hadWrongRecipe = recipes.some(
@@ -994,6 +1052,13 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     existingSaltyGirlSnack.deleted;
   nextRecipes = upsertManagedRecipe(nextRecipes, makeSaltyGirlSnackRecipe());
 
+  const existingSalmonPotRice = nextRecipes.find(
+    (recipe) => recipe.sourceUrl === SALMON_POT_RICE_SOURCE || recipe.title === "연어 솥밥"
+  );
+  const salmonPotRiceNeedsUpdate =
+    !existingSalmonPotRice || existingSalmonPotRice.imageUrl !== SALMON_POT_RICE_IMAGE || existingSalmonPotRice.deleted;
+  nextRecipes = upsertManagedRecipe(nextRecipes, makeSalmonPotRiceRecipe());
+
   if (
     storageAvailable &&
     (samplesRemoved ||
@@ -1029,7 +1094,9 @@ function migrateManagedRecipes(recipes: Recipe[]) {
       !cabbageTteokbokkiDone ||
       cabbageTteokbokkiNeedsUpdate ||
       !saltyGirlSnackDone ||
-      saltyGirlSnackNeedsUpdate)
+      saltyGirlSnackNeedsUpdate ||
+      !salmonPotRiceDone ||
+      salmonPotRiceNeedsUpdate)
   ) {
     writeJson(RECIPES_KEY, nextRecipes);
     window.localStorage.setItem(CORRECT_INSTAGRAM_RECIPE_KEY, "done");
@@ -1048,6 +1115,7 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     window.localStorage.setItem(SPAM_TOFU_JJAGEULI_RECIPE_KEY, "done");
     window.localStorage.setItem(CABBAGE_TTEOKBOKKI_RECIPE_KEY, "done");
     window.localStorage.setItem(SALTY_GIRL_SNACK_RECIPE_KEY, "done");
+    window.localStorage.setItem(SALMON_POT_RICE_RECIPE_KEY, "done");
   }
 
   return nextRecipes;
