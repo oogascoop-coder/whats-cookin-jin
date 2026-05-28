@@ -131,6 +131,9 @@ const LEMON_ALLULOSE_GRANITA_IMAGE = "/recipe-media/lemon-allulose-granita.jpg";
 const ROASTED_CABBAGE_STEAKS_RECIPE_KEY = "whats-cookin-jin-migration-youtube-nlcmr-d_pTM-v1";
 const ROASTED_CABBAGE_STEAKS_SOURCE = "https://www.youtube.com/watch?v=nlcmr-d_pTM";
 const ROASTED_CABBAGE_STEAKS_IMAGE = "/recipe-media/roasted-cabbage-steaks.jpg";
+const SOUP_CURRY_RECIPE_KEY = "whats-cookin-jin-migration-youtube-DmNIDMUz8W0-v1";
+const SOUP_CURRY_SOURCE = "https://www.youtube.com/watch?v=DmNIDMUz8W0";
+const SOUP_CURRY_IMAGE = "/recipe-media/soup-curry.jpg";
 const SAMPLE_RECIPE_IDS = new Set(sampleRecipes.map((recipe) => recipe.id));
 
 function canUseStorage() {
@@ -1943,6 +1946,61 @@ function makeRoastedCabbageSteaksRecipe(): Recipe {
   };
 }
 
+function makeSoupCurryRecipe(): Recipe {
+  const now = new Date().toISOString();
+
+  return {
+    id: `youtube-soup-curry-${Date.now()}`,
+    title: "스프카레",
+    sourceUrl: SOUP_CURRY_SOURCE,
+    sourceType: "YouTube",
+    category: "국 / 찌개",
+    mealType: "Dinner",
+    dietGoal: "None",
+    time: "1 hr 20 min",
+    difficulty: "Medium",
+    servings: 4,
+    ingredients: [
+      "닭 1마리",
+      "표고버섯 6개",
+      "대파 2대",
+      "느타리버섯 100g",
+      "단호박 100g",
+      "브로콜리 100g",
+      "버터 50g",
+      "고수씨 1작은술",
+      "큐민씨드 1작은술",
+      "파프리카 가루 2큰술",
+      "고형카레 30g",
+      "드라이 바질 2큰술",
+      "삶은 계란 1개",
+      "체다치즈 1장",
+      "생강 3g",
+      "마늘 20g",
+      "물 1L"
+    ],
+    steps: [
+      "닭은 장각 두 개를 분리해두고, 나머지 닭과 대파, 표고버섯을 노릇하게 구워요.",
+      "구운 닭과 채소에 물 1L를 넣고 1시간 끓인 뒤 육수만 걸러둬요.",
+      "단호박, 브로콜리, 버섯 등 원하는 채소 토핑과 닭 장각은 오일로 마리네이드해서 팬이나 오븐에 구워요.",
+      "냄비에 버터를 녹이고 마늘, 생강을 볶아요.",
+      "파프리카 가루, 큐민씨드, 고수씨, 드라이 바질을 넣고 향이 올라오게 볶아요.",
+      "걸러둔 육수와 고형카레를 넣고 풀어줘요.",
+      "구운 닭 장각을 넣고 5분 정도 더 끓여요.",
+      "그릇에 카레 국물을 담고 구운 채소, 삶은 계란, 체다치즈를 올려 마무리해요."
+    ],
+    tags: ["스프카레", "카레", "닭", "단호박", "브로콜리"],
+    notes:
+      "유튜브 설명란 기준 정리. 고수씨는 가람마살라나 카레가루로 대체 가능하고, 야채 토핑과 닭 장각은 팬이나 오븐 중 편한 방식으로 구우면 된다고 안내되어 있어요.",
+    imageUrl: SOUP_CURRY_IMAGE,
+    favorite: false,
+    bookmarked: true,
+    deleted: false,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
 function removeSampleRecipes(recipes: Recipe[]) {
   return recipes.filter((recipe) => !SAMPLE_RECIPE_IDS.has(recipe.id));
 }
@@ -2041,6 +2099,7 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     storageAvailable && window.localStorage.getItem(LEMON_ALLULOSE_GRANITA_RECIPE_KEY) === "done";
   const roastedCabbageSteaksDone =
     storageAvailable && window.localStorage.getItem(ROASTED_CABBAGE_STEAKS_RECIPE_KEY) === "done";
+  const soupCurryDone = storageAvailable && window.localStorage.getItem(SOUP_CURRY_RECIPE_KEY) === "done";
   const correctTitle = "육수에 푹 적신 알배추롤 & 구운 주먹밥";
   const samplesRemoved = recipes.some((recipe) => SAMPLE_RECIPE_IDS.has(recipe.id));
   const hadWrongRecipe = recipes.some(
@@ -2424,6 +2483,13 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     existingRoastedCabbageSteaks.deleted;
   nextRecipes = upsertManagedRecipe(nextRecipes, makeRoastedCabbageSteaksRecipe());
 
+  const existingSoupCurry = nextRecipes.find(
+    (recipe) => recipe.sourceUrl === SOUP_CURRY_SOURCE || recipe.title === "스프카레"
+  );
+  const soupCurryNeedsUpdate =
+    !existingSoupCurry || existingSoupCurry.imageUrl !== SOUP_CURRY_IMAGE || existingSoupCurry.deleted;
+  nextRecipes = upsertManagedRecipe(nextRecipes, makeSoupCurryRecipe());
+
   if (
     storageAvailable &&
     (samplesRemoved ||
@@ -2507,7 +2573,9 @@ function migrateManagedRecipes(recipes: Recipe[]) {
       !lemonAlluloseGranitaDone ||
       lemonAlluloseGranitaNeedsUpdate ||
       !roastedCabbageSteaksDone ||
-      roastedCabbageSteaksNeedsUpdate)
+      roastedCabbageSteaksNeedsUpdate ||
+      !soupCurryDone ||
+      soupCurryNeedsUpdate)
   ) {
     writeJson(RECIPES_KEY, nextRecipes);
     window.localStorage.setItem(CORRECT_INSTAGRAM_RECIPE_KEY, "done");
@@ -2550,6 +2618,7 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     window.localStorage.setItem(JIKOBA_STYLE_CHICKEN_RECIPE_KEY, "done");
     window.localStorage.setItem(LEMON_ALLULOSE_GRANITA_RECIPE_KEY, "done");
     window.localStorage.setItem(ROASTED_CABBAGE_STEAKS_RECIPE_KEY, "done");
+    window.localStorage.setItem(SOUP_CURRY_RECIPE_KEY, "done");
   }
 
   return nextRecipes;
