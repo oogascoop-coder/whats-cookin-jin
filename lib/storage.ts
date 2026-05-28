@@ -164,6 +164,9 @@ const PEAR_DRINK_PORK_GALBIJJIM_IMAGE = "/recipe-media/pear-drink-pork-galbijjim
 const CRISPY_HASH_BROWNS_RECIPE_KEY = "whats-cookin-jin-migration-youtube-BSu7nG6nI3Q-v1";
 const CRISPY_HASH_BROWNS_SOURCE = "https://www.youtube.com/watch?v=BSu7nG6nI3Q";
 const CRISPY_HASH_BROWNS_IMAGE = "/recipe-media/crispy-hash-browns.jpg";
+const FETA_CHEESE_PASTA_RECIPE_KEY = "whats-cookin-jin-migration-youtube-ietQQPW87ng-v1";
+const FETA_CHEESE_PASTA_SOURCE = "https://www.youtube.com/watch?v=ietQQPW87ng";
+const FETA_CHEESE_PASTA_IMAGE = "/recipe-media/feta-cheese-pasta.jpg";
 const SAMPLE_RECIPE_IDS = new Set(sampleRecipes.map((recipe) => recipe.id));
 
 function canUseStorage() {
@@ -2517,6 +2520,53 @@ function makeCrispyHashBrownsRecipe(): Recipe {
   };
 }
 
+function makeFetaCheesePastaRecipe(): Recipe {
+  const now = new Date().toISOString();
+
+  return {
+    id: `youtube-feta-cheese-pasta-${Date.now()}`,
+    title: "페타치즈 파스타",
+    sourceUrl: FETA_CHEESE_PASTA_SOURCE,
+    sourceType: "YouTube",
+    category: "면 / 파스타",
+    mealType: "Dinner",
+    dietGoal: "None",
+    time: "25 min",
+    difficulty: "Easy",
+    servings: 2,
+    ingredients: [
+      "파스타면",
+      "페타치즈",
+      "방울토마토",
+      "시금치 또는 바질",
+      "마늘",
+      "올리브오일",
+      "소금",
+      "후추",
+      "파스타 삶은 물",
+      "파마산 치즈 선택"
+    ],
+    steps: [
+      "파스타면은 소금을 넣은 물에 삶고, 삶은 물을 조금 남겨둬요.",
+      "오븐용 그릇이나 팬에 방울토마토, 마늘, 페타치즈를 올리고 올리브오일과 후추를 뿌려요.",
+      "토마토가 터지고 치즈가 부드러워질 때까지 굽거나 팬에서 약불로 익혀요.",
+      "토마토와 페타치즈를 으깨 소스처럼 섞어요.",
+      "삶은 파스타와 시금치 또는 바질을 넣고 골고루 버무려요.",
+      "소스가 뻑뻑하면 파스타 삶은 물을 조금씩 넣어 농도를 맞춰요.",
+      "취향에 따라 파마산 치즈와 후추를 더해 마무리해요."
+    ],
+    tags: ["페타치즈", "파스타", "토마토", "쇼츠레시피", "원팬"],
+    notes:
+      "유튜브 설명란은 #shorts만 있어요. 제목과 썸네일 기준으로 페타치즈, 토마토, 잎채소를 활용한 바이럴 페타치즈 파스타 흐름으로 정리했어요.",
+    imageUrl: FETA_CHEESE_PASTA_IMAGE,
+    favorite: false,
+    bookmarked: true,
+    deleted: false,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
 function removeSampleRecipes(recipes: Recipe[]) {
   return recipes.filter((recipe) => !SAMPLE_RECIPE_IDS.has(recipe.id));
 }
@@ -2636,6 +2686,8 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     storageAvailable && window.localStorage.getItem(PEAR_DRINK_PORK_GALBIJJIM_RECIPE_KEY) === "done";
   const crispyHashBrownsDone =
     storageAvailable && window.localStorage.getItem(CRISPY_HASH_BROWNS_RECIPE_KEY) === "done";
+  const fetaCheesePastaDone =
+    storageAvailable && window.localStorage.getItem(FETA_CHEESE_PASTA_RECIPE_KEY) === "done";
   const correctTitle = "육수에 푹 적신 알배추롤 & 구운 주먹밥";
   const samplesRemoved = recipes.some((recipe) => SAMPLE_RECIPE_IDS.has(recipe.id));
   const hadWrongRecipe = recipes.some(
@@ -3121,6 +3173,15 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     existingCrispyHashBrowns.deleted;
   nextRecipes = upsertManagedRecipe(nextRecipes, makeCrispyHashBrownsRecipe());
 
+  const existingFetaCheesePasta = nextRecipes.find(
+    (recipe) => recipe.sourceUrl === FETA_CHEESE_PASTA_SOURCE || recipe.title === "페타치즈 파스타"
+  );
+  const fetaCheesePastaNeedsUpdate =
+    !existingFetaCheesePasta ||
+    existingFetaCheesePasta.imageUrl !== FETA_CHEESE_PASTA_IMAGE ||
+    existingFetaCheesePasta.deleted;
+  nextRecipes = upsertManagedRecipe(nextRecipes, makeFetaCheesePastaRecipe());
+
   if (
     storageAvailable &&
     (samplesRemoved ||
@@ -3226,7 +3287,9 @@ function migrateManagedRecipes(recipes: Recipe[]) {
       !pearDrinkPorkGalbijjimDone ||
       pearDrinkPorkGalbijjimNeedsUpdate ||
       !crispyHashBrownsDone ||
-      crispyHashBrownsNeedsUpdate)
+      crispyHashBrownsNeedsUpdate ||
+      !fetaCheesePastaDone ||
+      fetaCheesePastaNeedsUpdate)
   ) {
     writeJson(RECIPES_KEY, nextRecipes);
     window.localStorage.setItem(CORRECT_INSTAGRAM_RECIPE_KEY, "done");
@@ -3280,6 +3343,7 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     window.localStorage.setItem(CHICKEN_CABBAGE_ROLL_RECIPE_KEY, "done");
     window.localStorage.setItem(PEAR_DRINK_PORK_GALBIJJIM_RECIPE_KEY, "done");
     window.localStorage.setItem(CRISPY_HASH_BROWNS_RECIPE_KEY, "done");
+    window.localStorage.setItem(FETA_CHEESE_PASTA_RECIPE_KEY, "done");
   }
 
   return nextRecipes;
