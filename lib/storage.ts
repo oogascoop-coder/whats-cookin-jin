@@ -71,6 +71,9 @@ const ALMOND_BUTTER_BURRATA_SANDWICH_IMAGE = "/recipe-media/almond-butter-burrat
 const CRISPY_GNOCCHI_SALAD_RECIPE_KEY = "whats-cookin-jin-migration-instagram-DWiteipj5Xc-v1";
 const CRISPY_GNOCCHI_SALAD_SOURCE = "https://www.instagram.com/p/DWiteipj5Xc/";
 const CRISPY_GNOCCHI_SALAD_IMAGE = "/recipe-media/crispy-gnocchi-salad.jpg";
+const APPLE_BRIE_SANDWICH_RECIPE_KEY = "whats-cookin-jin-migration-instagram-DVc7MrUETP1-v1";
+const APPLE_BRIE_SANDWICH_SOURCE = "https://www.instagram.com/p/DVc7MrUETP1/";
+const APPLE_BRIE_SANDWICH_IMAGE = "/recipe-media/apple-brie-sandwich.jpg";
 const SAMPLE_RECIPE_IDS = new Set(sampleRecipes.map((recipe) => recipe.id));
 
 function canUseStorage() {
@@ -966,6 +969,41 @@ function makeCrispyGnocchiSaladRecipe(): Recipe {
   };
 }
 
+function makeAppleBrieSandwichRecipe(): Recipe {
+  const now = new Date().toISOString();
+
+  return {
+    id: `instagram-apple-brie-sandwich-${Date.now()}`,
+    title: "애플브리 샌드위치",
+    sourceUrl: APPLE_BRIE_SANDWICH_SOURCE,
+    sourceType: "Instagram",
+    category: "간단 요리",
+    mealType: "Brunch",
+    dietGoal: "None",
+    time: "10 min",
+    difficulty: "Easy",
+    servings: 1,
+    ingredients: ["치아바타바게트", "사과", "브리치즈", "햄", "루꼴라", "꿀 또는 잼", "후추", "올리브오일"],
+    steps: [
+      "치아바타바게트를 반으로 갈라 가볍게 굽거나 데워요.",
+      "사과는 얇게 슬라이스하고 브리치즈도 먹기 좋은 두께로 썰어요.",
+      "빵 한쪽에 꿀이나 잼을 얇게 바르고 루꼴라를 올려요.",
+      "햄, 브리치즈, 사과를 차례로 겹쳐 올려요.",
+      "후추를 살짝 뿌리고 취향에 따라 올리브오일을 아주 조금 더해요.",
+      "남은 빵으로 덮어 바로 먹어요."
+    ],
+    tags: ["사과", "브리치즈", "샌드위치", "브런치", "치아바타"],
+    notes:
+      "인스타그램 제목과 대표 이미지 기준으로 정리. 본문에는 자세한 계량이 공개되어 있지 않아, 보이는 재료와 애플브리 샌드위치 기본 조합으로 따라 하기 쉽게 정리했어요.",
+    imageUrl: APPLE_BRIE_SANDWICH_IMAGE,
+    favorite: false,
+    bookmarked: true,
+    deleted: false,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
 function removeSampleRecipes(recipes: Recipe[]) {
   return recipes.filter((recipe) => !SAMPLE_RECIPE_IDS.has(recipe.id));
 }
@@ -1029,6 +1067,8 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     storageAvailable && window.localStorage.getItem(ALMOND_BUTTER_BURRATA_SANDWICH_RECIPE_KEY) === "done";
   const crispyGnocchiSaladDone =
     storageAvailable && window.localStorage.getItem(CRISPY_GNOCCHI_SALAD_RECIPE_KEY) === "done";
+  const appleBrieSandwichDone =
+    storageAvailable && window.localStorage.getItem(APPLE_BRIE_SANDWICH_RECIPE_KEY) === "done";
   const correctTitle = "육수에 푹 적신 알배추롤 & 구운 주먹밥";
   const samplesRemoved = recipes.some((recipe) => SAMPLE_RECIPE_IDS.has(recipe.id));
   const hadWrongRecipe = recipes.some(
@@ -1237,6 +1277,15 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     existingCrispyGnocchiSalad.deleted;
   nextRecipes = upsertManagedRecipe(nextRecipes, makeCrispyGnocchiSaladRecipe());
 
+  const existingAppleBrieSandwich = nextRecipes.find(
+    (recipe) => recipe.sourceUrl === APPLE_BRIE_SANDWICH_SOURCE || recipe.title === "애플브리 샌드위치"
+  );
+  const appleBrieSandwichNeedsUpdate =
+    !existingAppleBrieSandwich ||
+    existingAppleBrieSandwich.imageUrl !== APPLE_BRIE_SANDWICH_IMAGE ||
+    existingAppleBrieSandwich.deleted;
+  nextRecipes = upsertManagedRecipe(nextRecipes, makeAppleBrieSandwichRecipe());
+
   if (
     storageAvailable &&
     (samplesRemoved ||
@@ -1280,7 +1329,9 @@ function migrateManagedRecipes(recipes: Recipe[]) {
       !almondButterBurrataSandwichDone ||
       almondButterBurrataSandwichNeedsUpdate ||
       !crispyGnocchiSaladDone ||
-      crispyGnocchiSaladNeedsUpdate)
+      crispyGnocchiSaladNeedsUpdate ||
+      !appleBrieSandwichDone ||
+      appleBrieSandwichNeedsUpdate)
   ) {
     writeJson(RECIPES_KEY, nextRecipes);
     window.localStorage.setItem(CORRECT_INSTAGRAM_RECIPE_KEY, "done");
@@ -1303,6 +1354,7 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     window.localStorage.setItem(CAULIFLOWER_ALFREDO_PASTA_RECIPE_KEY, "done");
     window.localStorage.setItem(ALMOND_BUTTER_BURRATA_SANDWICH_RECIPE_KEY, "done");
     window.localStorage.setItem(CRISPY_GNOCCHI_SALAD_RECIPE_KEY, "done");
+    window.localStorage.setItem(APPLE_BRIE_SANDWICH_RECIPE_KEY, "done");
   }
 
   return nextRecipes;
