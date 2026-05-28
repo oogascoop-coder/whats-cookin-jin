@@ -146,6 +146,9 @@ const HONEY_COMBO_STYLE_CHICKEN_IMAGE = "/recipe-media/honey-combo-style-chicken
 const TZATZIKI_CABBAGE_ROLL_RECIPE_KEY = "whats-cookin-jin-migration-youtube-6yritDr_Umw-v1";
 const TZATZIKI_CABBAGE_ROLL_SOURCE = "https://www.youtube.com/watch?v=6yritDr_Umw";
 const TZATZIKI_CABBAGE_ROLL_IMAGE = "/recipe-media/tzatziki-cabbage-roll.jpg";
+const PISTACHIO_NUT_MOUSSE_CAKE_RECIPE_KEY = "whats-cookin-jin-migration-youtube-N1RJf0wE-Hs-v1";
+const PISTACHIO_NUT_MOUSSE_CAKE_SOURCE = "https://www.youtube.com/watch?v=N1RJf0wE-Hs";
+const PISTACHIO_NUT_MOUSSE_CAKE_IMAGE = "/recipe-media/choalife-most-viewed-recipe.jpg";
 const SAMPLE_RECIPE_IDS = new Set(sampleRecipes.map((recipe) => recipe.id));
 
 function canUseStorage() {
@@ -2206,6 +2209,55 @@ function makeTzatzikiCabbageRollRecipe(): Recipe {
   };
 }
 
+function makePistachioNutMousseCakeRecipe(): Recipe {
+  const now = new Date().toISOString();
+
+  return {
+    id: `youtube-pistachio-nut-mousse-cake-${Date.now()}`,
+    title: "피스타치오 견과 무스케이크",
+    sourceUrl: PISTACHIO_NUT_MOUSSE_CAKE_SOURCE,
+    sourceType: "YouTube",
+    category: "간식",
+    mealType: "Snack",
+    dietGoal: "None",
+    time: "20 min + chill",
+    difficulty: "Easy",
+    servings: 6,
+    ingredients: [
+      "피스타치오",
+      "아몬드 또는 견과류",
+      "오트밀 또는 그래놀라",
+      "꿀 또는 메이플시럽",
+      "코코넛오일 또는 녹인 버터",
+      "그릭요거트",
+      "크림치즈 또는 두부크림",
+      "생크림 또는 코코넛크림",
+      "알룰로스 또는 설탕",
+      "소금 약간",
+      "젤라틴 선택"
+    ],
+    steps: [
+      "오트밀이나 그래놀라, 견과류를 잘게 부숴 케이크 바닥 재료를 만들어요.",
+      "꿀 또는 메이플시럽, 코코넛오일을 넣고 잘 뭉쳐지게 섞어요.",
+      "틀 바닥에 꾹꾹 눌러 담아 냉장고에 잠시 굳혀요.",
+      "피스타치오는 잘게 갈고, 그릭요거트와 크림치즈 또는 두부크림을 섞어 무스 베이스를 만들어요.",
+      "알룰로스나 설탕, 소금 약간을 넣어 단맛을 맞춰요.",
+      "단단한 식감을 원하면 불린 젤라틴을 소량 넣고, 부드럽게 먹고 싶으면 생략해요.",
+      "굳힌 바닥 위에 피스타치오 무스를 붓고 표면을 정리해요.",
+      "냉장고에서 3시간 이상 차갑게 굳힌 뒤 조각내서 먹어요."
+    ],
+    tags: ["피스타치오", "무스케이크", "노오븐", "견과류", "디저트"],
+    notes:
+      "유튜브 제목은 '레시피중 조회수 1등'이고 설명란에는 계량이 없어요. 검색 결과에서 '견과 무스케이크'와 '피스타치오' 버전으로 확인되어, 썸네일과 공개 메타데이터 기준으로 노오븐 피스타치오 견과 무스케이크 흐름으로 정리했어요.",
+    imageUrl: PISTACHIO_NUT_MOUSSE_CAKE_IMAGE,
+    favorite: false,
+    bookmarked: true,
+    deleted: false,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
 function removeSampleRecipes(recipes: Recipe[]) {
   return recipes.filter((recipe) => !SAMPLE_RECIPE_IDS.has(recipe.id));
 }
@@ -2313,6 +2365,8 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     storageAvailable && window.localStorage.getItem(HONEY_COMBO_STYLE_CHICKEN_RECIPE_KEY) === "done";
   const tzatzikiCabbageRollDone =
     storageAvailable && window.localStorage.getItem(TZATZIKI_CABBAGE_ROLL_RECIPE_KEY) === "done";
+  const pistachioNutMousseCakeDone =
+    storageAvailable && window.localStorage.getItem(PISTACHIO_NUT_MOUSSE_CAKE_RECIPE_KEY) === "done";
   const correctTitle = "육수에 푹 적신 알배추롤 & 구운 주먹밥";
   const samplesRemoved = recipes.some((recipe) => SAMPLE_RECIPE_IDS.has(recipe.id));
   const hadWrongRecipe = recipes.some(
@@ -2740,6 +2794,16 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     existingTzatzikiCabbageRoll.deleted;
   nextRecipes = upsertManagedRecipe(nextRecipes, makeTzatzikiCabbageRollRecipe());
 
+  const existingPistachioNutMousseCake = nextRecipes.find(
+    (recipe) =>
+      recipe.sourceUrl === PISTACHIO_NUT_MOUSSE_CAKE_SOURCE || recipe.title === "피스타치오 견과 무스케이크"
+  );
+  const pistachioNutMousseCakeNeedsUpdate =
+    !existingPistachioNutMousseCake ||
+    existingPistachioNutMousseCake.imageUrl !== PISTACHIO_NUT_MOUSSE_CAKE_IMAGE ||
+    existingPistachioNutMousseCake.deleted;
+  nextRecipes = upsertManagedRecipe(nextRecipes, makePistachioNutMousseCakeRecipe());
+
   if (
     storageAvailable &&
     (samplesRemoved ||
@@ -2833,7 +2897,9 @@ function migrateManagedRecipes(recipes: Recipe[]) {
       !honeyComboStyleChickenDone ||
       honeyComboStyleChickenNeedsUpdate ||
       !tzatzikiCabbageRollDone ||
-      tzatzikiCabbageRollNeedsUpdate)
+      tzatzikiCabbageRollNeedsUpdate ||
+      !pistachioNutMousseCakeDone ||
+      pistachioNutMousseCakeNeedsUpdate)
   ) {
     writeJson(RECIPES_KEY, nextRecipes);
     window.localStorage.setItem(CORRECT_INSTAGRAM_RECIPE_KEY, "done");
@@ -2881,6 +2947,7 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     window.localStorage.setItem(SHRIMP_CARPACCIO_RECIPE_KEY, "done");
     window.localStorage.setItem(HONEY_COMBO_STYLE_CHICKEN_RECIPE_KEY, "done");
     window.localStorage.setItem(TZATZIKI_CABBAGE_ROLL_RECIPE_KEY, "done");
+    window.localStorage.setItem(PISTACHIO_NUT_MOUSSE_CAKE_RECIPE_KEY, "done");
   }
 
   return nextRecipes;
