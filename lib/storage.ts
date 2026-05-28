@@ -65,6 +65,9 @@ const SALMON_POT_RICE_IMAGE = "/recipe-media/salmon-pot-rice.jpg";
 const CAULIFLOWER_ALFREDO_PASTA_RECIPE_KEY = "whats-cookin-jin-migration-instagram-DYEd1CcvpCZ-v1";
 const CAULIFLOWER_ALFREDO_PASTA_SOURCE = "https://www.instagram.com/p/DYEd1CcvpCZ/";
 const CAULIFLOWER_ALFREDO_PASTA_IMAGE = "/recipe-media/cauliflower-alfredo-pasta.jpg";
+const ALMOND_BUTTER_BURRATA_SANDWICH_RECIPE_KEY = "whats-cookin-jin-migration-instagram-DXMRvrREt2L-v1";
+const ALMOND_BUTTER_BURRATA_SANDWICH_SOURCE = "https://www.instagram.com/p/DXMRvrREt2L/";
+const ALMOND_BUTTER_BURRATA_SANDWICH_IMAGE = "/recipe-media/almond-butter-burrata-sandwich.jpg";
 const SAMPLE_RECIPE_IDS = new Set(sampleRecipes.map((recipe) => recipe.id));
 
 function canUseStorage() {
@@ -874,6 +877,41 @@ function makeCauliflowerAlfredoPastaRecipe(): Recipe {
   };
 }
 
+function makeAlmondButterBurrataSandwichRecipe(): Recipe {
+  const now = new Date().toISOString();
+
+  return {
+    id: `instagram-almond-butter-burrata-sandwich-${Date.now()}`,
+    title: "아몬드버터 부라타치즈 샌드위치",
+    sourceUrl: ALMOND_BUTTER_BURRATA_SANDWICH_SOURCE,
+    sourceType: "Instagram",
+    category: "간단 요리",
+    mealType: "Brunch",
+    dietGoal: "None",
+    time: "10 min",
+    difficulty: "Easy",
+    servings: 1,
+    ingredients: ["치아바타", "아몬드버터", "부라타치즈", "루꼴라", "프로슈토 또는 햄", "올리브오일", "후추", "칠리 플레이크"],
+    steps: [
+      "치아바타를 반으로 갈라 가볍게 굽거나 데워요.",
+      "빵 한쪽 면에 아몬드버터를 얇게 펴 발라요.",
+      "루꼴라를 올리고 프로슈토나 햄을 겹쳐 올려요.",
+      "부라타치즈를 찢어 올린 뒤 올리브오일을 살짝 뿌려요.",
+      "후추와 칠리 플레이크를 뿌려 마무리해요.",
+      "다른 빵으로 덮어 샌드위치처럼 먹거나 오픈 샌드위치로 즐겨요."
+    ],
+    tags: ["샌드위치", "부라타", "아몬드버터", "브런치", "루꼴라"],
+    notes:
+      "인스타그램 게시글 제목과 대표 이미지 기준으로 정리. 본문에는 레시피가 고정댓글에 있다고 되어 있지만 댓글 내용은 자동으로 가져오지 못해, 보이는 재료 기준의 참고용 버전으로 넣었어요.",
+    imageUrl: ALMOND_BUTTER_BURRATA_SANDWICH_IMAGE,
+    favorite: false,
+    bookmarked: true,
+    deleted: false,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
 function removeSampleRecipes(recipes: Recipe[]) {
   return recipes.filter((recipe) => !SAMPLE_RECIPE_IDS.has(recipe.id));
 }
@@ -933,6 +971,8 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     storageAvailable && window.localStorage.getItem(SALMON_POT_RICE_RECIPE_KEY) === "done";
   const cauliflowerAlfredoPastaDone =
     storageAvailable && window.localStorage.getItem(CAULIFLOWER_ALFREDO_PASTA_RECIPE_KEY) === "done";
+  const almondButterBurrataSandwichDone =
+    storageAvailable && window.localStorage.getItem(ALMOND_BUTTER_BURRATA_SANDWICH_RECIPE_KEY) === "done";
   const correctTitle = "육수에 푹 적신 알배추롤 & 구운 주먹밥";
   const samplesRemoved = recipes.some((recipe) => SAMPLE_RECIPE_IDS.has(recipe.id));
   const hadWrongRecipe = recipes.some(
@@ -1121,6 +1161,17 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     existingCauliflowerAlfredoPasta.deleted;
   nextRecipes = upsertManagedRecipe(nextRecipes, makeCauliflowerAlfredoPastaRecipe());
 
+  const existingAlmondButterBurrataSandwich = nextRecipes.find(
+    (recipe) =>
+      recipe.sourceUrl === ALMOND_BUTTER_BURRATA_SANDWICH_SOURCE ||
+      recipe.title === "아몬드버터 부라타치즈 샌드위치"
+  );
+  const almondButterBurrataSandwichNeedsUpdate =
+    !existingAlmondButterBurrataSandwich ||
+    existingAlmondButterBurrataSandwich.imageUrl !== ALMOND_BUTTER_BURRATA_SANDWICH_IMAGE ||
+    existingAlmondButterBurrataSandwich.deleted;
+  nextRecipes = upsertManagedRecipe(nextRecipes, makeAlmondButterBurrataSandwichRecipe());
+
   if (
     storageAvailable &&
     (samplesRemoved ||
@@ -1160,7 +1211,9 @@ function migrateManagedRecipes(recipes: Recipe[]) {
       !salmonPotRiceDone ||
       salmonPotRiceNeedsUpdate ||
       !cauliflowerAlfredoPastaDone ||
-      cauliflowerAlfredoPastaNeedsUpdate)
+      cauliflowerAlfredoPastaNeedsUpdate ||
+      !almondButterBurrataSandwichDone ||
+      almondButterBurrataSandwichNeedsUpdate)
   ) {
     writeJson(RECIPES_KEY, nextRecipes);
     window.localStorage.setItem(CORRECT_INSTAGRAM_RECIPE_KEY, "done");
@@ -1181,6 +1234,7 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     window.localStorage.setItem(SALTY_GIRL_SNACK_RECIPE_KEY, "done");
     window.localStorage.setItem(SALMON_POT_RICE_RECIPE_KEY, "done");
     window.localStorage.setItem(CAULIFLOWER_ALFREDO_PASTA_RECIPE_KEY, "done");
+    window.localStorage.setItem(ALMOND_BUTTER_BURRATA_SANDWICH_RECIPE_KEY, "done");
   }
 
   return nextRecipes;
