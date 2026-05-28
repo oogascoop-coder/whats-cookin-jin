@@ -86,6 +86,9 @@ const YUPDDUK_STYLE_TTEOKBOKKI_IMAGE = "/recipe-media/yupdduk-style-tteokbokki.j
 const SHEPHERDS_PURSE_DOENJANG_RAMEN_RECIPE_KEY = "whats-cookin-jin-migration-youtube-RbpoDQV-UWY-v1";
 const SHEPHERDS_PURSE_DOENJANG_RAMEN_SOURCE = "https://www.youtube.com/watch?v=RbpoDQV-UWY";
 const SHEPHERDS_PURSE_DOENJANG_RAMEN_IMAGE = "/recipe-media/shepherds-purse-doenjang-ramen.jpg";
+const EGGPLANT_MEAT_DUMPLINGS_RECIPE_KEY = "whats-cookin-jin-migration-youtube--QJ0bjOhiPM-v1";
+const EGGPLANT_MEAT_DUMPLINGS_SOURCE = "https://www.youtube.com/watch?v=-QJ0bjOhiPM";
+const EGGPLANT_MEAT_DUMPLINGS_IMAGE = "/recipe-media/eggplant-meat-dumplings.jpg";
 const SAMPLE_RECIPE_IDS = new Set(sampleRecipes.map((recipe) => recipe.id));
 
 function canUseStorage() {
@@ -1203,6 +1206,54 @@ function makeShepherdsPurseDoenjangRamenRecipe(): Recipe {
   };
 }
 
+function makeEggplantMeatDumplingsRecipe(): Recipe {
+  const now = new Date().toISOString();
+
+  return {
+    id: `youtube-eggplant-meat-dumplings-${Date.now()}`,
+    title: "가지 고기만두",
+    sourceUrl: EGGPLANT_MEAT_DUMPLINGS_SOURCE,
+    sourceType: "YouTube",
+    category: "다이어트",
+    mealType: "Dinner",
+    dietGoal: "Low Carb",
+    time: "25 min",
+    difficulty: "Medium",
+    servings: 2,
+    ingredients: [
+      "가지 2개",
+      "다진 돼지고기 또는 닭가슴살 200g",
+      "두부 1/2모",
+      "부추 또는 대파",
+      "다진마늘 1작은술",
+      "간장 1큰술",
+      "참기름 1작은술",
+      "후추",
+      "소금",
+      "전분가루 약간",
+      "올리브오일"
+    ],
+    steps: [
+      "가지는 길게 얇게 썰고 소금을 살짝 뿌려 잠시 두었다가 물기를 닦아요.",
+      "두부는 물기를 꼭 짜고, 부추나 대파는 잘게 썰어요.",
+      "다진 고기, 두부, 부추, 다진마늘, 간장, 참기름, 후추를 섞어 만두소를 만들어요.",
+      "가지 안쪽에 전분가루를 아주 얇게 묻힌 뒤 만두소를 올려 반으로 접어요.",
+      "팬에 오일을 살짝 두르고 가지 만두를 앞뒤로 노릇하게 구워요.",
+      "속까지 익도록 약불에서 뚜껑을 덮고 3-5분 더 익혀요.",
+      "기름이 많으면 키친타월에 잠시 올렸다가 따뜻할 때 먹어요."
+    ],
+    tags: ["가지", "고기만두", "다이어트", "저탄수", "만두"],
+    notes:
+      "유튜브 제목과 썸네일 기준 정리. 영상 설명란에 정확한 재료와 계량은 공개되어 있지 않아, 화면에 보이는 가지 만두 형태를 기준으로 따라 하기 쉬운 버전으로 정리했어요.",
+    imageUrl: EGGPLANT_MEAT_DUMPLINGS_IMAGE,
+    favorite: false,
+    bookmarked: true,
+    deleted: false,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
 function removeSampleRecipes(recipes: Recipe[]) {
   return recipes.filter((recipe) => !SAMPLE_RECIPE_IDS.has(recipe.id));
 }
@@ -1275,6 +1326,8 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     storageAvailable && window.localStorage.getItem(YUPDDUK_STYLE_TTEOKBOKKI_RECIPE_KEY) === "done";
   const shepherdsPurseDoenjangRamenDone =
     storageAvailable && window.localStorage.getItem(SHEPHERDS_PURSE_DOENJANG_RAMEN_RECIPE_KEY) === "done";
+  const eggplantMeatDumplingsDone =
+    storageAvailable && window.localStorage.getItem(EGGPLANT_MEAT_DUMPLINGS_RECIPE_KEY) === "done";
   const correctTitle = "육수에 푹 적신 알배추롤 & 구운 주먹밥";
   const samplesRemoved = recipes.some((recipe) => SAMPLE_RECIPE_IDS.has(recipe.id));
   const hadWrongRecipe = recipes.some(
@@ -1527,6 +1580,15 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     existingShepherdsPurseDoenjangRamen.deleted;
   nextRecipes = upsertManagedRecipe(nextRecipes, makeShepherdsPurseDoenjangRamenRecipe());
 
+  const existingEggplantMeatDumplings = nextRecipes.find(
+    (recipe) => recipe.sourceUrl === EGGPLANT_MEAT_DUMPLINGS_SOURCE || recipe.title === "가지 고기만두"
+  );
+  const eggplantMeatDumplingsNeedsUpdate =
+    !existingEggplantMeatDumplings ||
+    existingEggplantMeatDumplings.imageUrl !== EGGPLANT_MEAT_DUMPLINGS_IMAGE ||
+    existingEggplantMeatDumplings.deleted;
+  nextRecipes = upsertManagedRecipe(nextRecipes, makeEggplantMeatDumplingsRecipe());
+
   if (
     storageAvailable &&
     (samplesRemoved ||
@@ -1580,7 +1642,9 @@ function migrateManagedRecipes(recipes: Recipe[]) {
       !yupddukStyleTteokbokkiDone ||
       yupddukStyleTteokbokkiNeedsUpdate ||
       !shepherdsPurseDoenjangRamenDone ||
-      shepherdsPurseDoenjangRamenNeedsUpdate)
+      shepherdsPurseDoenjangRamenNeedsUpdate ||
+      !eggplantMeatDumplingsDone ||
+      eggplantMeatDumplingsNeedsUpdate)
   ) {
     writeJson(RECIPES_KEY, nextRecipes);
     window.localStorage.setItem(CORRECT_INSTAGRAM_RECIPE_KEY, "done");
@@ -1608,6 +1672,7 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     window.localStorage.setItem(MISO_CREAM_CHEESE_PASTA_RECIPE_KEY, "done");
     window.localStorage.setItem(YUPDDUK_STYLE_TTEOKBOKKI_RECIPE_KEY, "done");
     window.localStorage.setItem(SHEPHERDS_PURSE_DOENJANG_RAMEN_RECIPE_KEY, "done");
+    window.localStorage.setItem(EGGPLANT_MEAT_DUMPLINGS_RECIPE_KEY, "done");
   }
 
   return nextRecipes;
