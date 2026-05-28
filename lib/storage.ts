@@ -74,6 +74,9 @@ const CRISPY_GNOCCHI_SALAD_IMAGE = "/recipe-media/crispy-gnocchi-salad.jpg";
 const APPLE_BRIE_SANDWICH_RECIPE_KEY = "whats-cookin-jin-migration-instagram-DVc7MrUETP1-v1";
 const APPLE_BRIE_SANDWICH_SOURCE = "https://www.instagram.com/p/DVc7MrUETP1/";
 const APPLE_BRIE_SANDWICH_IMAGE = "/recipe-media/apple-brie-sandwich.jpg";
+const TZATZIKI_SAUCE_RECIPE_KEY = "whats-cookin-jin-migration-instagram-DYq12Y8SkX-v1";
+const TZATZIKI_SAUCE_SOURCE = "https://www.instagram.com/p/DYq12Y8SkX-/";
+const TZATZIKI_SAUCE_IMAGE = "/recipe-media/tzatziki-sauce.jpg";
 const SAMPLE_RECIPE_IDS = new Set(sampleRecipes.map((recipe) => recipe.id));
 
 function canUseStorage() {
@@ -1004,6 +1007,51 @@ function makeAppleBrieSandwichRecipe(): Recipe {
   };
 }
 
+function makeTzatzikiSauceRecipe(): Recipe {
+  const now = new Date().toISOString();
+
+  return {
+    id: `instagram-tzatziki-sauce-${Date.now()}`,
+    title: "차지키 소스",
+    sourceUrl: TZATZIKI_SAUCE_SOURCE,
+    sourceType: "Instagram",
+    category: "샐러드",
+    mealType: "Snack",
+    dietGoal: "Light",
+    time: "10 min",
+    difficulty: "Easy",
+    servings: 4,
+    ingredients: [
+      "그릭요거트 200g",
+      "레몬 1/2개",
+      "딜 3g",
+      "소금",
+      "올리브오일",
+      "오이 1/2개",
+      "다진마늘 1ts",
+      "홀그레인 머스타드 1ts"
+    ],
+    steps: [
+      "오이는 채 썰어 소금 1ts를 넣고 잘 버무려 잠시 둬요.",
+      "레몬은 즙을 내고 레몬 제스트도 조금 준비해요.",
+      "딜은 줄기를 빼고 잎만 잘게 다져요.",
+      "그릭요거트에 레몬즙, 딜, 소금, 다진마늘, 홀그레인 머스타드를 넣고 섞어요.",
+      "오이는 물기를 꼭 짠 뒤 요거트 소스에 넣고 잘 섞어요.",
+      "마지막으로 올리브오일을 뿌려 마무리해요.",
+      "냉장고에서 1시간 이상 숙성하면 더 맛있어요."
+    ],
+    tags: ["차지키", "그릭요거트", "오이", "딜", "소스"],
+    notes:
+      "인스타그램 설명 기준 정리. 오이, 당근, 샐러리 같은 야채스틱에 찍어 먹거나 모닝빵, 연어, 감자에 곁들이기 좋아요. 간을 보고 소금이나 레몬즙을 추가해 주세요.",
+    imageUrl: TZATZIKI_SAUCE_IMAGE,
+    favorite: false,
+    bookmarked: true,
+    deleted: false,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
 function removeSampleRecipes(recipes: Recipe[]) {
   return recipes.filter((recipe) => !SAMPLE_RECIPE_IDS.has(recipe.id));
 }
@@ -1069,6 +1117,7 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     storageAvailable && window.localStorage.getItem(CRISPY_GNOCCHI_SALAD_RECIPE_KEY) === "done";
   const appleBrieSandwichDone =
     storageAvailable && window.localStorage.getItem(APPLE_BRIE_SANDWICH_RECIPE_KEY) === "done";
+  const tzatzikiSauceDone = storageAvailable && window.localStorage.getItem(TZATZIKI_SAUCE_RECIPE_KEY) === "done";
   const correctTitle = "육수에 푹 적신 알배추롤 & 구운 주먹밥";
   const samplesRemoved = recipes.some((recipe) => SAMPLE_RECIPE_IDS.has(recipe.id));
   const hadWrongRecipe = recipes.some(
@@ -1286,6 +1335,13 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     existingAppleBrieSandwich.deleted;
   nextRecipes = upsertManagedRecipe(nextRecipes, makeAppleBrieSandwichRecipe());
 
+  const existingTzatzikiSauce = nextRecipes.find(
+    (recipe) => recipe.sourceUrl === TZATZIKI_SAUCE_SOURCE || recipe.title === "차지키 소스"
+  );
+  const tzatzikiSauceNeedsUpdate =
+    !existingTzatzikiSauce || existingTzatzikiSauce.imageUrl !== TZATZIKI_SAUCE_IMAGE || existingTzatzikiSauce.deleted;
+  nextRecipes = upsertManagedRecipe(nextRecipes, makeTzatzikiSauceRecipe());
+
   if (
     storageAvailable &&
     (samplesRemoved ||
@@ -1331,7 +1387,9 @@ function migrateManagedRecipes(recipes: Recipe[]) {
       !crispyGnocchiSaladDone ||
       crispyGnocchiSaladNeedsUpdate ||
       !appleBrieSandwichDone ||
-      appleBrieSandwichNeedsUpdate)
+      appleBrieSandwichNeedsUpdate ||
+      !tzatzikiSauceDone ||
+      tzatzikiSauceNeedsUpdate)
   ) {
     writeJson(RECIPES_KEY, nextRecipes);
     window.localStorage.setItem(CORRECT_INSTAGRAM_RECIPE_KEY, "done");
@@ -1355,6 +1413,7 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     window.localStorage.setItem(ALMOND_BUTTER_BURRATA_SANDWICH_RECIPE_KEY, "done");
     window.localStorage.setItem(CRISPY_GNOCCHI_SALAD_RECIPE_KEY, "done");
     window.localStorage.setItem(APPLE_BRIE_SANDWICH_RECIPE_KEY, "done");
+    window.localStorage.setItem(TZATZIKI_SAUCE_RECIPE_KEY, "done");
   }
 
   return nextRecipes;
