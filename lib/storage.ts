@@ -95,6 +95,9 @@ const PEANUT_BUTTER_BIBIM_NOODLES_IMAGE = "/recipe-media/peanut-butter-bibim-noo
 const GOCHUJANG_JEYUK_RECIPE_KEY = "whats-cookin-jin-migration-youtube-ET8YRX3CET0-v1";
 const GOCHUJANG_JEYUK_SOURCE = "https://www.youtube.com/watch?v=ET8YRX3CET0";
 const GOCHUJANG_JEYUK_IMAGE = "/recipe-media/gochujang-jeyuk.jpg";
+const CHEWY_RICE_PAPER_ROLLS_RECIPE_KEY = "whats-cookin-jin-migration-youtube-OKuOuylx9Ek-v1";
+const CHEWY_RICE_PAPER_ROLLS_SOURCE = "https://www.youtube.com/watch?v=OKuOuylx9Ek";
+const CHEWY_RICE_PAPER_ROLLS_IMAGE = "/recipe-media/chewy-rice-paper-rolls.jpg";
 const SAMPLE_RECIPE_IDS = new Set(sampleRecipes.map((recipe) => recipe.id));
 
 function canUseStorage() {
@@ -1357,6 +1360,41 @@ function makeGochujangJeyukRecipe(): Recipe {
   };
 }
 
+function makeChewyRicePaperRollsRecipe(): Recipe {
+  const now = new Date().toISOString();
+
+  return {
+    id: `youtube-chewy-rice-paper-rolls-${Date.now()}`,
+    title: "쫀득 라이스페이퍼 구이",
+    sourceUrl: CHEWY_RICE_PAPER_ROLLS_SOURCE,
+    sourceType: "YouTube",
+    category: "간식",
+    mealType: "Snack",
+    dietGoal: "None",
+    time: "10 min",
+    difficulty: "Easy",
+    servings: 1,
+    ingredients: ["라이스페이퍼", "물", "간장", "올리고당 또는 알룰로스", "고춧가루", "참기름", "깨", "식용유"],
+    steps: [
+      "라이스페이퍼를 물에 살짝 적셔 여러 겹 접거나 말아 쫀득한 두께를 만들어요.",
+      "팬에 식용유를 아주 조금 두르고 라이스페이퍼를 앞뒤로 구워요.",
+      "간장, 올리고당, 고춧가루, 참기름을 섞어 매콤달콤한 양념을 만들어요.",
+      "라이스페이퍼가 말랑하고 가장자리가 살짝 노릇해지면 양념을 발라요.",
+      "약불에서 양념이 살짝 배도록 한 번 더 굽고 깨를 뿌려요.",
+      "뜨거울 때 먹으면 가장 쫀득해요."
+    ],
+    tags: ["라이스페이퍼", "쫀득", "간식", "매콤달콤", "야식"],
+    notes:
+      "유튜브 제목과 썸네일 기준 정리. 영상 설명란과 자동자막에서 정확한 재료와 계량을 가져오지 못해, 화면에 보이는 쫀득한 라이스페이퍼 구이 느낌으로 따라 하기 쉽게 정리했어요.",
+    imageUrl: CHEWY_RICE_PAPER_ROLLS_IMAGE,
+    favorite: false,
+    bookmarked: true,
+    deleted: false,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
 function removeSampleRecipes(recipes: Recipe[]) {
   return recipes.filter((recipe) => !SAMPLE_RECIPE_IDS.has(recipe.id));
 }
@@ -1434,6 +1472,8 @@ function migrateManagedRecipes(recipes: Recipe[]) {
   const peanutButterBibimNoodlesDone =
     storageAvailable && window.localStorage.getItem(PEANUT_BUTTER_BIBIM_NOODLES_RECIPE_KEY) === "done";
   const gochujangJeyukDone = storageAvailable && window.localStorage.getItem(GOCHUJANG_JEYUK_RECIPE_KEY) === "done";
+  const chewyRicePaperRollsDone =
+    storageAvailable && window.localStorage.getItem(CHEWY_RICE_PAPER_ROLLS_RECIPE_KEY) === "done";
   const correctTitle = "육수에 푹 적신 알배추롤 & 구운 주먹밥";
   const samplesRemoved = recipes.some((recipe) => SAMPLE_RECIPE_IDS.has(recipe.id));
   const hadWrongRecipe = recipes.some(
@@ -1712,6 +1752,15 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     !existingGochujangJeyuk || existingGochujangJeyuk.imageUrl !== GOCHUJANG_JEYUK_IMAGE || existingGochujangJeyuk.deleted;
   nextRecipes = upsertManagedRecipe(nextRecipes, makeGochujangJeyukRecipe());
 
+  const existingChewyRicePaperRolls = nextRecipes.find(
+    (recipe) => recipe.sourceUrl === CHEWY_RICE_PAPER_ROLLS_SOURCE || recipe.title === "쫀득 라이스페이퍼 구이"
+  );
+  const chewyRicePaperRollsNeedsUpdate =
+    !existingChewyRicePaperRolls ||
+    existingChewyRicePaperRolls.imageUrl !== CHEWY_RICE_PAPER_ROLLS_IMAGE ||
+    existingChewyRicePaperRolls.deleted;
+  nextRecipes = upsertManagedRecipe(nextRecipes, makeChewyRicePaperRollsRecipe());
+
   if (
     storageAvailable &&
     (samplesRemoved ||
@@ -1771,7 +1820,9 @@ function migrateManagedRecipes(recipes: Recipe[]) {
       !peanutButterBibimNoodlesDone ||
       peanutButterBibimNoodlesNeedsUpdate ||
       !gochujangJeyukDone ||
-      gochujangJeyukNeedsUpdate)
+      gochujangJeyukNeedsUpdate ||
+      !chewyRicePaperRollsDone ||
+      chewyRicePaperRollsNeedsUpdate)
   ) {
     writeJson(RECIPES_KEY, nextRecipes);
     window.localStorage.setItem(CORRECT_INSTAGRAM_RECIPE_KEY, "done");
@@ -1802,6 +1853,7 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     window.localStorage.setItem(EGGPLANT_MEAT_DUMPLINGS_RECIPE_KEY, "done");
     window.localStorage.setItem(PEANUT_BUTTER_BIBIM_NOODLES_RECIPE_KEY, "done");
     window.localStorage.setItem(GOCHUJANG_JEYUK_RECIPE_KEY, "done");
+    window.localStorage.setItem(CHEWY_RICE_PAPER_ROLLS_RECIPE_KEY, "done");
   }
 
   return nextRecipes;
