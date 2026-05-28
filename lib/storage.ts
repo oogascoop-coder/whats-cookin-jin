@@ -143,6 +143,9 @@ const SHRIMP_CARPACCIO_IMAGE = "/recipe-media/shrimp-carpaccio.jpg";
 const HONEY_COMBO_STYLE_CHICKEN_RECIPE_KEY = "whats-cookin-jin-migration-youtube-LEYNjJFbbgE-v1";
 const HONEY_COMBO_STYLE_CHICKEN_SOURCE = "https://www.youtube.com/watch?v=LEYNjJFbbgE";
 const HONEY_COMBO_STYLE_CHICKEN_IMAGE = "/recipe-media/honey-combo-style-chicken.jpg";
+const TZATZIKI_CABBAGE_ROLL_RECIPE_KEY = "whats-cookin-jin-migration-youtube-6yritDr_Umw-v1";
+const TZATZIKI_CABBAGE_ROLL_SOURCE = "https://www.youtube.com/watch?v=6yritDr_Umw";
+const TZATZIKI_CABBAGE_ROLL_IMAGE = "/recipe-media/tzatziki-cabbage-roll.jpg";
 const SAMPLE_RECIPE_IDS = new Set(sampleRecipes.map((recipe) => recipe.id));
 
 function canUseStorage() {
@@ -2157,6 +2160,52 @@ function makeHoneyComboStyleChickenRecipe(): Recipe {
   };
 }
 
+function makeTzatzikiCabbageRollRecipe(): Recipe {
+  const now = new Date().toISOString();
+
+  return {
+    id: `youtube-tzatziki-cabbage-roll-${Date.now()}`,
+    title: "차지키 양배추롤",
+    sourceUrl: TZATZIKI_CABBAGE_ROLL_SOURCE,
+    sourceType: "YouTube",
+    category: "다이어트",
+    mealType: "Lunch",
+    dietGoal: "Light",
+    time: "15 min",
+    difficulty: "Easy",
+    servings: 1,
+    ingredients: [
+      "양배추",
+      "감태",
+      "그릭요거트",
+      "오이",
+      "다진 마늘",
+      "레몬즙",
+      "올리브오일",
+      "소금",
+      "후추",
+      "딜 또는 허브 선택"
+    ],
+    steps: [
+      "오이는 잘게 다져 물기를 가볍게 짜요.",
+      "그릭요거트에 오이, 다진 마늘, 레몬즙, 올리브오일, 소금, 후추를 섞어 차지키 소스를 만들어요.",
+      "양배추 잎은 깨끗하게 씻고 물기를 닦아요. 생으로 먹기 부담스러우면 살짝 데쳐도 좋아요.",
+      "양배추 위에 감태를 올리고 차지키 소스를 얇게 펴 발라요.",
+      "김밥처럼 단단하게 말아 한입 크기로 썰어요.",
+      "남은 차지키 소스를 곁들이거나 올리브오일을 살짝 둘러 마무리해요."
+    ],
+    tags: ["차지키", "양배추롤", "감태", "그릭요거트", "가벼운식사"],
+    notes:
+      "유튜브 설명란 기준 정리. 정확한 계량은 공개 설명에 없어서, 차지키 소스와 양배추, 감태를 활용한 가벼운 롤 형태로 보기 쉽게 정리했어요.",
+    imageUrl: TZATZIKI_CABBAGE_ROLL_IMAGE,
+    favorite: false,
+    bookmarked: true,
+    deleted: false,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
 function removeSampleRecipes(recipes: Recipe[]) {
   return recipes.filter((recipe) => !SAMPLE_RECIPE_IDS.has(recipe.id));
 }
@@ -2262,6 +2311,8 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     storageAvailable && window.localStorage.getItem(SHRIMP_CARPACCIO_RECIPE_KEY) === "done";
   const honeyComboStyleChickenDone =
     storageAvailable && window.localStorage.getItem(HONEY_COMBO_STYLE_CHICKEN_RECIPE_KEY) === "done";
+  const tzatzikiCabbageRollDone =
+    storageAvailable && window.localStorage.getItem(TZATZIKI_CABBAGE_ROLL_RECIPE_KEY) === "done";
   const correctTitle = "육수에 푹 적신 알배추롤 & 구운 주먹밥";
   const samplesRemoved = recipes.some((recipe) => SAMPLE_RECIPE_IDS.has(recipe.id));
   const hadWrongRecipe = recipes.some(
@@ -2680,6 +2731,15 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     existingHoneyComboStyleChicken.deleted;
   nextRecipes = upsertManagedRecipe(nextRecipes, makeHoneyComboStyleChickenRecipe());
 
+  const existingTzatzikiCabbageRoll = nextRecipes.find(
+    (recipe) => recipe.sourceUrl === TZATZIKI_CABBAGE_ROLL_SOURCE || recipe.title === "차지키 양배추롤"
+  );
+  const tzatzikiCabbageRollNeedsUpdate =
+    !existingTzatzikiCabbageRoll ||
+    existingTzatzikiCabbageRoll.imageUrl !== TZATZIKI_CABBAGE_ROLL_IMAGE ||
+    existingTzatzikiCabbageRoll.deleted;
+  nextRecipes = upsertManagedRecipe(nextRecipes, makeTzatzikiCabbageRollRecipe());
+
   if (
     storageAvailable &&
     (samplesRemoved ||
@@ -2771,7 +2831,9 @@ function migrateManagedRecipes(recipes: Recipe[]) {
       !shrimpCarpaccioDone ||
       shrimpCarpaccioNeedsUpdate ||
       !honeyComboStyleChickenDone ||
-      honeyComboStyleChickenNeedsUpdate)
+      honeyComboStyleChickenNeedsUpdate ||
+      !tzatzikiCabbageRollDone ||
+      tzatzikiCabbageRollNeedsUpdate)
   ) {
     writeJson(RECIPES_KEY, nextRecipes);
     window.localStorage.setItem(CORRECT_INSTAGRAM_RECIPE_KEY, "done");
@@ -2818,6 +2880,7 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     window.localStorage.setItem(TRUFFLE_MUSHROOM_RICE_RECIPE_KEY, "done");
     window.localStorage.setItem(SHRIMP_CARPACCIO_RECIPE_KEY, "done");
     window.localStorage.setItem(HONEY_COMBO_STYLE_CHICKEN_RECIPE_KEY, "done");
+    window.localStorage.setItem(TZATZIKI_CABBAGE_ROLL_RECIPE_KEY, "done");
   }
 
   return nextRecipes;
