@@ -104,6 +104,9 @@ const MUSHROOM_CREAM_RIGATONI_IMAGE = "/recipe-media/mushroom-cream-rigatoni.jpg
 const MALA_CREAM_PASTA_RECIPE_KEY = "whats-cookin-jin-migration-youtube-zc0IrP3AEMw-v1";
 const MALA_CREAM_PASTA_SOURCE = "https://www.youtube.com/watch?v=zc0IrP3AEMw";
 const MALA_CREAM_PASTA_IMAGE = "/recipe-media/mala-cream-pasta.jpg";
+const EGGPLANT_TOFU_SKIN_LASAGNA_RECIPE_KEY = "whats-cookin-jin-migration-youtube-wepwfXk1mok-v1";
+const EGGPLANT_TOFU_SKIN_LASAGNA_SOURCE = "https://www.youtube.com/watch?v=wepwfXk1mok";
+const EGGPLANT_TOFU_SKIN_LASAGNA_IMAGE = "/recipe-media/eggplant-tofu-skin-lasagna.jpg";
 const SAMPLE_RECIPE_IDS = new Set(sampleRecipes.map((recipe) => recipe.id));
 
 function canUseStorage() {
@@ -1486,6 +1489,56 @@ function makeMalaCreamPastaRecipe(): Recipe {
   };
 }
 
+function makeEggplantTofuSkinLasagnaRecipe(): Recipe {
+  const now = new Date().toISOString();
+
+  return {
+    id: `youtube-eggplant-tofu-skin-lasagna-${Date.now()}`,
+    title: "가지 라자냐",
+    sourceUrl: EGGPLANT_TOFU_SKIN_LASAGNA_SOURCE,
+    sourceType: "YouTube",
+    category: "다이어트",
+    mealType: "Dinner",
+    dietGoal: "Low Carb",
+    time: "30 min",
+    difficulty: "Medium",
+    servings: 2,
+    ingredients: [
+      "가지 2개",
+      "포두부",
+      "토마토 파스타 소스",
+      "다진 소고기 또는 닭가슴살",
+      "양파",
+      "다진마늘",
+      "모짜렐라 치즈",
+      "파마산 치즈",
+      "알룰로스",
+      "올리브오일",
+      "소금",
+      "후추"
+    ],
+    steps: [
+      "가지는 길게 썰어 올리브오일, 소금, 후추를 살짝 뿌려 구워요.",
+      "가지는 너무 바짝 굽지 않고 부드럽게 휘어질 정도로만 익혀요.",
+      "팬에 다진마늘, 양파, 다진 고기를 볶고 토마토 파스타 소스를 넣어 라구 느낌의 소스를 만들어요.",
+      "일반 토마토 파스타 소스를 쓰면 알룰로스는 생략해도 좋아요.",
+      "오븐용 그릇에 소스, 포두부, 구운 가지, 치즈를 차례로 쌓아요.",
+      "준비한 재료 양에 맞춰 층 수를 조절해요.",
+      "위에 모짜렐라 치즈를 넉넉히 올리고 에어프라이어 또는 오븐에서 치즈가 노릇하게 녹을 때까지 구워요.",
+      "에어프라이어가 없으면 전자레인지에 치즈가 녹을 때까지 데워요."
+    ],
+    tags: ["가지", "라자냐", "포두부", "다이어트", "홈파티"],
+    notes:
+      "유튜브 설명란 기준 정리. 라자냐 면 대신 포두부를 사용하는 레시피예요. 설명에는 에어프라이어가 없으면 전자레인지도 가능하고, 층 수는 재료 양에 맞춰 조절하면 된다고 안내되어 있어요.",
+    imageUrl: EGGPLANT_TOFU_SKIN_LASAGNA_IMAGE,
+    favorite: false,
+    bookmarked: true,
+    deleted: false,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
 function removeSampleRecipes(recipes: Recipe[]) {
   return recipes.filter((recipe) => !SAMPLE_RECIPE_IDS.has(recipe.id));
 }
@@ -1568,6 +1621,8 @@ function migrateManagedRecipes(recipes: Recipe[]) {
   const mushroomCreamRigatoniDone =
     storageAvailable && window.localStorage.getItem(MUSHROOM_CREAM_RIGATONI_RECIPE_KEY) === "done";
   const malaCreamPastaDone = storageAvailable && window.localStorage.getItem(MALA_CREAM_PASTA_RECIPE_KEY) === "done";
+  const eggplantTofuSkinLasagnaDone =
+    storageAvailable && window.localStorage.getItem(EGGPLANT_TOFU_SKIN_LASAGNA_RECIPE_KEY) === "done";
   const correctTitle = "육수에 푹 적신 알배추롤 & 구운 주먹밥";
   const samplesRemoved = recipes.some((recipe) => SAMPLE_RECIPE_IDS.has(recipe.id));
   const hadWrongRecipe = recipes.some(
@@ -1871,6 +1926,15 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     !existingMalaCreamPasta || existingMalaCreamPasta.imageUrl !== MALA_CREAM_PASTA_IMAGE || existingMalaCreamPasta.deleted;
   nextRecipes = upsertManagedRecipe(nextRecipes, makeMalaCreamPastaRecipe());
 
+  const existingEggplantTofuSkinLasagna = nextRecipes.find(
+    (recipe) => recipe.sourceUrl === EGGPLANT_TOFU_SKIN_LASAGNA_SOURCE || recipe.title === "가지 라자냐"
+  );
+  const eggplantTofuSkinLasagnaNeedsUpdate =
+    !existingEggplantTofuSkinLasagna ||
+    existingEggplantTofuSkinLasagna.imageUrl !== EGGPLANT_TOFU_SKIN_LASAGNA_IMAGE ||
+    existingEggplantTofuSkinLasagna.deleted;
+  nextRecipes = upsertManagedRecipe(nextRecipes, makeEggplantTofuSkinLasagnaRecipe());
+
   if (
     storageAvailable &&
     (samplesRemoved ||
@@ -1936,7 +2000,9 @@ function migrateManagedRecipes(recipes: Recipe[]) {
       !mushroomCreamRigatoniDone ||
       mushroomCreamRigatoniNeedsUpdate ||
       !malaCreamPastaDone ||
-      malaCreamPastaNeedsUpdate)
+      malaCreamPastaNeedsUpdate ||
+      !eggplantTofuSkinLasagnaDone ||
+      eggplantTofuSkinLasagnaNeedsUpdate)
   ) {
     writeJson(RECIPES_KEY, nextRecipes);
     window.localStorage.setItem(CORRECT_INSTAGRAM_RECIPE_KEY, "done");
@@ -1970,6 +2036,7 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     window.localStorage.setItem(CHEWY_RICE_PAPER_ROLLS_RECIPE_KEY, "done");
     window.localStorage.setItem(MUSHROOM_CREAM_RIGATONI_RECIPE_KEY, "done");
     window.localStorage.setItem(MALA_CREAM_PASTA_RECIPE_KEY, "done");
+    window.localStorage.setItem(EGGPLANT_TOFU_SKIN_LASAGNA_RECIPE_KEY, "done");
   }
 
   return nextRecipes;
