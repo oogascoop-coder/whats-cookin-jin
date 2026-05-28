@@ -149,6 +149,9 @@ const TZATZIKI_CABBAGE_ROLL_IMAGE = "/recipe-media/tzatziki-cabbage-roll.jpg";
 const PISTACHIO_NUT_MOUSSE_CAKE_RECIPE_KEY = "whats-cookin-jin-migration-youtube-N1RJf0wE-Hs-v1";
 const PISTACHIO_NUT_MOUSSE_CAKE_SOURCE = "https://www.youtube.com/watch?v=N1RJf0wE-Hs";
 const PISTACHIO_NUT_MOUSSE_CAKE_IMAGE = "/recipe-media/choalife-most-viewed-recipe.jpg";
+const HONGTAK_STYLE_DAKBOKKEUMTANG_RECIPE_KEY = "whats-cookin-jin-migration-youtube-w0gsw3ZA9fo-v1";
+const HONGTAK_STYLE_DAKBOKKEUMTANG_SOURCE = "https://www.youtube.com/watch?v=w0gsw3ZA9fo";
+const HONGTAK_STYLE_DAKBOKKEUMTANG_IMAGE = "/recipe-media/hongtak-style-dakbokkeumtang.jpg";
 const SAMPLE_RECIPE_IDS = new Set(sampleRecipes.map((recipe) => recipe.id));
 
 function canUseStorage() {
@@ -2258,6 +2261,60 @@ function makePistachioNutMousseCakeRecipe(): Recipe {
   };
 }
 
+function makeHongtakStyleDakbokkeumtangRecipe(): Recipe {
+  const now = new Date().toISOString();
+
+  return {
+    id: `youtube-hongtak-style-dakbokkeumtang-${Date.now()}`,
+    title: "홍탁집 스타일 닭볶음탕",
+    sourceUrl: HONGTAK_STYLE_DAKBOKKEUMTANG_SOURCE,
+    sourceType: "YouTube",
+    category: "한식 / 밥",
+    mealType: "Dinner",
+    dietGoal: "None",
+    time: "45 min",
+    difficulty: "Medium",
+    servings: 3,
+    ingredients: [
+      "닭볶음탕용 닭 10-12호",
+      "물 1L",
+      "감자 2개",
+      "당근 1/2개",
+      "대파",
+      "양파 선택",
+      "생강 조금",
+      "진간장 5스푼",
+      "설탕 3스푼",
+      "고추장 1스푼",
+      "굴소스 1스푼",
+      "굵은 고춧가루 3스푼",
+      "청양고춧가루 1스푼",
+      "다진 마늘 1큰술",
+      "생강가루 조금",
+      "꽃소금",
+      "미원 선택"
+    ],
+    steps: [
+      "닭은 흐르는 물에 씻고, 핏물이나 뼛가루를 제거해요.",
+      "냄비에 닭과 물 1L를 넣고 끓이면서 떠오르는 거품을 걷어내요.",
+      "진간장, 설탕, 고추장, 굴소스, 고춧가루, 청양고춧가루, 다진 마늘, 생강을 넣어 양념을 풀어요.",
+      "감자와 당근을 큼직하게 썰어 넣고 중불에서 닭과 채소가 익을 때까지 끓여요.",
+      "국물이 졸아들며 걸쭉해지면 간을 보고 꽃소금으로 맞춰요.",
+      "대파와 양파를 넣고 한소끔 더 끓여 향을 살려요.",
+      "매운맛이나 감칠맛이 부족하면 청양고춧가루나 미원을 아주 조금만 추가해요."
+    ],
+    tags: ["닭볶음탕", "닭도리탕", "홍탁집", "매콤한", "한식"],
+    notes:
+      "유튜브 설명란 기준으로 정리했어요. 설명에는 닭볶음탕용 10-12호 닭, 물 1L, 감자, 당근, 간장, 설탕, 고추장, 굴소스, 고춧가루 등이 적혀 있어요.",
+    imageUrl: HONGTAK_STYLE_DAKBOKKEUMTANG_IMAGE,
+    favorite: false,
+    bookmarked: true,
+    deleted: false,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
 function removeSampleRecipes(recipes: Recipe[]) {
   return recipes.filter((recipe) => !SAMPLE_RECIPE_IDS.has(recipe.id));
 }
@@ -2367,6 +2424,8 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     storageAvailable && window.localStorage.getItem(TZATZIKI_CABBAGE_ROLL_RECIPE_KEY) === "done";
   const pistachioNutMousseCakeDone =
     storageAvailable && window.localStorage.getItem(PISTACHIO_NUT_MOUSSE_CAKE_RECIPE_KEY) === "done";
+  const hongtakStyleDakbokkeumtangDone =
+    storageAvailable && window.localStorage.getItem(HONGTAK_STYLE_DAKBOKKEUMTANG_RECIPE_KEY) === "done";
   const correctTitle = "육수에 푹 적신 알배추롤 & 구운 주먹밥";
   const samplesRemoved = recipes.some((recipe) => SAMPLE_RECIPE_IDS.has(recipe.id));
   const hadWrongRecipe = recipes.some(
@@ -2804,6 +2863,16 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     existingPistachioNutMousseCake.deleted;
   nextRecipes = upsertManagedRecipe(nextRecipes, makePistachioNutMousseCakeRecipe());
 
+  const existingHongtakStyleDakbokkeumtang = nextRecipes.find(
+    (recipe) =>
+      recipe.sourceUrl === HONGTAK_STYLE_DAKBOKKEUMTANG_SOURCE || recipe.title === "홍탁집 스타일 닭볶음탕"
+  );
+  const hongtakStyleDakbokkeumtangNeedsUpdate =
+    !existingHongtakStyleDakbokkeumtang ||
+    existingHongtakStyleDakbokkeumtang.imageUrl !== HONGTAK_STYLE_DAKBOKKEUMTANG_IMAGE ||
+    existingHongtakStyleDakbokkeumtang.deleted;
+  nextRecipes = upsertManagedRecipe(nextRecipes, makeHongtakStyleDakbokkeumtangRecipe());
+
   if (
     storageAvailable &&
     (samplesRemoved ||
@@ -2899,7 +2968,9 @@ function migrateManagedRecipes(recipes: Recipe[]) {
       !tzatzikiCabbageRollDone ||
       tzatzikiCabbageRollNeedsUpdate ||
       !pistachioNutMousseCakeDone ||
-      pistachioNutMousseCakeNeedsUpdate)
+      pistachioNutMousseCakeNeedsUpdate ||
+      !hongtakStyleDakbokkeumtangDone ||
+      hongtakStyleDakbokkeumtangNeedsUpdate)
   ) {
     writeJson(RECIPES_KEY, nextRecipes);
     window.localStorage.setItem(CORRECT_INSTAGRAM_RECIPE_KEY, "done");
@@ -2948,6 +3019,7 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     window.localStorage.setItem(HONEY_COMBO_STYLE_CHICKEN_RECIPE_KEY, "done");
     window.localStorage.setItem(TZATZIKI_CABBAGE_ROLL_RECIPE_KEY, "done");
     window.localStorage.setItem(PISTACHIO_NUT_MOUSSE_CAKE_RECIPE_KEY, "done");
+    window.localStorage.setItem(HONGTAK_STYLE_DAKBOKKEUMTANG_RECIPE_KEY, "done");
   }
 
   return nextRecipes;
