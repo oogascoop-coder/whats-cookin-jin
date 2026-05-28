@@ -152,6 +152,9 @@ const PISTACHIO_NUT_MOUSSE_CAKE_IMAGE = "/recipe-media/choalife-most-viewed-reci
 const HONGTAK_STYLE_DAKBOKKEUMTANG_RECIPE_KEY = "whats-cookin-jin-migration-youtube-w0gsw3ZA9fo-v1";
 const HONGTAK_STYLE_DAKBOKKEUMTANG_SOURCE = "https://www.youtube.com/watch?v=w0gsw3ZA9fo";
 const HONGTAK_STYLE_DAKBOKKEUMTANG_IMAGE = "/recipe-media/hongtak-style-dakbokkeumtang.jpg";
+const GREEN_ONION_TUNA_TOAST_RECIPE_KEY = "whats-cookin-jin-migration-youtube-uc4vNWJ6maI-v1";
+const GREEN_ONION_TUNA_TOAST_SOURCE = "https://www.youtube.com/watch?v=uc4vNWJ6maI";
+const GREEN_ONION_TUNA_TOAST_IMAGE = "/recipe-media/green-onion-tuna-toast.jpg";
 const SAMPLE_RECIPE_IDS = new Set(sampleRecipes.map((recipe) => recipe.id));
 
 function canUseStorage() {
@@ -2315,6 +2318,52 @@ function makeHongtakStyleDakbokkeumtangRecipe(): Recipe {
   };
 }
 
+function makeGreenOnionTunaToastRecipe(): Recipe {
+  const now = new Date().toISOString();
+
+  return {
+    id: `youtube-green-onion-tuna-toast-${Date.now()}`,
+    title: "대파 참치 토스트",
+    sourceUrl: GREEN_ONION_TUNA_TOAST_SOURCE,
+    sourceType: "YouTube",
+    category: "다이어트",
+    mealType: "Breakfast",
+    dietGoal: "High Protein",
+    time: "15 min",
+    difficulty: "Easy",
+    servings: 1,
+    ingredients: [
+      "통밀빵 또는 식빵",
+      "참치캔",
+      "대파",
+      "달걀",
+      "팽이버섯 선택",
+      "슬라이스 치즈 또는 모짜렐라",
+      "그릭요거트 또는 마요네즈",
+      "후추",
+      "소금 약간",
+      "파마산 치즈 선택"
+    ],
+    steps: [
+      "참치는 기름이나 물기를 빼고 볼에 담아요.",
+      "대파는 송송 썰고, 팽이버섯을 넣는다면 잘게 찢어 준비해요.",
+      "참치에 대파, 달걀, 그릭요거트 또는 마요네즈, 후추, 소금 약간을 넣고 섞어요.",
+      "빵 위에 참치 대파 반죽을 도톰하게 올려요.",
+      "치즈를 올리고 에어프라이어 또는 팬에서 겉이 노릇해질 때까지 구워요.",
+      "먹기 좋게 반으로 자르고, 취향에 따라 파마산 치즈와 후추를 뿌려요."
+    ],
+    tags: ["대파", "참치", "토스트", "다이어트토스트", "단백질"],
+    notes:
+      "유튜브 설명란에는 '[대파 참치 토스트]'와 태그 중심으로 공개되어 있어요. 자세한 계량은 영상의 별도 레시피 링크에 있다고 되어 있어, 제목과 태그, 썸네일 기준으로 초간단 다이어트 토스트 흐름으로 정리했어요.",
+    imageUrl: GREEN_ONION_TUNA_TOAST_IMAGE,
+    favorite: false,
+    bookmarked: true,
+    deleted: false,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
 function removeSampleRecipes(recipes: Recipe[]) {
   return recipes.filter((recipe) => !SAMPLE_RECIPE_IDS.has(recipe.id));
 }
@@ -2426,6 +2475,8 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     storageAvailable && window.localStorage.getItem(PISTACHIO_NUT_MOUSSE_CAKE_RECIPE_KEY) === "done";
   const hongtakStyleDakbokkeumtangDone =
     storageAvailable && window.localStorage.getItem(HONGTAK_STYLE_DAKBOKKEUMTANG_RECIPE_KEY) === "done";
+  const greenOnionTunaToastDone =
+    storageAvailable && window.localStorage.getItem(GREEN_ONION_TUNA_TOAST_RECIPE_KEY) === "done";
   const correctTitle = "육수에 푹 적신 알배추롤 & 구운 주먹밥";
   const samplesRemoved = recipes.some((recipe) => SAMPLE_RECIPE_IDS.has(recipe.id));
   const hadWrongRecipe = recipes.some(
@@ -2873,6 +2924,15 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     existingHongtakStyleDakbokkeumtang.deleted;
   nextRecipes = upsertManagedRecipe(nextRecipes, makeHongtakStyleDakbokkeumtangRecipe());
 
+  const existingGreenOnionTunaToast = nextRecipes.find(
+    (recipe) => recipe.sourceUrl === GREEN_ONION_TUNA_TOAST_SOURCE || recipe.title === "대파 참치 토스트"
+  );
+  const greenOnionTunaToastNeedsUpdate =
+    !existingGreenOnionTunaToast ||
+    existingGreenOnionTunaToast.imageUrl !== GREEN_ONION_TUNA_TOAST_IMAGE ||
+    existingGreenOnionTunaToast.deleted;
+  nextRecipes = upsertManagedRecipe(nextRecipes, makeGreenOnionTunaToastRecipe());
+
   if (
     storageAvailable &&
     (samplesRemoved ||
@@ -2970,7 +3030,9 @@ function migrateManagedRecipes(recipes: Recipe[]) {
       !pistachioNutMousseCakeDone ||
       pistachioNutMousseCakeNeedsUpdate ||
       !hongtakStyleDakbokkeumtangDone ||
-      hongtakStyleDakbokkeumtangNeedsUpdate)
+      hongtakStyleDakbokkeumtangNeedsUpdate ||
+      !greenOnionTunaToastDone ||
+      greenOnionTunaToastNeedsUpdate)
   ) {
     writeJson(RECIPES_KEY, nextRecipes);
     window.localStorage.setItem(CORRECT_INSTAGRAM_RECIPE_KEY, "done");
@@ -3020,6 +3082,7 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     window.localStorage.setItem(TZATZIKI_CABBAGE_ROLL_RECIPE_KEY, "done");
     window.localStorage.setItem(PISTACHIO_NUT_MOUSSE_CAKE_RECIPE_KEY, "done");
     window.localStorage.setItem(HONGTAK_STYLE_DAKBOKKEUMTANG_RECIPE_KEY, "done");
+    window.localStorage.setItem(GREEN_ONION_TUNA_TOAST_RECIPE_KEY, "done");
   }
 
   return nextRecipes;
