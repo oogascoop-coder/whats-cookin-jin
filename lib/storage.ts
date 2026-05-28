@@ -80,6 +80,9 @@ const TZATZIKI_SAUCE_IMAGE = "/recipe-media/tzatziki-sauce.jpg";
 const MISO_CREAM_CHEESE_PASTA_RECIPE_KEY = "whats-cookin-jin-migration-instagram-DX1UsVuhdnJ-v1";
 const MISO_CREAM_CHEESE_PASTA_SOURCE = "https://www.instagram.com/p/DX1UsVuhdnJ/";
 const MISO_CREAM_CHEESE_PASTA_IMAGE = "/recipe-media/miso-cream-cheese-pasta.jpg";
+const YUPDDUK_STYLE_TTEOKBOKKI_RECIPE_KEY = "whats-cookin-jin-migration-youtube-D2cc-cDwpYA-v1";
+const YUPDDUK_STYLE_TTEOKBOKKI_SOURCE = "https://www.youtube.com/watch?v=D2cc-cDwpYA";
+const YUPDDUK_STYLE_TTEOKBOKKI_IMAGE = "/recipe-media/yupdduk-style-tteokbokki.jpg";
 const SAMPLE_RECIPE_IDS = new Set(sampleRecipes.map((recipe) => recipe.id));
 
 function canUseStorage() {
@@ -1106,6 +1109,55 @@ function makeMisoCreamCheesePastaRecipe(): Recipe {
   };
 }
 
+function makeYupddukStyleTteokbokkiRecipe(): Recipe {
+  const now = new Date().toISOString();
+
+  return {
+    id: `youtube-yupdduk-style-tteokbokki-${Date.now()}`,
+    title: "엽떡 스타일 떡볶이",
+    sourceUrl: YUPDDUK_STYLE_TTEOKBOKKI_SOURCE,
+    sourceType: "YouTube",
+    category: "간식",
+    mealType: "Snack",
+    dietGoal: "None",
+    time: "20 min",
+    difficulty: "Easy",
+    servings: 2,
+    ingredients: [
+      "떡볶이떡",
+      "어묵",
+      "대파",
+      "양배추",
+      "물 또는 육수",
+      "고추장",
+      "고춧가루",
+      "진간장",
+      "설탕",
+      "다진마늘",
+      "후추",
+      "카레가루",
+      "모짜렐라 치즈"
+    ],
+    steps: [
+      "떡볶이떡은 딱딱하면 물에 잠시 불리고, 어묵과 채소는 먹기 좋게 썰어요.",
+      "냄비에 물이나 육수를 넣고 고추장, 고춧가루, 진간장, 설탕, 다진마늘을 풀어요.",
+      "후추와 카레가루를 조금 넣어 엽떡 스타일의 매콤한 향을 더해요.",
+      "양념이 끓으면 떡, 어묵, 양배추를 넣고 중불에서 졸여요.",
+      "떡이 말랑해지고 국물이 걸쭉해지면 대파를 넣고 한 번 더 끓여요.",
+      "취향에 따라 모짜렐라 치즈를 올려 녹여 먹어요."
+    ],
+    tags: ["떡볶이", "엽떡스타일", "매운맛", "분식", "간식"],
+    notes:
+      "유튜브 제목과 썸네일 기준 정리. 영상 설명란에 정확한 재료와 계량이 공개되어 있지 않아 집에서 만들기 쉬운 엽떡 스타일 떡볶이 흐름으로 정리했어요.",
+    imageUrl: YUPDDUK_STYLE_TTEOKBOKKI_IMAGE,
+    favorite: false,
+    bookmarked: true,
+    deleted: false,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
 function removeSampleRecipes(recipes: Recipe[]) {
   return recipes.filter((recipe) => !SAMPLE_RECIPE_IDS.has(recipe.id));
 }
@@ -1174,6 +1226,8 @@ function migrateManagedRecipes(recipes: Recipe[]) {
   const tzatzikiSauceDone = storageAvailable && window.localStorage.getItem(TZATZIKI_SAUCE_RECIPE_KEY) === "done";
   const misoCreamCheesePastaDone =
     storageAvailable && window.localStorage.getItem(MISO_CREAM_CHEESE_PASTA_RECIPE_KEY) === "done";
+  const yupddukStyleTteokbokkiDone =
+    storageAvailable && window.localStorage.getItem(YUPDDUK_STYLE_TTEOKBOKKI_RECIPE_KEY) === "done";
   const correctTitle = "육수에 푹 적신 알배추롤 & 구운 주먹밥";
   const samplesRemoved = recipes.some((recipe) => SAMPLE_RECIPE_IDS.has(recipe.id));
   const hadWrongRecipe = recipes.some(
@@ -1407,6 +1461,15 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     existingMisoCreamCheesePasta.deleted;
   nextRecipes = upsertManagedRecipe(nextRecipes, makeMisoCreamCheesePastaRecipe());
 
+  const existingYupddukStyleTteokbokki = nextRecipes.find(
+    (recipe) => recipe.sourceUrl === YUPDDUK_STYLE_TTEOKBOKKI_SOURCE || recipe.title === "엽떡 스타일 떡볶이"
+  );
+  const yupddukStyleTteokbokkiNeedsUpdate =
+    !existingYupddukStyleTteokbokki ||
+    existingYupddukStyleTteokbokki.imageUrl !== YUPDDUK_STYLE_TTEOKBOKKI_IMAGE ||
+    existingYupddukStyleTteokbokki.deleted;
+  nextRecipes = upsertManagedRecipe(nextRecipes, makeYupddukStyleTteokbokkiRecipe());
+
   if (
     storageAvailable &&
     (samplesRemoved ||
@@ -1456,7 +1519,9 @@ function migrateManagedRecipes(recipes: Recipe[]) {
       !tzatzikiSauceDone ||
       tzatzikiSauceNeedsUpdate ||
       !misoCreamCheesePastaDone ||
-      misoCreamCheesePastaNeedsUpdate)
+      misoCreamCheesePastaNeedsUpdate ||
+      !yupddukStyleTteokbokkiDone ||
+      yupddukStyleTteokbokkiNeedsUpdate)
   ) {
     writeJson(RECIPES_KEY, nextRecipes);
     window.localStorage.setItem(CORRECT_INSTAGRAM_RECIPE_KEY, "done");
@@ -1482,6 +1547,7 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     window.localStorage.setItem(APPLE_BRIE_SANDWICH_RECIPE_KEY, "done");
     window.localStorage.setItem(TZATZIKI_SAUCE_RECIPE_KEY, "done");
     window.localStorage.setItem(MISO_CREAM_CHEESE_PASTA_RECIPE_KEY, "done");
+    window.localStorage.setItem(YUPDDUK_STYLE_TTEOKBOKKI_RECIPE_KEY, "done");
   }
 
   return nextRecipes;
