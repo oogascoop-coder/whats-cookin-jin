@@ -140,6 +140,9 @@ const TRUFFLE_MUSHROOM_RICE_IMAGE = "/recipe-media/truffle-mushroom-rice.jpg";
 const SHRIMP_CARPACCIO_RECIPE_KEY = "whats-cookin-jin-migration-youtube-9NoOkmmIR-U-v1";
 const SHRIMP_CARPACCIO_SOURCE = "https://www.youtube.com/watch?v=9NoOkmmIR-U";
 const SHRIMP_CARPACCIO_IMAGE = "/recipe-media/shrimp-carpaccio.jpg";
+const HONEY_COMBO_STYLE_CHICKEN_RECIPE_KEY = "whats-cookin-jin-migration-youtube-LEYNjJFbbgE-v1";
+const HONEY_COMBO_STYLE_CHICKEN_SOURCE = "https://www.youtube.com/watch?v=LEYNjJFbbgE";
+const HONEY_COMBO_STYLE_CHICKEN_IMAGE = "/recipe-media/honey-combo-style-chicken.jpg";
 const SAMPLE_RECIPE_IDS = new Set(sampleRecipes.map((recipe) => recipe.id));
 
 function canUseStorage() {
@@ -2071,7 +2074,7 @@ function makeShrimpCarpaccioRecipe(): Recipe {
     difficulty: "Medium",
     servings: 2,
     ingredients: [
-      "손질 새우",
+      "횟감용 생새우 또는 데친 새우",
       "달걀노른자 1개",
       "케이퍼",
       "트러플 오일",
@@ -2083,7 +2086,7 @@ function makeShrimpCarpaccioRecipe(): Recipe {
       "루꼴라 선택"
     ],
     steps: [
-      "새우는 껍질과 내장을 제거하고 깨끗하게 손질해요.",
+      "새우는 껍질과 내장을 제거하고 깨끗하게 손질해요. 생으로 먹을 때는 반드시 횟감용 새우를 써요.",
       "손질한 새우를 얇게 펴서 접시에 넓게 깔아요.",
       "소금, 후추, 레몬즙을 가볍게 뿌려 밑간해요.",
       "가운데 달걀노른자를 올리고 케이퍼를 흩뿌려요.",
@@ -2095,6 +2098,57 @@ function makeShrimpCarpaccioRecipe(): Recipe {
     notes:
       "유튜브 설명란에는 #카르파쵸 해시태그만 있어요. 썸네일과 영상 제목 기준으로 정리했으니, 정확한 계량을 알게 되면 나중에 수정하면 돼요.",
     imageUrl: SHRIMP_CARPACCIO_IMAGE,
+    favorite: false,
+    bookmarked: true,
+    deleted: false,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
+function makeHoneyComboStyleChickenRecipe(): Recipe {
+  const now = new Date().toISOString();
+
+  return {
+    id: `youtube-honey-combo-style-chicken-${Date.now()}`,
+    title: "허니콤보 스타일 치킨",
+    sourceUrl: HONEY_COMBO_STYLE_CHICKEN_SOURCE,
+    sourceType: "YouTube",
+    category: "간식",
+    mealType: "Dinner",
+    dietGoal: "None",
+    time: "45 min",
+    difficulty: "Medium",
+    servings: 2,
+    ingredients: [
+      "닭날개 또는 닭봉",
+      "우유 또는 맛술",
+      "소금",
+      "후추",
+      "튀김가루",
+      "감자전분",
+      "식용유",
+      "진간장",
+      "꿀",
+      "물엿 또는 올리고당",
+      "설탕",
+      "맛술",
+      "다진 마늘",
+      "버터 선택"
+    ],
+    steps: [
+      "닭날개나 닭봉은 깨끗하게 씻고 우유 또는 맛술, 소금, 후추로 가볍게 밑간해요.",
+      "튀김가루와 감자전분을 섞은 뒤 닭에 골고루 묻혀요.",
+      "기름을 넉넉히 달군 뒤 닭을 바삭하게 튀겨요.",
+      "더 바삭하게 먹고 싶으면 한 번 식힌 뒤 짧게 한 번 더 튀겨요.",
+      "팬에 진간장, 꿀, 물엿 또는 올리고당, 설탕, 맛술, 다진 마늘을 넣고 살짝 끓여 소스를 만들어요.",
+      "소스가 끈적하게 올라오면 튀긴 닭을 넣고 빠르게 버무려요.",
+      "취향에 따라 버터를 조금 넣어 윤기와 고소함을 더해요."
+    ],
+    tags: ["허니콤보", "치킨", "튀김", "간장치킨", "홈치킨"],
+    notes:
+      "유튜브 설명란에는 자세한 레시피가 고정 댓글 블로그에 있다고 되어 있어요. 현재 고정 댓글 내용은 가져오지 못해서 제목, 해시태그, 썸네일 기준으로 허니콤보 스타일 홈치킨 흐름으로 정리했어요.",
+    imageUrl: HONEY_COMBO_STYLE_CHICKEN_IMAGE,
     favorite: false,
     bookmarked: true,
     deleted: false,
@@ -2206,6 +2260,8 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     storageAvailable && window.localStorage.getItem(TRUFFLE_MUSHROOM_RICE_RECIPE_KEY) === "done";
   const shrimpCarpaccioDone =
     storageAvailable && window.localStorage.getItem(SHRIMP_CARPACCIO_RECIPE_KEY) === "done";
+  const honeyComboStyleChickenDone =
+    storageAvailable && window.localStorage.getItem(HONEY_COMBO_STYLE_CHICKEN_RECIPE_KEY) === "done";
   const correctTitle = "육수에 푹 적신 알배추롤 & 구운 주먹밥";
   const samplesRemoved = recipes.some((recipe) => SAMPLE_RECIPE_IDS.has(recipe.id));
   const hadWrongRecipe = recipes.some(
@@ -2614,6 +2670,16 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     existingShrimpCarpaccio.deleted;
   nextRecipes = upsertManagedRecipe(nextRecipes, makeShrimpCarpaccioRecipe());
 
+  const existingHoneyComboStyleChicken = nextRecipes.find(
+    (recipe) =>
+      recipe.sourceUrl === HONEY_COMBO_STYLE_CHICKEN_SOURCE || recipe.title === "허니콤보 스타일 치킨"
+  );
+  const honeyComboStyleChickenNeedsUpdate =
+    !existingHoneyComboStyleChicken ||
+    existingHoneyComboStyleChicken.imageUrl !== HONEY_COMBO_STYLE_CHICKEN_IMAGE ||
+    existingHoneyComboStyleChicken.deleted;
+  nextRecipes = upsertManagedRecipe(nextRecipes, makeHoneyComboStyleChickenRecipe());
+
   if (
     storageAvailable &&
     (samplesRemoved ||
@@ -2703,7 +2769,9 @@ function migrateManagedRecipes(recipes: Recipe[]) {
       !truffleMushroomRiceDone ||
       truffleMushroomRiceNeedsUpdate ||
       !shrimpCarpaccioDone ||
-      shrimpCarpaccioNeedsUpdate)
+      shrimpCarpaccioNeedsUpdate ||
+      !honeyComboStyleChickenDone ||
+      honeyComboStyleChickenNeedsUpdate)
   ) {
     writeJson(RECIPES_KEY, nextRecipes);
     window.localStorage.setItem(CORRECT_INSTAGRAM_RECIPE_KEY, "done");
@@ -2749,6 +2817,7 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     window.localStorage.setItem(SOUP_CURRY_RECIPE_KEY, "done");
     window.localStorage.setItem(TRUFFLE_MUSHROOM_RICE_RECIPE_KEY, "done");
     window.localStorage.setItem(SHRIMP_CARPACCIO_RECIPE_KEY, "done");
+    window.localStorage.setItem(HONEY_COMBO_STYLE_CHICKEN_RECIPE_KEY, "done");
   }
 
   return nextRecipes;
