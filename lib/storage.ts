@@ -119,6 +119,9 @@ const CABBAGE_APPLE_SALAD_IMAGE = "/recipe-media/cabbage-apple-salad.jpg";
 const SIMPLE_BURRITO_RECIPE_KEY = "whats-cookin-jin-migration-youtube-rCHC9OT0ujo-v1";
 const SIMPLE_BURRITO_SOURCE = "https://www.youtube.com/watch?v=rCHC9OT0ujo";
 const SIMPLE_BURRITO_IMAGE = "/recipe-media/simple-burrito.jpg";
+const LAZY_SALMON_CHEESE_PASTA_RECIPE_KEY = "whats-cookin-jin-migration-youtube-jvKF5kjvfwo-v1";
+const LAZY_SALMON_CHEESE_PASTA_SOURCE = "https://www.youtube.com/watch?v=jvKF5kjvfwo";
+const LAZY_SALMON_CHEESE_PASTA_IMAGE = "/recipe-media/lazy-salmon-cheese-pasta.jpg";
 const SAMPLE_RECIPE_IDS = new Set(sampleRecipes.map((recipe) => recipe.id));
 
 function canUseStorage() {
@@ -1748,6 +1751,53 @@ function makeSimpleBurritoRecipe(): Recipe {
   };
 }
 
+function makeLazySalmonCheesePastaRecipe(): Recipe {
+  const now = new Date().toISOString();
+
+  return {
+    id: `youtube-lazy-salmon-cheese-pasta-${Date.now()}`,
+    title: "Lazy 연어 치즈 파스타",
+    sourceUrl: LAZY_SALMON_CHEESE_PASTA_SOURCE,
+    sourceType: "YouTube",
+    category: "면 / 파스타",
+    mealType: "Dinner",
+    dietGoal: "None",
+    time: "20 min",
+    difficulty: "Easy",
+    servings: 1,
+    ingredients: [
+      "파스타면",
+      "생연어 또는 연어 필렛",
+      "방울토마토",
+      "허브 크림치즈 또는 부드러운 치즈",
+      "마늘",
+      "올리브오일",
+      "소금",
+      "후추",
+      "파슬리 또는 바질",
+      "파마산 치즈 선택"
+    ],
+    steps: [
+      "오븐이나 에어프라이어용 그릇에 연어, 방울토마토, 허브 크림치즈, 마늘을 넣어요.",
+      "올리브오일, 소금, 후추를 뿌려 간을 해요.",
+      "연어가 익고 토마토가 부드러워질 때까지 구워요.",
+      "파스타면은 소금물에 삶고 면수는 조금 남겨둬요.",
+      "익은 연어와 치즈, 토마토를 으깨듯 섞어 소스를 만들어요.",
+      "삶은 파스타와 면수를 넣고 소스가 잘 묻도록 비벼요.",
+      "파슬리나 바질, 파마산 치즈를 뿌려 마무리해요."
+    ],
+    tags: ["연어파스타", "치즈파스타", "Lazy girl dinner", "원팬", "간단요리"],
+    notes:
+      "유튜브 설명란에는 #연어파스타 #치즈파스타 해시태그만 있어요. 제목과 썸네일 기준으로 정리했으니, 정확한 계량을 알게 되면 나중에 수정하면 돼요.",
+    imageUrl: LAZY_SALMON_CHEESE_PASTA_IMAGE,
+    favorite: false,
+    bookmarked: true,
+    deleted: false,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
 function removeSampleRecipes(recipes: Recipe[]) {
   return recipes.filter((recipe) => !SAMPLE_RECIPE_IDS.has(recipe.id));
 }
@@ -1838,6 +1888,8 @@ function migrateManagedRecipes(recipes: Recipe[]) {
   const cabbageAppleSaladDone =
     storageAvailable && window.localStorage.getItem(CABBAGE_APPLE_SALAD_RECIPE_KEY) === "done";
   const simpleBurritoDone = storageAvailable && window.localStorage.getItem(SIMPLE_BURRITO_RECIPE_KEY) === "done";
+  const lazySalmonCheesePastaDone =
+    storageAvailable && window.localStorage.getItem(LAZY_SALMON_CHEESE_PASTA_RECIPE_KEY) === "done";
   const correctTitle = "육수에 푹 적신 알배추롤 & 구운 주먹밥";
   const samplesRemoved = recipes.some((recipe) => SAMPLE_RECIPE_IDS.has(recipe.id));
   const hadWrongRecipe = recipes.some(
@@ -2182,6 +2234,16 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     !existingSimpleBurrito || existingSimpleBurrito.imageUrl !== SIMPLE_BURRITO_IMAGE || existingSimpleBurrito.deleted;
   nextRecipes = upsertManagedRecipe(nextRecipes, makeSimpleBurritoRecipe());
 
+  const existingLazySalmonCheesePasta = nextRecipes.find(
+    (recipe) =>
+      recipe.sourceUrl === LAZY_SALMON_CHEESE_PASTA_SOURCE || recipe.title === "Lazy 연어 치즈 파스타"
+  );
+  const lazySalmonCheesePastaNeedsUpdate =
+    !existingLazySalmonCheesePasta ||
+    existingLazySalmonCheesePasta.imageUrl !== LAZY_SALMON_CHEESE_PASTA_IMAGE ||
+    existingLazySalmonCheesePasta.deleted;
+  nextRecipes = upsertManagedRecipe(nextRecipes, makeLazySalmonCheesePastaRecipe());
+
   if (
     storageAvailable &&
     (samplesRemoved ||
@@ -2257,7 +2319,9 @@ function migrateManagedRecipes(recipes: Recipe[]) {
       !cabbageAppleSaladDone ||
       cabbageAppleSaladNeedsUpdate ||
       !simpleBurritoDone ||
-      simpleBurritoNeedsUpdate)
+      simpleBurritoNeedsUpdate ||
+      !lazySalmonCheesePastaDone ||
+      lazySalmonCheesePastaNeedsUpdate)
   ) {
     writeJson(RECIPES_KEY, nextRecipes);
     window.localStorage.setItem(CORRECT_INSTAGRAM_RECIPE_KEY, "done");
@@ -2296,6 +2360,7 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     window.localStorage.setItem(BAKED_CHICKPEA_BALLS_RECIPE_KEY, "done");
     window.localStorage.setItem(CABBAGE_APPLE_SALAD_RECIPE_KEY, "done");
     window.localStorage.setItem(SIMPLE_BURRITO_RECIPE_KEY, "done");
+    window.localStorage.setItem(LAZY_SALMON_CHEESE_PASTA_RECIPE_KEY, "done");
   }
 
   return nextRecipes;
