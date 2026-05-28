@@ -122,6 +122,9 @@ const SIMPLE_BURRITO_IMAGE = "/recipe-media/simple-burrito.jpg";
 const LAZY_SALMON_CHEESE_PASTA_RECIPE_KEY = "whats-cookin-jin-migration-youtube-jvKF5kjvfwo-v1";
 const LAZY_SALMON_CHEESE_PASTA_SOURCE = "https://www.youtube.com/watch?v=jvKF5kjvfwo";
 const LAZY_SALMON_CHEESE_PASTA_IMAGE = "/recipe-media/lazy-salmon-cheese-pasta.jpg";
+const JIKOBA_STYLE_CHICKEN_RECIPE_KEY = "whats-cookin-jin-migration-youtube-iDMyw61V1XM-v1";
+const JIKOBA_STYLE_CHICKEN_SOURCE = "https://www.youtube.com/watch?v=iDMyw61V1XM";
+const JIKOBA_STYLE_CHICKEN_IMAGE = "/recipe-media/jikoba-style-chicken.jpg";
 const SAMPLE_RECIPE_IDS = new Set(sampleRecipes.map((recipe) => recipe.id));
 
 function canUseStorage() {
@@ -1798,6 +1801,59 @@ function makeLazySalmonCheesePastaRecipe(): Recipe {
   };
 }
 
+function makeJikobaStyleChickenRecipe(): Recipe {
+  const now = new Date().toISOString();
+
+  return {
+    id: `youtube-jikoba-style-chicken-${Date.now()}`,
+    title: "집코바 치킨",
+    sourceUrl: JIKOBA_STYLE_CHICKEN_SOURCE,
+    sourceType: "YouTube",
+    category: "간단 요리",
+    mealType: "Dinner",
+    dietGoal: "None",
+    time: "25 min",
+    difficulty: "Easy",
+    servings: 2,
+    ingredients: [
+      "닭다리살 정육 600g",
+      "대파 0.5대",
+      "청양고추 1개",
+      "떡 한 줌",
+      "맛술 1큰술",
+      "통깨",
+      "진간장 4큰술",
+      "물엿 4큰술",
+      "맛술 2큰술",
+      "설탕 2큰술",
+      "굴소스 1큰술",
+      "케첩 1큰술",
+      "고춧가루 1큰술",
+      "치킨스톡 0.5큰술",
+      "다진 마늘 듬뿍 1큰술",
+      "다진 생강 1작은술"
+    ],
+    steps: [
+      "닭다리살은 먹기 좋은 크기로 자르고 맛술 1큰술을 넣어 가볍게 밑간해요.",
+      "대파와 청양고추는 송송 썰고, 떡은 딱딱하면 물에 잠깐 불려요.",
+      "진간장, 물엿, 맛술, 설탕, 굴소스, 케첩, 고춧가루, 치킨스톡, 다진 마늘, 다진 생강을 섞어 양념장을 만들어요.",
+      "팬에 닭다리살을 먼저 넣고 겉면이 노릇해질 때까지 구워요.",
+      "닭이 거의 익으면 떡, 대파, 청양고추를 넣고 볶아요.",
+      "양념장을 넣고 중약불에서 자박하게 졸여요.",
+      "양념이 닭과 떡에 끈적하게 묻으면 통깨를 뿌려 마무리해요."
+    ],
+    tags: ["지코바", "집코바", "치킨", "닭다리살", "자취요리"],
+    notes:
+      "유튜브 설명란 기준 정리. 청양고추로 매운맛을 조절하고, 양념은 꼭 자박하게 졸이는 것이 포인트라고 안내되어 있어요.",
+    imageUrl: JIKOBA_STYLE_CHICKEN_IMAGE,
+    favorite: false,
+    bookmarked: true,
+    deleted: false,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
 function removeSampleRecipes(recipes: Recipe[]) {
   return recipes.filter((recipe) => !SAMPLE_RECIPE_IDS.has(recipe.id));
 }
@@ -1890,6 +1946,8 @@ function migrateManagedRecipes(recipes: Recipe[]) {
   const simpleBurritoDone = storageAvailable && window.localStorage.getItem(SIMPLE_BURRITO_RECIPE_KEY) === "done";
   const lazySalmonCheesePastaDone =
     storageAvailable && window.localStorage.getItem(LAZY_SALMON_CHEESE_PASTA_RECIPE_KEY) === "done";
+  const jikobaStyleChickenDone =
+    storageAvailable && window.localStorage.getItem(JIKOBA_STYLE_CHICKEN_RECIPE_KEY) === "done";
   const correctTitle = "육수에 푹 적신 알배추롤 & 구운 주먹밥";
   const samplesRemoved = recipes.some((recipe) => SAMPLE_RECIPE_IDS.has(recipe.id));
   const hadWrongRecipe = recipes.some(
@@ -2244,6 +2302,15 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     existingLazySalmonCheesePasta.deleted;
   nextRecipes = upsertManagedRecipe(nextRecipes, makeLazySalmonCheesePastaRecipe());
 
+  const existingJikobaStyleChicken = nextRecipes.find(
+    (recipe) => recipe.sourceUrl === JIKOBA_STYLE_CHICKEN_SOURCE || recipe.title === "집코바 치킨"
+  );
+  const jikobaStyleChickenNeedsUpdate =
+    !existingJikobaStyleChicken ||
+    existingJikobaStyleChicken.imageUrl !== JIKOBA_STYLE_CHICKEN_IMAGE ||
+    existingJikobaStyleChicken.deleted;
+  nextRecipes = upsertManagedRecipe(nextRecipes, makeJikobaStyleChickenRecipe());
+
   if (
     storageAvailable &&
     (samplesRemoved ||
@@ -2321,7 +2388,9 @@ function migrateManagedRecipes(recipes: Recipe[]) {
       !simpleBurritoDone ||
       simpleBurritoNeedsUpdate ||
       !lazySalmonCheesePastaDone ||
-      lazySalmonCheesePastaNeedsUpdate)
+      lazySalmonCheesePastaNeedsUpdate ||
+      !jikobaStyleChickenDone ||
+      jikobaStyleChickenNeedsUpdate)
   ) {
     writeJson(RECIPES_KEY, nextRecipes);
     window.localStorage.setItem(CORRECT_INSTAGRAM_RECIPE_KEY, "done");
@@ -2361,6 +2430,7 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     window.localStorage.setItem(CABBAGE_APPLE_SALAD_RECIPE_KEY, "done");
     window.localStorage.setItem(SIMPLE_BURRITO_RECIPE_KEY, "done");
     window.localStorage.setItem(LAZY_SALMON_CHEESE_PASTA_RECIPE_KEY, "done");
+    window.localStorage.setItem(JIKOBA_STYLE_CHICKEN_RECIPE_KEY, "done");
   }
 
   return nextRecipes;
