@@ -110,6 +110,9 @@ const EGGPLANT_TOFU_SKIN_LASAGNA_IMAGE = "/recipe-media/eggplant-tofu-skin-lasag
 const JOKBAL_MAKGUKSU_RECIPE_KEY = "whats-cookin-jin-migration-youtube-8Yj0LXNbdsk-v1";
 const JOKBAL_MAKGUKSU_SOURCE = "https://www.youtube.com/watch?v=8Yj0LXNbdsk";
 const JOKBAL_MAKGUKSU_IMAGE = "/recipe-media/jokbal-makguksu.jpg";
+const BAKED_CHICKPEA_BALLS_RECIPE_KEY = "whats-cookin-jin-migration-youtube-CfE82we5dsc-v1";
+const BAKED_CHICKPEA_BALLS_SOURCE = "https://www.youtube.com/watch?v=CfE82we5dsc";
+const BAKED_CHICKPEA_BALLS_IMAGE = "/recipe-media/baked-chickpea-balls.jpg";
 const SAMPLE_RECIPE_IDS = new Set(sampleRecipes.map((recipe) => recipe.id));
 
 function canUseStorage() {
@@ -1590,6 +1593,61 @@ function makeJokbalMakguksuRecipe(): Recipe {
   };
 }
 
+function makeBakedChickpeaBallsRecipe(): Recipe {
+  const now = new Date().toISOString();
+
+  return {
+    id: `youtube-baked-chickpea-balls-${Date.now()}`,
+    title: "구운 병아리콩볼",
+    sourceUrl: BAKED_CHICKPEA_BALLS_SOURCE,
+    sourceType: "YouTube",
+    category: "다이어트",
+    mealType: "Snack",
+    dietGoal: "High Protein",
+    time: "30 min",
+    difficulty: "Easy",
+    servings: 2,
+    ingredients: [
+      "캔 병아리콩 330g",
+      "브로콜리 80g",
+      "양파 1개",
+      "기버터 또는 식물성 오일",
+      "마늘 1쪽",
+      "파슬리",
+      "병아리콩가루 2큰술",
+      "아마씨가루 2큰술",
+      "소금",
+      "후추",
+      "커민 0.5작은술",
+      "파프리카 파우더 0.5작은술",
+      "타히니 2큰술",
+      "사워크림 2큰술",
+      "꿀 1작은술",
+      "레몬즙 0.5개분",
+      "칠리플레이크"
+    ],
+    steps: [
+      "캔 병아리콩은 물기를 빼고 헹군 뒤 포크나 매셔로 으깨요.",
+      "브로콜리, 양파, 마늘, 파슬리는 잘게 다져요.",
+      "팬에 기버터 또는 식물성 오일을 두르고 양파, 마늘, 브로콜리를 가볍게 볶아 식혀요.",
+      "으깬 병아리콩에 볶은 채소, 파슬리, 병아리콩가루, 아마씨가루, 소금, 후추, 커민, 파프리카 파우더를 넣고 섞어요.",
+      "반죽을 한입 크기의 동그란 볼 모양으로 빚어요.",
+      "오븐이나 에어프라이어에서 겉이 노릇하고 바삭해질 때까지 구워요.",
+      "타히니, 사워크림, 꿀, 다진 마늘, 레몬즙, 커민, 칠리플레이크, 소금을 섞어 소스를 만들어요.",
+      "구운 병아리콩볼을 소스와 함께 곁들여요."
+    ],
+    tags: ["병아리콩", "고단백", "비건가능", "구운간식", "타히니소스"],
+    notes:
+      "유튜브 설명란 기준 정리. 비건으로 먹고 싶으면 기버터 대신 식물성 오일, 사워크림 대신 식물성 사워크림, 꿀 대신 아가베 시럽을 쓰면 된다고 안내되어 있어요.",
+    imageUrl: BAKED_CHICKPEA_BALLS_IMAGE,
+    favorite: false,
+    bookmarked: true,
+    deleted: false,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
 function removeSampleRecipes(recipes: Recipe[]) {
   return recipes.filter((recipe) => !SAMPLE_RECIPE_IDS.has(recipe.id));
 }
@@ -1675,6 +1733,8 @@ function migrateManagedRecipes(recipes: Recipe[]) {
   const eggplantTofuSkinLasagnaDone =
     storageAvailable && window.localStorage.getItem(EGGPLANT_TOFU_SKIN_LASAGNA_RECIPE_KEY) === "done";
   const jokbalMakguksuDone = storageAvailable && window.localStorage.getItem(JOKBAL_MAKGUKSU_RECIPE_KEY) === "done";
+  const bakedChickpeaBallsDone =
+    storageAvailable && window.localStorage.getItem(BAKED_CHICKPEA_BALLS_RECIPE_KEY) === "done";
   const correctTitle = "육수에 푹 적신 알배추롤 & 구운 주먹밥";
   const samplesRemoved = recipes.some((recipe) => SAMPLE_RECIPE_IDS.has(recipe.id));
   const hadWrongRecipe = recipes.some(
@@ -1994,6 +2054,15 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     !existingJokbalMakguksu || existingJokbalMakguksu.imageUrl !== JOKBAL_MAKGUKSU_IMAGE || existingJokbalMakguksu.deleted;
   nextRecipes = upsertManagedRecipe(nextRecipes, makeJokbalMakguksuRecipe());
 
+  const existingBakedChickpeaBalls = nextRecipes.find(
+    (recipe) => recipe.sourceUrl === BAKED_CHICKPEA_BALLS_SOURCE || recipe.title === "구운 병아리콩볼"
+  );
+  const bakedChickpeaBallsNeedsUpdate =
+    !existingBakedChickpeaBalls ||
+    existingBakedChickpeaBalls.imageUrl !== BAKED_CHICKPEA_BALLS_IMAGE ||
+    existingBakedChickpeaBalls.deleted;
+  nextRecipes = upsertManagedRecipe(nextRecipes, makeBakedChickpeaBallsRecipe());
+
   if (
     storageAvailable &&
     (samplesRemoved ||
@@ -2063,7 +2132,9 @@ function migrateManagedRecipes(recipes: Recipe[]) {
       !eggplantTofuSkinLasagnaDone ||
       eggplantTofuSkinLasagnaNeedsUpdate ||
       !jokbalMakguksuDone ||
-      jokbalMakguksuNeedsUpdate)
+      jokbalMakguksuNeedsUpdate ||
+      !bakedChickpeaBallsDone ||
+      bakedChickpeaBallsNeedsUpdate)
   ) {
     writeJson(RECIPES_KEY, nextRecipes);
     window.localStorage.setItem(CORRECT_INSTAGRAM_RECIPE_KEY, "done");
@@ -2099,6 +2170,7 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     window.localStorage.setItem(MALA_CREAM_PASTA_RECIPE_KEY, "done");
     window.localStorage.setItem(EGGPLANT_TOFU_SKIN_LASAGNA_RECIPE_KEY, "done");
     window.localStorage.setItem(JOKBAL_MAKGUKSU_RECIPE_KEY, "done");
+    window.localStorage.setItem(BAKED_CHICKPEA_BALLS_RECIPE_KEY, "done");
   }
 
   return nextRecipes;
