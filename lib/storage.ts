@@ -161,6 +161,9 @@ const CHICKEN_CABBAGE_ROLL_IMAGE = "/recipe-media/chicken-cabbage-egg-pancake.jp
 const PEAR_DRINK_PORK_GALBIJJIM_RECIPE_KEY = "whats-cookin-jin-migration-youtube-vKcemZIfHYM-v1";
 const PEAR_DRINK_PORK_GALBIJJIM_SOURCE = "https://www.youtube.com/watch?v=vKcemZIfHYM";
 const PEAR_DRINK_PORK_GALBIJJIM_IMAGE = "/recipe-media/pear-drink-pork-galbijjim.jpg";
+const CRISPY_HASH_BROWNS_RECIPE_KEY = "whats-cookin-jin-migration-youtube-BSu7nG6nI3Q-v1";
+const CRISPY_HASH_BROWNS_SOURCE = "https://www.youtube.com/watch?v=BSu7nG6nI3Q";
+const CRISPY_HASH_BROWNS_IMAGE = "/recipe-media/crispy-hash-browns.jpg";
 const SAMPLE_RECIPE_IDS = new Set(sampleRecipes.map((recipe) => recipe.id));
 
 function canUseStorage() {
@@ -2466,6 +2469,54 @@ function makePearDrinkPorkGalbijjimRecipe(): Recipe {
   };
 }
 
+function makeCrispyHashBrownsRecipe(): Recipe {
+  const now = new Date().toISOString();
+
+  return {
+    id: `youtube-crispy-hash-browns-${Date.now()}`,
+    title: "크리스피 해시브라운 & 크림치즈 소스",
+    sourceUrl: CRISPY_HASH_BROWNS_SOURCE,
+    sourceType: "YouTube",
+    category: "간식",
+    mealType: "Snack",
+    dietGoal: "None",
+    time: "35 min",
+    difficulty: "Medium",
+    servings: 4,
+    ingredients: [
+      "감자 800g",
+      "양파 80g",
+      "옥수수전분 4큰술",
+      "소금 1큰술 선택",
+      "식용유",
+      "밀가루 1큰술",
+      "버터 1큰술",
+      "우유 240ml",
+      "치즈 40g"
+    ],
+    steps: [
+      "감자는 껍질을 벗기고 얇게 채 썰거나 굵게 갈아요.",
+      "양파도 잘게 다져 감자와 섞어요. 영상 설명 기준 비율은 감자 10 : 양파 1이에요.",
+      "감자와 양파에 옥수수전분과 소금을 넣고 끈기가 생기도록 섞어요.",
+      "먹기 좋은 납작한 모양으로 빚어요.",
+      "기름을 넉넉히 달군 뒤 해시브라운을 넣고 노릇하게 1차로 튀겨요.",
+      "잠시 식힌 뒤 한 번 더 튀기면 더 바삭해져요.",
+      "소스 팬에 버터와 밀가루를 1큰술씩 넣고 약불에서 볶아요.",
+      "우유를 조금씩 넣어 풀고 치즈를 넣어 녹이면 크림치즈 소스가 돼요.",
+      "바삭한 해시브라운을 크림치즈 소스에 찍어 먹어요."
+    ],
+    tags: ["해시브라운", "감자", "크리스피", "치즈소스", "브런치"],
+    notes:
+      "유튜브 설명란 기준으로 정리했어요. 영상 제목에는 3가지 소스가 나오지만 공개 설명에는 크림치즈 소스 계량이 가장 자세히 적혀 있어 이 소스를 중심으로 정리했어요.",
+    imageUrl: CRISPY_HASH_BROWNS_IMAGE,
+    favorite: false,
+    bookmarked: true,
+    deleted: false,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
 function removeSampleRecipes(recipes: Recipe[]) {
   return recipes.filter((recipe) => !SAMPLE_RECIPE_IDS.has(recipe.id));
 }
@@ -2583,6 +2634,8 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     storageAvailable && window.localStorage.getItem(CHICKEN_CABBAGE_ROLL_RECIPE_KEY) === "done";
   const pearDrinkPorkGalbijjimDone =
     storageAvailable && window.localStorage.getItem(PEAR_DRINK_PORK_GALBIJJIM_RECIPE_KEY) === "done";
+  const crispyHashBrownsDone =
+    storageAvailable && window.localStorage.getItem(CRISPY_HASH_BROWNS_RECIPE_KEY) === "done";
   const correctTitle = "육수에 푹 적신 알배추롤 & 구운 주먹밥";
   const samplesRemoved = recipes.some((recipe) => SAMPLE_RECIPE_IDS.has(recipe.id));
   const hadWrongRecipe = recipes.some(
@@ -3058,6 +3111,16 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     existingPearDrinkPorkGalbijjim.deleted;
   nextRecipes = upsertManagedRecipe(nextRecipes, makePearDrinkPorkGalbijjimRecipe());
 
+  const existingCrispyHashBrowns = nextRecipes.find(
+    (recipe) =>
+      recipe.sourceUrl === CRISPY_HASH_BROWNS_SOURCE || recipe.title === "크리스피 해시브라운 & 크림치즈 소스"
+  );
+  const crispyHashBrownsNeedsUpdate =
+    !existingCrispyHashBrowns ||
+    existingCrispyHashBrowns.imageUrl !== CRISPY_HASH_BROWNS_IMAGE ||
+    existingCrispyHashBrowns.deleted;
+  nextRecipes = upsertManagedRecipe(nextRecipes, makeCrispyHashBrownsRecipe());
+
   if (
     storageAvailable &&
     (samplesRemoved ||
@@ -3161,7 +3224,9 @@ function migrateManagedRecipes(recipes: Recipe[]) {
       !chickenCabbageRollDone ||
       chickenCabbageRollNeedsUpdate ||
       !pearDrinkPorkGalbijjimDone ||
-      pearDrinkPorkGalbijjimNeedsUpdate)
+      pearDrinkPorkGalbijjimNeedsUpdate ||
+      !crispyHashBrownsDone ||
+      crispyHashBrownsNeedsUpdate)
   ) {
     writeJson(RECIPES_KEY, nextRecipes);
     window.localStorage.setItem(CORRECT_INSTAGRAM_RECIPE_KEY, "done");
@@ -3214,6 +3279,7 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     window.localStorage.setItem(GREEN_ONION_TUNA_TOAST_RECIPE_KEY, "done");
     window.localStorage.setItem(CHICKEN_CABBAGE_ROLL_RECIPE_KEY, "done");
     window.localStorage.setItem(PEAR_DRINK_PORK_GALBIJJIM_RECIPE_KEY, "done");
+    window.localStorage.setItem(CRISPY_HASH_BROWNS_RECIPE_KEY, "done");
   }
 
   return nextRecipes;
