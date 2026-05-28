@@ -113,6 +113,9 @@ const JOKBAL_MAKGUKSU_IMAGE = "/recipe-media/jokbal-makguksu.jpg";
 const BAKED_CHICKPEA_BALLS_RECIPE_KEY = "whats-cookin-jin-migration-youtube-CfE82we5dsc-v1";
 const BAKED_CHICKPEA_BALLS_SOURCE = "https://www.youtube.com/watch?v=CfE82we5dsc";
 const BAKED_CHICKPEA_BALLS_IMAGE = "/recipe-media/baked-chickpea-balls.jpg";
+const CABBAGE_APPLE_SALAD_RECIPE_KEY = "whats-cookin-jin-migration-youtube-4JVhA9SzLDg-v1";
+const CABBAGE_APPLE_SALAD_SOURCE = "https://www.youtube.com/watch?v=4JVhA9SzLDg";
+const CABBAGE_APPLE_SALAD_IMAGE = "/recipe-media/cabbage-apple-salad.jpg";
 const SAMPLE_RECIPE_IDS = new Set(sampleRecipes.map((recipe) => recipe.id));
 
 function canUseStorage() {
@@ -1648,6 +1651,51 @@ function makeBakedChickpeaBallsRecipe(): Recipe {
   };
 }
 
+function makeCabbageAppleSaladRecipe(): Recipe {
+  const now = new Date().toISOString();
+
+  return {
+    id: `youtube-cabbage-apple-salad-${Date.now()}`,
+    title: "양배추 사과 샐러드",
+    sourceUrl: CABBAGE_APPLE_SALAD_SOURCE,
+    sourceType: "YouTube",
+    category: "샐러드",
+    mealType: "Breakfast",
+    dietGoal: "High Fiber",
+    time: "10 min",
+    difficulty: "Easy",
+    servings: 2,
+    ingredients: [
+      "양배추 150g",
+      "사과 0.5개",
+      "그릭요거트 3스푼",
+      "홀그레인 머스터드 0.5스푼",
+      "레몬즙 1스푼",
+      "들깨가루 1스푼",
+      "들기름 1스푼",
+      "소금 약간",
+      "꿀 1스푼 선택"
+    ],
+    steps: [
+      "양배추는 겉잎 2~3장을 제거하고 흐르는 물에 가볍게 씻어요.",
+      "양배추는 얇게 채 썰고, 사과도 먹기 좋게 얇게 썰어요.",
+      "그릭요거트, 홀그레인 머스터드, 레몬즙, 들깨가루, 들기름, 소금을 섞어 소스를 만들어요.",
+      "신맛이 부담스러우면 레몬즙을 줄이거나 생략해요.",
+      "단맛을 원하면 꿀 1스푼을 넣어 섞어요.",
+      "양배추와 사과에 소스를 넣고 골고루 버무려요."
+    ],
+    tags: ["양배추", "사과", "샐러드", "아침", "그릭요거트"],
+    notes:
+      "유튜브 설명란 기준 정리. 양배추는 물에 오래 담그기보다 겉잎을 제거하고 흐르는 물에 가볍게 세척하는 방법을 추천한다고 안내되어 있어요.",
+    imageUrl: CABBAGE_APPLE_SALAD_IMAGE,
+    favorite: false,
+    bookmarked: true,
+    deleted: false,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
 function removeSampleRecipes(recipes: Recipe[]) {
   return recipes.filter((recipe) => !SAMPLE_RECIPE_IDS.has(recipe.id));
 }
@@ -1735,6 +1783,8 @@ function migrateManagedRecipes(recipes: Recipe[]) {
   const jokbalMakguksuDone = storageAvailable && window.localStorage.getItem(JOKBAL_MAKGUKSU_RECIPE_KEY) === "done";
   const bakedChickpeaBallsDone =
     storageAvailable && window.localStorage.getItem(BAKED_CHICKPEA_BALLS_RECIPE_KEY) === "done";
+  const cabbageAppleSaladDone =
+    storageAvailable && window.localStorage.getItem(CABBAGE_APPLE_SALAD_RECIPE_KEY) === "done";
   const correctTitle = "육수에 푹 적신 알배추롤 & 구운 주먹밥";
   const samplesRemoved = recipes.some((recipe) => SAMPLE_RECIPE_IDS.has(recipe.id));
   const hadWrongRecipe = recipes.some(
@@ -2063,6 +2113,15 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     existingBakedChickpeaBalls.deleted;
   nextRecipes = upsertManagedRecipe(nextRecipes, makeBakedChickpeaBallsRecipe());
 
+  const existingCabbageAppleSalad = nextRecipes.find(
+    (recipe) => recipe.sourceUrl === CABBAGE_APPLE_SALAD_SOURCE || recipe.title === "양배추 사과 샐러드"
+  );
+  const cabbageAppleSaladNeedsUpdate =
+    !existingCabbageAppleSalad ||
+    existingCabbageAppleSalad.imageUrl !== CABBAGE_APPLE_SALAD_IMAGE ||
+    existingCabbageAppleSalad.deleted;
+  nextRecipes = upsertManagedRecipe(nextRecipes, makeCabbageAppleSaladRecipe());
+
   if (
     storageAvailable &&
     (samplesRemoved ||
@@ -2134,7 +2193,9 @@ function migrateManagedRecipes(recipes: Recipe[]) {
       !jokbalMakguksuDone ||
       jokbalMakguksuNeedsUpdate ||
       !bakedChickpeaBallsDone ||
-      bakedChickpeaBallsNeedsUpdate)
+      bakedChickpeaBallsNeedsUpdate ||
+      !cabbageAppleSaladDone ||
+      cabbageAppleSaladNeedsUpdate)
   ) {
     writeJson(RECIPES_KEY, nextRecipes);
     window.localStorage.setItem(CORRECT_INSTAGRAM_RECIPE_KEY, "done");
@@ -2171,6 +2232,7 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     window.localStorage.setItem(EGGPLANT_TOFU_SKIN_LASAGNA_RECIPE_KEY, "done");
     window.localStorage.setItem(JOKBAL_MAKGUKSU_RECIPE_KEY, "done");
     window.localStorage.setItem(BAKED_CHICKPEA_BALLS_RECIPE_KEY, "done");
+    window.localStorage.setItem(CABBAGE_APPLE_SALAD_RECIPE_KEY, "done");
   }
 
   return nextRecipes;
