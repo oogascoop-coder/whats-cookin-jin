@@ -134,6 +134,9 @@ const ROASTED_CABBAGE_STEAKS_IMAGE = "/recipe-media/roasted-cabbage-steaks.jpg";
 const SOUP_CURRY_RECIPE_KEY = "whats-cookin-jin-migration-youtube-DmNIDMUz8W0-v1";
 const SOUP_CURRY_SOURCE = "https://www.youtube.com/watch?v=DmNIDMUz8W0";
 const SOUP_CURRY_IMAGE = "/recipe-media/soup-curry.jpg";
+const TRUFFLE_MUSHROOM_RICE_RECIPE_KEY = "whats-cookin-jin-migration-youtube-dUTFwtT9D50-v1";
+const TRUFFLE_MUSHROOM_RICE_SOURCE = "https://www.youtube.com/watch?v=dUTFwtT9D50";
+const TRUFFLE_MUSHROOM_RICE_IMAGE = "/recipe-media/truffle-mushroom-rice.jpg";
 const SAMPLE_RECIPE_IDS = new Set(sampleRecipes.map((recipe) => recipe.id));
 
 function canUseStorage() {
@@ -2001,6 +2004,55 @@ function makeSoupCurryRecipe(): Recipe {
   };
 }
 
+function makeTruffleMushroomRiceRecipe(): Recipe {
+  const now = new Date().toISOString();
+
+  return {
+    id: `youtube-truffle-mushroom-rice-${Date.now()}`,
+    title: "트러플 버섯밥",
+    sourceUrl: TRUFFLE_MUSHROOM_RICE_SOURCE,
+    sourceType: "YouTube",
+    category: "다이어트",
+    mealType: "Dinner",
+    dietGoal: "Blood Sugar Friendly",
+    time: "10 min",
+    difficulty: "Easy",
+    servings: 2,
+    ingredients: [
+      "표고버섯 120g",
+      "새송이버섯 170g",
+      "즉석 곤약밥 또는 찬밥 300g",
+      "쪽파 40g",
+      "진간장 1큰술",
+      "무염버터 10~15g",
+      "트러플 오일",
+      "올리브오일",
+      "소금",
+      "후추",
+      "물"
+    ],
+    steps: [
+      "표고버섯은 기둥 끝의 지저분한 부분을 자르고 키친타월로 먼지를 털어 채 썰어요.",
+      "새송이버섯도 먼지를 털고 밑동 끝을 잘라낸 뒤 반으로 갈라 편 썰어요.",
+      "쪽파는 잘게 썰어요.",
+      "예열한 팬에 올리브오일을 넉넉히 두르고 버섯을 넣은 뒤 소금 두 꼬집을 뿌려 중약불에서 볶아요.",
+      "버섯이 노릇하고 촉촉해지면 약불로 줄여 곤약밥 또는 찬밥을 넣어요.",
+      "진간장을 뿌려 골고루 섞고, 버터를 올린 뒤 소주잔 반 잔 정도의 물을 둘러요.",
+      "뚜껑을 덮고 약 3분간 뜸 들여요.",
+      "후추를 갈아 넣고 쪽파와 트러플 오일을 취향껏 둘러 골고루 섞어 마무리해요."
+    ],
+    tags: ["버섯밥", "트러플", "곤약밥", "찬밥활용", "혈당"],
+    notes:
+      "유튜브 설명란 기준 정리. 곤약밥이나 찬밥으로 만들 수 있고, 버섯 리조토 느낌이 나는 2인분 레시피라고 안내되어 있어요.",
+    imageUrl: TRUFFLE_MUSHROOM_RICE_IMAGE,
+    favorite: false,
+    bookmarked: true,
+    deleted: false,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
 function removeSampleRecipes(recipes: Recipe[]) {
   return recipes.filter((recipe) => !SAMPLE_RECIPE_IDS.has(recipe.id));
 }
@@ -2100,6 +2152,8 @@ function migrateManagedRecipes(recipes: Recipe[]) {
   const roastedCabbageSteaksDone =
     storageAvailable && window.localStorage.getItem(ROASTED_CABBAGE_STEAKS_RECIPE_KEY) === "done";
   const soupCurryDone = storageAvailable && window.localStorage.getItem(SOUP_CURRY_RECIPE_KEY) === "done";
+  const truffleMushroomRiceDone =
+    storageAvailable && window.localStorage.getItem(TRUFFLE_MUSHROOM_RICE_RECIPE_KEY) === "done";
   const correctTitle = "육수에 푹 적신 알배추롤 & 구운 주먹밥";
   const samplesRemoved = recipes.some((recipe) => SAMPLE_RECIPE_IDS.has(recipe.id));
   const hadWrongRecipe = recipes.some(
@@ -2490,6 +2544,15 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     !existingSoupCurry || existingSoupCurry.imageUrl !== SOUP_CURRY_IMAGE || existingSoupCurry.deleted;
   nextRecipes = upsertManagedRecipe(nextRecipes, makeSoupCurryRecipe());
 
+  const existingTruffleMushroomRice = nextRecipes.find(
+    (recipe) => recipe.sourceUrl === TRUFFLE_MUSHROOM_RICE_SOURCE || recipe.title === "트러플 버섯밥"
+  );
+  const truffleMushroomRiceNeedsUpdate =
+    !existingTruffleMushroomRice ||
+    existingTruffleMushroomRice.imageUrl !== TRUFFLE_MUSHROOM_RICE_IMAGE ||
+    existingTruffleMushroomRice.deleted;
+  nextRecipes = upsertManagedRecipe(nextRecipes, makeTruffleMushroomRiceRecipe());
+
   if (
     storageAvailable &&
     (samplesRemoved ||
@@ -2575,7 +2638,9 @@ function migrateManagedRecipes(recipes: Recipe[]) {
       !roastedCabbageSteaksDone ||
       roastedCabbageSteaksNeedsUpdate ||
       !soupCurryDone ||
-      soupCurryNeedsUpdate)
+      soupCurryNeedsUpdate ||
+      !truffleMushroomRiceDone ||
+      truffleMushroomRiceNeedsUpdate)
   ) {
     writeJson(RECIPES_KEY, nextRecipes);
     window.localStorage.setItem(CORRECT_INSTAGRAM_RECIPE_KEY, "done");
@@ -2619,6 +2684,7 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     window.localStorage.setItem(LEMON_ALLULOSE_GRANITA_RECIPE_KEY, "done");
     window.localStorage.setItem(ROASTED_CABBAGE_STEAKS_RECIPE_KEY, "done");
     window.localStorage.setItem(SOUP_CURRY_RECIPE_KEY, "done");
+    window.localStorage.setItem(TRUFFLE_MUSHROOM_RICE_RECIPE_KEY, "done");
   }
 
   return nextRecipes;
