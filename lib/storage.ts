@@ -92,6 +92,9 @@ const EGGPLANT_MEAT_DUMPLINGS_IMAGE = "/recipe-media/eggplant-meat-dumplings.jpg
 const PEANUT_BUTTER_BIBIM_NOODLES_RECIPE_KEY = "whats-cookin-jin-migration-youtube-TOUhVZnYKe8-v1";
 const PEANUT_BUTTER_BIBIM_NOODLES_SOURCE = "https://www.youtube.com/watch?v=TOUhVZnYKe8";
 const PEANUT_BUTTER_BIBIM_NOODLES_IMAGE = "/recipe-media/peanut-butter-bibim-noodles.jpg";
+const GOCHUJANG_JEYUK_RECIPE_KEY = "whats-cookin-jin-migration-youtube-ET8YRX3CET0-v1";
+const GOCHUJANG_JEYUK_SOURCE = "https://www.youtube.com/watch?v=ET8YRX3CET0";
+const GOCHUJANG_JEYUK_IMAGE = "/recipe-media/gochujang-jeyuk.jpg";
 const SAMPLE_RECIPE_IDS = new Set(sampleRecipes.map((recipe) => recipe.id));
 
 function canUseStorage() {
@@ -1305,6 +1308,55 @@ function makePeanutButterBibimNoodlesRecipe(): Recipe {
   };
 }
 
+function makeGochujangJeyukRecipe(): Recipe {
+  const now = new Date().toISOString();
+
+  return {
+    id: `youtube-gochujang-jeyuk-${Date.now()}`,
+    title: "고추장 제육",
+    sourceUrl: GOCHUJANG_JEYUK_SOURCE,
+    sourceType: "YouTube",
+    category: "한식 / 밥",
+    mealType: "Dinner",
+    dietGoal: "None",
+    time: "25 min",
+    difficulty: "Easy",
+    servings: 2,
+    ingredients: [
+      "돼지고기 앞다리살 또는 목살 400g",
+      "양파 1/2개",
+      "대파 1대",
+      "양배추 한 줌",
+      "고추장 2큰술",
+      "고춧가루 1큰술",
+      "간장 2큰술",
+      "설탕 1큰술",
+      "맛술 1큰술",
+      "다진마늘 1큰술",
+      "참기름 1큰술",
+      "후추"
+    ],
+    steps: [
+      "양파, 대파, 양배추는 먹기 좋게 썰어요.",
+      "큰 볼에 고추장, 고춧가루, 간장, 설탕, 맛술, 다진마늘, 참기름, 후추를 넣고 양념장을 만들어요.",
+      "돼지고기와 손질한 채소를 양념장에 넣고 골고루 버무려요.",
+      "가능하면 10분 정도 재워 양념이 배게 해요.",
+      "달군 팬에 양념한 고기를 넣고 중강불에서 볶아요.",
+      "고기가 거의 익으면 대파를 넣고 한 번 더 볶아 향을 살려요.",
+      "국물이 너무 많으면 센 불에서 살짝 졸여 밥에 올려 먹어요."
+    ],
+    tags: ["제육볶음", "고추장", "돼지고기", "집밥", "밥도둑"],
+    notes:
+      "유튜브 제목과 썸네일 기준 정리. 영상 제목에 고정댓글 레시피라고 되어 있지만 댓글 내용은 자동으로 가져오지 못해, 집에서 만들기 쉬운 고추장 제육 기본 비율로 정리했어요.",
+    imageUrl: GOCHUJANG_JEYUK_IMAGE,
+    favorite: false,
+    bookmarked: true,
+    deleted: false,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
 function removeSampleRecipes(recipes: Recipe[]) {
   return recipes.filter((recipe) => !SAMPLE_RECIPE_IDS.has(recipe.id));
 }
@@ -1381,6 +1433,7 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     storageAvailable && window.localStorage.getItem(EGGPLANT_MEAT_DUMPLINGS_RECIPE_KEY) === "done";
   const peanutButterBibimNoodlesDone =
     storageAvailable && window.localStorage.getItem(PEANUT_BUTTER_BIBIM_NOODLES_RECIPE_KEY) === "done";
+  const gochujangJeyukDone = storageAvailable && window.localStorage.getItem(GOCHUJANG_JEYUK_RECIPE_KEY) === "done";
   const correctTitle = "육수에 푹 적신 알배추롤 & 구운 주먹밥";
   const samplesRemoved = recipes.some((recipe) => SAMPLE_RECIPE_IDS.has(recipe.id));
   const hadWrongRecipe = recipes.some(
@@ -1652,6 +1705,13 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     existingPeanutButterBibimNoodles.deleted;
   nextRecipes = upsertManagedRecipe(nextRecipes, makePeanutButterBibimNoodlesRecipe());
 
+  const existingGochujangJeyuk = nextRecipes.find(
+    (recipe) => recipe.sourceUrl === GOCHUJANG_JEYUK_SOURCE || recipe.title === "고추장 제육"
+  );
+  const gochujangJeyukNeedsUpdate =
+    !existingGochujangJeyuk || existingGochujangJeyuk.imageUrl !== GOCHUJANG_JEYUK_IMAGE || existingGochujangJeyuk.deleted;
+  nextRecipes = upsertManagedRecipe(nextRecipes, makeGochujangJeyukRecipe());
+
   if (
     storageAvailable &&
     (samplesRemoved ||
@@ -1709,7 +1769,9 @@ function migrateManagedRecipes(recipes: Recipe[]) {
       !eggplantMeatDumplingsDone ||
       eggplantMeatDumplingsNeedsUpdate ||
       !peanutButterBibimNoodlesDone ||
-      peanutButterBibimNoodlesNeedsUpdate)
+      peanutButterBibimNoodlesNeedsUpdate ||
+      !gochujangJeyukDone ||
+      gochujangJeyukNeedsUpdate)
   ) {
     writeJson(RECIPES_KEY, nextRecipes);
     window.localStorage.setItem(CORRECT_INSTAGRAM_RECIPE_KEY, "done");
@@ -1739,6 +1801,7 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     window.localStorage.setItem(SHEPHERDS_PURSE_DOENJANG_RAMEN_RECIPE_KEY, "done");
     window.localStorage.setItem(EGGPLANT_MEAT_DUMPLINGS_RECIPE_KEY, "done");
     window.localStorage.setItem(PEANUT_BUTTER_BIBIM_NOODLES_RECIPE_KEY, "done");
+    window.localStorage.setItem(GOCHUJANG_JEYUK_RECIPE_KEY, "done");
   }
 
   return nextRecipes;
