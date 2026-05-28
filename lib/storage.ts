@@ -98,6 +98,12 @@ const GOCHUJANG_JEYUK_IMAGE = "/recipe-media/gochujang-jeyuk.jpg";
 const CHEWY_RICE_PAPER_ROLLS_RECIPE_KEY = "whats-cookin-jin-migration-youtube-OKuOuylx9Ek-v1";
 const CHEWY_RICE_PAPER_ROLLS_SOURCE = "https://www.youtube.com/watch?v=OKuOuylx9Ek";
 const CHEWY_RICE_PAPER_ROLLS_IMAGE = "/recipe-media/chewy-rice-paper-rolls.jpg";
+const MUSHROOM_CREAM_RIGATONI_RECIPE_KEY = "whats-cookin-jin-migration-youtube-O5FJxI_L76I-v1";
+const MUSHROOM_CREAM_RIGATONI_SOURCE = "https://www.youtube.com/watch?v=O5FJxI_L76I";
+const MUSHROOM_CREAM_RIGATONI_IMAGE = "/recipe-media/mushroom-cream-rigatoni.jpg";
+const MALA_CREAM_PASTA_RECIPE_KEY = "whats-cookin-jin-migration-youtube-zc0IrP3AEMw-v1";
+const MALA_CREAM_PASTA_SOURCE = "https://www.youtube.com/watch?v=zc0IrP3AEMw";
+const MALA_CREAM_PASTA_IMAGE = "/recipe-media/mala-cream-pasta.jpg";
 const SAMPLE_RECIPE_IDS = new Set(sampleRecipes.map((recipe) => recipe.id));
 
 function canUseStorage() {
@@ -1395,6 +1401,91 @@ function makeChewyRicePaperRollsRecipe(): Recipe {
   };
 }
 
+function makeMushroomCreamRigatoniRecipe(): Recipe {
+  const now = new Date().toISOString();
+
+  return {
+    id: `youtube-mushroom-cream-rigatoni-${Date.now()}`,
+    title: "버섯크림파스타",
+    sourceUrl: MUSHROOM_CREAM_RIGATONI_SOURCE,
+    sourceType: "YouTube",
+    category: "면 / 파스타",
+    mealType: "Dinner",
+    dietGoal: "None",
+    time: "25 min",
+    difficulty: "Medium",
+    servings: 1,
+    ingredients: ["표고버섯", "양송이버섯", "느타리버섯", "양파", "치즈", "소금", "후추", "버터", "간마늘", "생크림", "리카토니면"],
+    steps: [
+      "표고버섯, 양송이버섯, 느타리버섯은 작게 썬 것과 크게 썬 것 두 가지로 준비해요.",
+      "양파는 잘게 썰어 팬에서 노릇하게 볶아요.",
+      "버섯을 넣고 소금과 후추로 밑간하며 볶아요.",
+      "버터, 간마늘, 생크림을 넣고 소금으로 간을 맞춰요.",
+      "리카토니면을 삶은 뒤 팬에 넣고 면수도 조금 더해요.",
+      "후추를 뿌리고 소스가 면에 잘 묻도록 볶아요.",
+      "접시에 담고 치즈를 갈아 올려 마무리해요."
+    ],
+    tags: ["버섯", "크림파스타", "리카토니", "성시경", "생크림"],
+    notes:
+      "유튜브 설명란 기준 정리. 표고, 양송이, 느타리 세 가지 버섯을 크게/작게 썰어 식감을 살리는 게 포인트예요.",
+    imageUrl: MUSHROOM_CREAM_RIGATONI_IMAGE,
+    favorite: false,
+    bookmarked: true,
+    deleted: false,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
+function makeMalaCreamPastaRecipe(): Recipe {
+  const now = new Date().toISOString();
+
+  return {
+    id: `youtube-mala-cream-pasta-${Date.now()}`,
+    title: "마라 크림파스타",
+    sourceUrl: MALA_CREAM_PASTA_SOURCE,
+    sourceType: "YouTube",
+    category: "면 / 파스타",
+    mealType: "Dinner",
+    dietGoal: "None",
+    time: "25 min",
+    difficulty: "Medium",
+    servings: 1,
+    ingredients: [
+      "파스타면",
+      "우삼겹 또는 차돌박이",
+      "양파",
+      "마늘",
+      "버섯",
+      "생크림",
+      "우유",
+      "마라소스",
+      "파마산 치즈",
+      "소금",
+      "후추",
+      "파슬리"
+    ],
+    steps: [
+      "파스타면을 소금물에 삶고 면수는 조금 남겨둬요.",
+      "팬에 우삼겹이나 차돌박이를 넣고 노릇하게 볶아요.",
+      "고기 기름에 마늘, 양파, 버섯을 넣고 볶아요.",
+      "생크림과 우유를 넣고 약불에서 끓여요.",
+      "마라소스를 조금씩 넣어 매운맛을 조절해요.",
+      "삶은 면과 면수를 넣고 소스가 걸쭉하게 묻도록 섞어요.",
+      "파마산 치즈, 후추, 파슬리를 뿌려 마무리해요."
+    ],
+    tags: ["마라", "크림파스타", "우삼겹", "매콤크림", "파스타"],
+    notes:
+      "유튜브 설명란에는 자세한 레시피가 고정댓글 블로그에 있다고 되어 있어요. 자동으로 댓글/블로그 내용은 가져오지 못해, 제목과 설명 기준의 마라 크림파스타 기본 흐름으로 정리했어요.",
+    imageUrl: MALA_CREAM_PASTA_IMAGE,
+    favorite: false,
+    bookmarked: true,
+    deleted: false,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
 function removeSampleRecipes(recipes: Recipe[]) {
   return recipes.filter((recipe) => !SAMPLE_RECIPE_IDS.has(recipe.id));
 }
@@ -1474,6 +1565,9 @@ function migrateManagedRecipes(recipes: Recipe[]) {
   const gochujangJeyukDone = storageAvailable && window.localStorage.getItem(GOCHUJANG_JEYUK_RECIPE_KEY) === "done";
   const chewyRicePaperRollsDone =
     storageAvailable && window.localStorage.getItem(CHEWY_RICE_PAPER_ROLLS_RECIPE_KEY) === "done";
+  const mushroomCreamRigatoniDone =
+    storageAvailable && window.localStorage.getItem(MUSHROOM_CREAM_RIGATONI_RECIPE_KEY) === "done";
+  const malaCreamPastaDone = storageAvailable && window.localStorage.getItem(MALA_CREAM_PASTA_RECIPE_KEY) === "done";
   const correctTitle = "육수에 푹 적신 알배추롤 & 구운 주먹밥";
   const samplesRemoved = recipes.some((recipe) => SAMPLE_RECIPE_IDS.has(recipe.id));
   const hadWrongRecipe = recipes.some(
@@ -1761,6 +1855,22 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     existingChewyRicePaperRolls.deleted;
   nextRecipes = upsertManagedRecipe(nextRecipes, makeChewyRicePaperRollsRecipe());
 
+  const existingMushroomCreamRigatoni = nextRecipes.find(
+    (recipe) => recipe.sourceUrl === MUSHROOM_CREAM_RIGATONI_SOURCE || recipe.title === "버섯크림파스타"
+  );
+  const mushroomCreamRigatoniNeedsUpdate =
+    !existingMushroomCreamRigatoni ||
+    existingMushroomCreamRigatoni.imageUrl !== MUSHROOM_CREAM_RIGATONI_IMAGE ||
+    existingMushroomCreamRigatoni.deleted;
+  nextRecipes = upsertManagedRecipe(nextRecipes, makeMushroomCreamRigatoniRecipe());
+
+  const existingMalaCreamPasta = nextRecipes.find(
+    (recipe) => recipe.sourceUrl === MALA_CREAM_PASTA_SOURCE || recipe.title === "마라 크림파스타"
+  );
+  const malaCreamPastaNeedsUpdate =
+    !existingMalaCreamPasta || existingMalaCreamPasta.imageUrl !== MALA_CREAM_PASTA_IMAGE || existingMalaCreamPasta.deleted;
+  nextRecipes = upsertManagedRecipe(nextRecipes, makeMalaCreamPastaRecipe());
+
   if (
     storageAvailable &&
     (samplesRemoved ||
@@ -1822,7 +1932,11 @@ function migrateManagedRecipes(recipes: Recipe[]) {
       !gochujangJeyukDone ||
       gochujangJeyukNeedsUpdate ||
       !chewyRicePaperRollsDone ||
-      chewyRicePaperRollsNeedsUpdate)
+      chewyRicePaperRollsNeedsUpdate ||
+      !mushroomCreamRigatoniDone ||
+      mushroomCreamRigatoniNeedsUpdate ||
+      !malaCreamPastaDone ||
+      malaCreamPastaNeedsUpdate)
   ) {
     writeJson(RECIPES_KEY, nextRecipes);
     window.localStorage.setItem(CORRECT_INSTAGRAM_RECIPE_KEY, "done");
@@ -1854,6 +1968,8 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     window.localStorage.setItem(PEANUT_BUTTER_BIBIM_NOODLES_RECIPE_KEY, "done");
     window.localStorage.setItem(GOCHUJANG_JEYUK_RECIPE_KEY, "done");
     window.localStorage.setItem(CHEWY_RICE_PAPER_ROLLS_RECIPE_KEY, "done");
+    window.localStorage.setItem(MUSHROOM_CREAM_RIGATONI_RECIPE_KEY, "done");
+    window.localStorage.setItem(MALA_CREAM_PASTA_RECIPE_KEY, "done");
   }
 
   return nextRecipes;
