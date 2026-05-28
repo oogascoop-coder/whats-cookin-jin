@@ -116,6 +116,9 @@ const BAKED_CHICKPEA_BALLS_IMAGE = "/recipe-media/baked-chickpea-balls.jpg";
 const CABBAGE_APPLE_SALAD_RECIPE_KEY = "whats-cookin-jin-migration-youtube-4JVhA9SzLDg-v1";
 const CABBAGE_APPLE_SALAD_SOURCE = "https://www.youtube.com/watch?v=4JVhA9SzLDg";
 const CABBAGE_APPLE_SALAD_IMAGE = "/recipe-media/cabbage-apple-salad.jpg";
+const SIMPLE_BURRITO_RECIPE_KEY = "whats-cookin-jin-migration-youtube-rCHC9OT0ujo-v1";
+const SIMPLE_BURRITO_SOURCE = "https://www.youtube.com/watch?v=rCHC9OT0ujo";
+const SIMPLE_BURRITO_IMAGE = "/recipe-media/simple-burrito.jpg";
 const SAMPLE_RECIPE_IDS = new Set(sampleRecipes.map((recipe) => recipe.id));
 
 function canUseStorage() {
@@ -1696,6 +1699,55 @@ function makeCabbageAppleSaladRecipe(): Recipe {
   };
 }
 
+function makeSimpleBurritoRecipe(): Recipe {
+  const now = new Date().toISOString();
+
+  return {
+    id: `youtube-simple-burrito-${Date.now()}`,
+    title: "든든한 고기 부리또",
+    sourceUrl: SIMPLE_BURRITO_SOURCE,
+    sourceType: "YouTube",
+    category: "간단 요리",
+    mealType: "Lunch",
+    dietGoal: "None",
+    time: "20 min",
+    difficulty: "Easy",
+    servings: 1,
+    ingredients: [
+      "또띠아 1장",
+      "다진 소고기 또는 돼지고기",
+      "양파",
+      "토마토 또는 파프리카",
+      "양상추 또는 어린잎채소",
+      "체다치즈",
+      "사워크림 또는 마요네즈",
+      "살사소스 또는 스리라차",
+      "타코 시즈닝",
+      "소금",
+      "후추",
+      "오일"
+    ],
+    steps: [
+      "양파와 토마토 또는 파프리카는 잘게 썰어요.",
+      "팬에 오일을 두르고 다진 고기와 양파를 볶아요.",
+      "고기가 익으면 타코 시즈닝, 소금, 후추로 간하고 수분이 날아가도록 볶아요.",
+      "또띠아를 팬이나 전자레인지에 살짝 데워 부드럽게 만들어요.",
+      "또띠아 위에 사워크림 또는 마요네즈, 살사소스를 바르고 채소를 올려요.",
+      "볶은 고기와 치즈를 올린 뒤 단단하게 말아요.",
+      "팬에서 겉면을 노릇하게 구워 반으로 잘라 먹어요."
+    ],
+    tags: ["부리또", "고기", "또띠아", "점심", "한끼"],
+    notes:
+      "유튜브 설명란에 세부 재료와 계량이 없어 제목과 썸네일 기준으로 정리했어요. 정확한 계량을 알게 되면 나중에 쉽게 수정하면 돼요.",
+    imageUrl: SIMPLE_BURRITO_IMAGE,
+    favorite: false,
+    bookmarked: true,
+    deleted: false,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
 function removeSampleRecipes(recipes: Recipe[]) {
   return recipes.filter((recipe) => !SAMPLE_RECIPE_IDS.has(recipe.id));
 }
@@ -1785,6 +1837,7 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     storageAvailable && window.localStorage.getItem(BAKED_CHICKPEA_BALLS_RECIPE_KEY) === "done";
   const cabbageAppleSaladDone =
     storageAvailable && window.localStorage.getItem(CABBAGE_APPLE_SALAD_RECIPE_KEY) === "done";
+  const simpleBurritoDone = storageAvailable && window.localStorage.getItem(SIMPLE_BURRITO_RECIPE_KEY) === "done";
   const correctTitle = "육수에 푹 적신 알배추롤 & 구운 주먹밥";
   const samplesRemoved = recipes.some((recipe) => SAMPLE_RECIPE_IDS.has(recipe.id));
   const hadWrongRecipe = recipes.some(
@@ -2122,6 +2175,13 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     existingCabbageAppleSalad.deleted;
   nextRecipes = upsertManagedRecipe(nextRecipes, makeCabbageAppleSaladRecipe());
 
+  const existingSimpleBurrito = nextRecipes.find(
+    (recipe) => recipe.sourceUrl === SIMPLE_BURRITO_SOURCE || recipe.title === "든든한 고기 부리또"
+  );
+  const simpleBurritoNeedsUpdate =
+    !existingSimpleBurrito || existingSimpleBurrito.imageUrl !== SIMPLE_BURRITO_IMAGE || existingSimpleBurrito.deleted;
+  nextRecipes = upsertManagedRecipe(nextRecipes, makeSimpleBurritoRecipe());
+
   if (
     storageAvailable &&
     (samplesRemoved ||
@@ -2195,7 +2255,9 @@ function migrateManagedRecipes(recipes: Recipe[]) {
       !bakedChickpeaBallsDone ||
       bakedChickpeaBallsNeedsUpdate ||
       !cabbageAppleSaladDone ||
-      cabbageAppleSaladNeedsUpdate)
+      cabbageAppleSaladNeedsUpdate ||
+      !simpleBurritoDone ||
+      simpleBurritoNeedsUpdate)
   ) {
     writeJson(RECIPES_KEY, nextRecipes);
     window.localStorage.setItem(CORRECT_INSTAGRAM_RECIPE_KEY, "done");
@@ -2233,6 +2295,7 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     window.localStorage.setItem(JOKBAL_MAKGUKSU_RECIPE_KEY, "done");
     window.localStorage.setItem(BAKED_CHICKPEA_BALLS_RECIPE_KEY, "done");
     window.localStorage.setItem(CABBAGE_APPLE_SALAD_RECIPE_KEY, "done");
+    window.localStorage.setItem(SIMPLE_BURRITO_RECIPE_KEY, "done");
   }
 
   return nextRecipes;
