@@ -155,6 +155,9 @@ const HONGTAK_STYLE_DAKBOKKEUMTANG_IMAGE = "/recipe-media/hongtak-style-dakbokke
 const GREEN_ONION_TUNA_TOAST_RECIPE_KEY = "whats-cookin-jin-migration-youtube-uc4vNWJ6maI-v1";
 const GREEN_ONION_TUNA_TOAST_SOURCE = "https://www.youtube.com/watch?v=uc4vNWJ6maI";
 const GREEN_ONION_TUNA_TOAST_IMAGE = "/recipe-media/green-onion-tuna-toast.jpg";
+const CHICKEN_CABBAGE_ROLL_RECIPE_KEY = "whats-cookin-jin-migration-youtube-tIJHT2HFipY-v1";
+const CHICKEN_CABBAGE_ROLL_SOURCE = "https://www.youtube.com/watch?v=tIJHT2HFipY";
+const CHICKEN_CABBAGE_ROLL_IMAGE = "/recipe-media/chicken-cabbage-egg-pancake.jpg";
 const SAMPLE_RECIPE_IDS = new Set(sampleRecipes.map((recipe) => recipe.id));
 
 function canUseStorage() {
@@ -2364,6 +2367,56 @@ function makeGreenOnionTunaToastRecipe(): Recipe {
   };
 }
 
+function makeChickenCabbageRollRecipe(): Recipe {
+  const now = new Date().toISOString();
+
+  return {
+    id: `youtube-chicken-cabbage-roll-${Date.now()}`,
+    title: "닭가슴살 양배추말이",
+    sourceUrl: CHICKEN_CABBAGE_ROLL_SOURCE,
+    sourceType: "YouTube",
+    category: "다이어트",
+    mealType: "Lunch",
+    dietGoal: "High Protein",
+    time: "30 min",
+    difficulty: "Medium",
+    servings: 2,
+    ingredients: [
+      "양배추 1/2개",
+      "양파 1/2개",
+      "대파 약간",
+      "홍고추 1개 선택",
+      "닭가슴살 200g",
+      "다진 마늘 1/2스푼",
+      "맛술 1작은술",
+      "간장 1/2스푼",
+      "굴소스 1/2스푼",
+      "참기름 1/2스푼",
+      "달걀 1개",
+      "후추",
+      "올리브유"
+    ],
+    steps: [
+      "양배추 잎을 떼어 끓는 물에 부드러워질 때까지 삶아요.",
+      "삶은 양배추는 찬물에 헹군 뒤 5분 정도 물에 담가 두고 물기를 빼요.",
+      "닭가슴살, 양파, 대파, 홍고추를 잘게 다져요.",
+      "다진 재료에 마늘, 맛술, 간장, 굴소스, 참기름, 달걀, 후추를 넣고 골고루 섞어요.",
+      "양배추 잎 위에 닭가슴살 속을 얇게 펴 올리고 단단하게 접어 말아요.",
+      "팬에 올리브유를 두르고 양배추말이를 올려 약불에서 천천히 구워요.",
+      "속까지 익도록 앞뒤로 뒤집어가며 굽고, 간장 소스를 곁들여 먹어요."
+    ],
+    tags: ["양배추", "닭가슴살", "다이어트", "고단백", "양배추말이"],
+    notes:
+      "유튜브 설명란의 재료와 팁 기준으로 정리했어요. 영상 팁처럼 약불에서 속까지 충분히 익히고, 삶은 양배추는 헹군 뒤 5분 정도 물에 담가 두면 좋아요.",
+    imageUrl: CHICKEN_CABBAGE_ROLL_IMAGE,
+    favorite: false,
+    bookmarked: true,
+    deleted: false,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
 function removeSampleRecipes(recipes: Recipe[]) {
   return recipes.filter((recipe) => !SAMPLE_RECIPE_IDS.has(recipe.id));
 }
@@ -2477,6 +2530,8 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     storageAvailable && window.localStorage.getItem(HONGTAK_STYLE_DAKBOKKEUMTANG_RECIPE_KEY) === "done";
   const greenOnionTunaToastDone =
     storageAvailable && window.localStorage.getItem(GREEN_ONION_TUNA_TOAST_RECIPE_KEY) === "done";
+  const chickenCabbageRollDone =
+    storageAvailable && window.localStorage.getItem(CHICKEN_CABBAGE_ROLL_RECIPE_KEY) === "done";
   const correctTitle = "육수에 푹 적신 알배추롤 & 구운 주먹밥";
   const samplesRemoved = recipes.some((recipe) => SAMPLE_RECIPE_IDS.has(recipe.id));
   const hadWrongRecipe = recipes.some(
@@ -2933,6 +2988,15 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     existingGreenOnionTunaToast.deleted;
   nextRecipes = upsertManagedRecipe(nextRecipes, makeGreenOnionTunaToastRecipe());
 
+  const existingChickenCabbageRoll = nextRecipes.find(
+    (recipe) => recipe.sourceUrl === CHICKEN_CABBAGE_ROLL_SOURCE || recipe.title === "닭가슴살 양배추말이"
+  );
+  const chickenCabbageRollNeedsUpdate =
+    !existingChickenCabbageRoll ||
+    existingChickenCabbageRoll.imageUrl !== CHICKEN_CABBAGE_ROLL_IMAGE ||
+    existingChickenCabbageRoll.deleted;
+  nextRecipes = upsertManagedRecipe(nextRecipes, makeChickenCabbageRollRecipe());
+
   if (
     storageAvailable &&
     (samplesRemoved ||
@@ -3032,7 +3096,9 @@ function migrateManagedRecipes(recipes: Recipe[]) {
       !hongtakStyleDakbokkeumtangDone ||
       hongtakStyleDakbokkeumtangNeedsUpdate ||
       !greenOnionTunaToastDone ||
-      greenOnionTunaToastNeedsUpdate)
+      greenOnionTunaToastNeedsUpdate ||
+      !chickenCabbageRollDone ||
+      chickenCabbageRollNeedsUpdate)
   ) {
     writeJson(RECIPES_KEY, nextRecipes);
     window.localStorage.setItem(CORRECT_INSTAGRAM_RECIPE_KEY, "done");
@@ -3083,6 +3149,7 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     window.localStorage.setItem(PISTACHIO_NUT_MOUSSE_CAKE_RECIPE_KEY, "done");
     window.localStorage.setItem(HONGTAK_STYLE_DAKBOKKEUMTANG_RECIPE_KEY, "done");
     window.localStorage.setItem(GREEN_ONION_TUNA_TOAST_RECIPE_KEY, "done");
+    window.localStorage.setItem(CHICKEN_CABBAGE_ROLL_RECIPE_KEY, "done");
   }
 
   return nextRecipes;
