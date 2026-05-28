@@ -128,6 +128,9 @@ const JIKOBA_STYLE_CHICKEN_IMAGE = "/recipe-media/jikoba-style-chicken.jpg";
 const LEMON_ALLULOSE_GRANITA_RECIPE_KEY = "whats-cookin-jin-migration-youtube-0GSZHRsSJxI-v1";
 const LEMON_ALLULOSE_GRANITA_SOURCE = "https://www.youtube.com/watch?v=0GSZHRsSJxI";
 const LEMON_ALLULOSE_GRANITA_IMAGE = "/recipe-media/lemon-allulose-granita.jpg";
+const ROASTED_CABBAGE_STEAKS_RECIPE_KEY = "whats-cookin-jin-migration-youtube-nlcmr-d_pTM-v1";
+const ROASTED_CABBAGE_STEAKS_SOURCE = "https://www.youtube.com/watch?v=nlcmr-d_pTM";
+const ROASTED_CABBAGE_STEAKS_IMAGE = "/recipe-media/roasted-cabbage-steaks.jpg";
 const SAMPLE_RECIPE_IDS = new Set(sampleRecipes.map((recipe) => recipe.id));
 
 function canUseStorage() {
@@ -1892,6 +1895,54 @@ function makeLemonAlluloseGranitaRecipe(): Recipe {
   };
 }
 
+function makeRoastedCabbageSteaksRecipe(): Recipe {
+  const now = new Date().toISOString();
+
+  return {
+    id: `youtube-roasted-cabbage-steaks-${Date.now()}`,
+    title: "구운 양배추 스테이크",
+    sourceUrl: ROASTED_CABBAGE_STEAKS_SOURCE,
+    sourceType: "YouTube",
+    category: "다이어트",
+    mealType: "Dinner",
+    dietGoal: "Vegan",
+    time: "45 min",
+    difficulty: "Easy",
+    servings: 2,
+    ingredients: [
+      "양배추 1통",
+      "올리브오일 3큰술",
+      "소금 0.5작은술",
+      "파프리카 파우더 2작은술",
+      "마늘가루 1큰술",
+      "비건 플레인 요거트 0.5컵",
+      "마늘 3쪽",
+      "생딜 2큰술",
+      "레몬즙 1~2큰술",
+      "카이엔 페퍼 약간",
+      "엑스트라버진 올리브오일 약간"
+    ],
+    steps: [
+      "양배추 밑동을 정리하고 2~2.5cm 두께의 두툼한 스테이크 모양으로 썰어요.",
+      "오븐 팬에 종이호일을 깔고 양배추를 서로 겹치지 않게 올려요.",
+      "양배추 앞뒤에 올리브오일을 바르고 소금, 파프리카 파우더, 마늘가루를 골고루 뿌려요.",
+      "220도 오븐 중간 칸에서 40~45분 정도 굽고, 중간에 한 번 뒤집어요.",
+      "가장자리가 노릇하고 바삭해지고 속이 부드러워지면 꺼내요.",
+      "비건 요거트, 다진 마늘, 딜, 소금, 카이엔 페퍼, 레몬즙, 올리브오일을 섞어 소스를 만들어요.",
+      "구운 양배추 위에 요거트 소스를 올려 따뜻할 때 먹어요."
+    ],
+    tags: ["양배추", "비건", "오븐요리", "다이어트", "요거트소스"],
+    notes:
+      "유튜브 설명란 기준 정리. 굽는 시간은 양배추 두께와 오븐에 따라 달라질 수 있고, 더 부드럽게 익히고 싶으면 초반에 포일을 덮어 수분을 잡아도 된다고 안내되어 있어요.",
+    imageUrl: ROASTED_CABBAGE_STEAKS_IMAGE,
+    favorite: false,
+    bookmarked: true,
+    deleted: false,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
 function removeSampleRecipes(recipes: Recipe[]) {
   return recipes.filter((recipe) => !SAMPLE_RECIPE_IDS.has(recipe.id));
 }
@@ -1988,6 +2039,8 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     storageAvailable && window.localStorage.getItem(JIKOBA_STYLE_CHICKEN_RECIPE_KEY) === "done";
   const lemonAlluloseGranitaDone =
     storageAvailable && window.localStorage.getItem(LEMON_ALLULOSE_GRANITA_RECIPE_KEY) === "done";
+  const roastedCabbageSteaksDone =
+    storageAvailable && window.localStorage.getItem(ROASTED_CABBAGE_STEAKS_RECIPE_KEY) === "done";
   const correctTitle = "육수에 푹 적신 알배추롤 & 구운 주먹밥";
   const samplesRemoved = recipes.some((recipe) => SAMPLE_RECIPE_IDS.has(recipe.id));
   const hadWrongRecipe = recipes.some(
@@ -2361,6 +2414,16 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     existingLemonAlluloseGranita.deleted;
   nextRecipes = upsertManagedRecipe(nextRecipes, makeLemonAlluloseGranitaRecipe());
 
+  const existingRoastedCabbageSteaks = nextRecipes.find(
+    (recipe) =>
+      recipe.sourceUrl === ROASTED_CABBAGE_STEAKS_SOURCE || recipe.title === "구운 양배추 스테이크"
+  );
+  const roastedCabbageSteaksNeedsUpdate =
+    !existingRoastedCabbageSteaks ||
+    existingRoastedCabbageSteaks.imageUrl !== ROASTED_CABBAGE_STEAKS_IMAGE ||
+    existingRoastedCabbageSteaks.deleted;
+  nextRecipes = upsertManagedRecipe(nextRecipes, makeRoastedCabbageSteaksRecipe());
+
   if (
     storageAvailable &&
     (samplesRemoved ||
@@ -2442,7 +2505,9 @@ function migrateManagedRecipes(recipes: Recipe[]) {
       !jikobaStyleChickenDone ||
       jikobaStyleChickenNeedsUpdate ||
       !lemonAlluloseGranitaDone ||
-      lemonAlluloseGranitaNeedsUpdate)
+      lemonAlluloseGranitaNeedsUpdate ||
+      !roastedCabbageSteaksDone ||
+      roastedCabbageSteaksNeedsUpdate)
   ) {
     writeJson(RECIPES_KEY, nextRecipes);
     window.localStorage.setItem(CORRECT_INSTAGRAM_RECIPE_KEY, "done");
@@ -2484,6 +2549,7 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     window.localStorage.setItem(LAZY_SALMON_CHEESE_PASTA_RECIPE_KEY, "done");
     window.localStorage.setItem(JIKOBA_STYLE_CHICKEN_RECIPE_KEY, "done");
     window.localStorage.setItem(LEMON_ALLULOSE_GRANITA_RECIPE_KEY, "done");
+    window.localStorage.setItem(ROASTED_CABBAGE_STEAKS_RECIPE_KEY, "done");
   }
 
   return nextRecipes;
