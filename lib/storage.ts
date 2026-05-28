@@ -62,6 +62,9 @@ const SALTY_GIRL_SNACK_IMAGE = "/recipe-media/salty-girl-snack.jpg";
 const SALMON_POT_RICE_RECIPE_KEY = "whats-cookin-jin-migration-youtube-_FONTYv-fgo-v1";
 const SALMON_POT_RICE_SOURCE = "https://www.youtube.com/watch?v=_FONTYv-fgo";
 const SALMON_POT_RICE_IMAGE = "/recipe-media/salmon-pot-rice.jpg";
+const CAULIFLOWER_ALFREDO_PASTA_RECIPE_KEY = "whats-cookin-jin-migration-instagram-DYEd1CcvpCZ-v1";
+const CAULIFLOWER_ALFREDO_PASTA_SOURCE = "https://www.instagram.com/p/DYEd1CcvpCZ/";
+const CAULIFLOWER_ALFREDO_PASTA_IMAGE = "/recipe-media/cauliflower-alfredo-pasta.jpg";
 const SAMPLE_RECIPE_IDS = new Set(sampleRecipes.map((recipe) => recipe.id));
 
 function canUseStorage() {
@@ -823,6 +826,54 @@ function makeSalmonPotRiceRecipe(): Recipe {
   };
 }
 
+function makeCauliflowerAlfredoPastaRecipe(): Recipe {
+  const now = new Date().toISOString();
+
+  return {
+    id: `instagram-cauliflower-alfredo-pasta-${Date.now()}`,
+    title: "사기급 알프레도 파스타",
+    sourceUrl: CAULIFLOWER_ALFREDO_PASTA_SOURCE,
+    sourceType: "Instagram",
+    category: "면 / 파스타",
+    mealType: "Meal Prep",
+    dietGoal: "High Protein",
+    time: "20 min",
+    difficulty: "Medium",
+    servings: 4,
+    ingredients: [
+      "냉동 콜리플라워 600~800g",
+      "페투치네 건면 350~450g",
+      "닭안심살 400g",
+      "우유 200~300g",
+      "파마산 치즈 30g",
+      "페코리노 치즈 30g",
+      "다진 마늘 3~4작은술",
+      "소금 3~5g",
+      "디종 머스타드 1/2작은술",
+      "올리브유",
+      "후추"
+    ],
+    steps: [
+      "끓는 물에 소금을 넣고 콜리플라워를 숟가락으로 눌렀을 때 완전히 으깨질 정도로 푹 삶아요.",
+      "믹서기에 삶은 콜리플라워, 우유, 파마산 치즈, 페코리노 치즈, 다진 마늘, 소금을 넣고 아주 부드럽게 갈아요.",
+      "페투치네 면은 소금물에 알덴테로 삶아요.",
+      "면이 삶아지는 동안 팬에 기름을 살짝 두르고 닭안심살을 노릇하게 구워 따로 둬요.",
+      "팬에 갈아둔 소스, 삶은 면, 올리브유를 약간 넣고 중불에서 저어가며 볶아요.",
+      "소스가 되직하면 면수를 조금씩 추가해 농도를 맞춰요.",
+      "접시에 담고 구운 닭안심살을 올린 뒤 후추와 치즈 가루를 뿌려 마무리해요."
+    ],
+    tags: ["알프레도", "콜리플라워", "고단백", "밀프렙", "크림파스타"],
+    notes:
+      "인스타그램 설명 기준 정리. 4인분 기준이며 단백질 45g, 일반 파스타 대비 절반 열량으로 소개된 레시피예요. 밀프렙할 때는 면을 평소보다 2분 덜 삶고 소스는 따로 보관했다가 먹기 직전에 합쳐 데우면 식감이 좋아요.",
+    imageUrl: CAULIFLOWER_ALFREDO_PASTA_IMAGE,
+    favorite: false,
+    bookmarked: true,
+    deleted: false,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
 function removeSampleRecipes(recipes: Recipe[]) {
   return recipes.filter((recipe) => !SAMPLE_RECIPE_IDS.has(recipe.id));
 }
@@ -880,6 +931,8 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     storageAvailable && window.localStorage.getItem(SALTY_GIRL_SNACK_RECIPE_KEY) === "done";
   const salmonPotRiceDone =
     storageAvailable && window.localStorage.getItem(SALMON_POT_RICE_RECIPE_KEY) === "done";
+  const cauliflowerAlfredoPastaDone =
+    storageAvailable && window.localStorage.getItem(CAULIFLOWER_ALFREDO_PASTA_RECIPE_KEY) === "done";
   const correctTitle = "육수에 푹 적신 알배추롤 & 구운 주먹밥";
   const samplesRemoved = recipes.some((recipe) => SAMPLE_RECIPE_IDS.has(recipe.id));
   const hadWrongRecipe = recipes.some(
@@ -1059,6 +1112,15 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     !existingSalmonPotRice || existingSalmonPotRice.imageUrl !== SALMON_POT_RICE_IMAGE || existingSalmonPotRice.deleted;
   nextRecipes = upsertManagedRecipe(nextRecipes, makeSalmonPotRiceRecipe());
 
+  const existingCauliflowerAlfredoPasta = nextRecipes.find(
+    (recipe) => recipe.sourceUrl === CAULIFLOWER_ALFREDO_PASTA_SOURCE || recipe.title === "사기급 알프레도 파스타"
+  );
+  const cauliflowerAlfredoPastaNeedsUpdate =
+    !existingCauliflowerAlfredoPasta ||
+    existingCauliflowerAlfredoPasta.imageUrl !== CAULIFLOWER_ALFREDO_PASTA_IMAGE ||
+    existingCauliflowerAlfredoPasta.deleted;
+  nextRecipes = upsertManagedRecipe(nextRecipes, makeCauliflowerAlfredoPastaRecipe());
+
   if (
     storageAvailable &&
     (samplesRemoved ||
@@ -1096,7 +1158,9 @@ function migrateManagedRecipes(recipes: Recipe[]) {
       !saltyGirlSnackDone ||
       saltyGirlSnackNeedsUpdate ||
       !salmonPotRiceDone ||
-      salmonPotRiceNeedsUpdate)
+      salmonPotRiceNeedsUpdate ||
+      !cauliflowerAlfredoPastaDone ||
+      cauliflowerAlfredoPastaNeedsUpdate)
   ) {
     writeJson(RECIPES_KEY, nextRecipes);
     window.localStorage.setItem(CORRECT_INSTAGRAM_RECIPE_KEY, "done");
@@ -1116,6 +1180,7 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     window.localStorage.setItem(CABBAGE_TTEOKBOKKI_RECIPE_KEY, "done");
     window.localStorage.setItem(SALTY_GIRL_SNACK_RECIPE_KEY, "done");
     window.localStorage.setItem(SALMON_POT_RICE_RECIPE_KEY, "done");
+    window.localStorage.setItem(CAULIFLOWER_ALFREDO_PASTA_RECIPE_KEY, "done");
   }
 
   return nextRecipes;
