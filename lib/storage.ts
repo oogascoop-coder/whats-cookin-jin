@@ -158,6 +158,9 @@ const GREEN_ONION_TUNA_TOAST_IMAGE = "/recipe-media/green-onion-tuna-toast.jpg";
 const CHICKEN_CABBAGE_ROLL_RECIPE_KEY = "whats-cookin-jin-migration-youtube-tIJHT2HFipY-v1";
 const CHICKEN_CABBAGE_ROLL_SOURCE = "https://www.youtube.com/watch?v=tIJHT2HFipY";
 const CHICKEN_CABBAGE_ROLL_IMAGE = "/recipe-media/chicken-cabbage-egg-pancake.jpg";
+const PEAR_DRINK_PORK_GALBIJJIM_RECIPE_KEY = "whats-cookin-jin-migration-youtube-vKcemZIfHYM-v1";
+const PEAR_DRINK_PORK_GALBIJJIM_SOURCE = "https://www.youtube.com/watch?v=vKcemZIfHYM";
+const PEAR_DRINK_PORK_GALBIJJIM_IMAGE = "/recipe-media/pear-drink-pork-galbijjim.jpg";
 const SAMPLE_RECIPE_IDS = new Set(sampleRecipes.map((recipe) => recipe.id));
 
 function canUseStorage() {
@@ -2417,6 +2420,52 @@ function makeChickenCabbageRollRecipe(): Recipe {
   };
 }
 
+function makePearDrinkPorkGalbijjimRecipe(): Recipe {
+  const now = new Date().toISOString();
+
+  return {
+    id: `youtube-pear-drink-pork-galbijjim-${Date.now()}`,
+    title: "20분 갈배 돼지갈비찜",
+    sourceUrl: PEAR_DRINK_PORK_GALBIJJIM_SOURCE,
+    sourceType: "YouTube",
+    category: "한식 / 밥",
+    mealType: "Dinner",
+    dietGoal: "None",
+    time: "20 min",
+    difficulty: "Easy",
+    servings: 3,
+    ingredients: [
+      "돼지갈비 1kg",
+      "감자 1개",
+      "갈아만든 배 음료수 500ml",
+      "간장 3큰술",
+      "굴소스 2큰술",
+      "다진 마늘 1큰술",
+      "연두 1큰술",
+      "식용유",
+      "쪽파",
+      "통깨"
+    ],
+    steps: [
+      "팬이나 냄비에 식용유를 두르고 돼지갈비 1kg와 큼직하게 썬 감자 1개를 넣어요.",
+      "돼지갈비 겉면이 노릇해질 때까지 함께 구워요.",
+      "갈아만든 배 음료수 400ml를 붓고 강불에서 한소끔 끓여요.",
+      "남은 갈배 음료 100ml에 간장 3큰술, 굴소스 2큰술, 다진 마늘 1큰술, 연두 1큰술을 섞어 양념장을 만들어요.",
+      "양념장을 냄비에 붓고 중불에서 약 20분 끓여요.",
+      "고기와 감자가 익고 양념이 잘 배면 쪽파와 통깨를 뿌려 마무리해요."
+    ],
+    tags: ["돼지갈비찜", "갈배", "20분요리", "감자", "간단요리"],
+    notes:
+      "유튜브 설명란 기준으로 정리했어요. 갈아만든 배 음료수로 단맛과 연육을 잡는 초간단 돼지갈비찜 레시피예요.",
+    imageUrl: PEAR_DRINK_PORK_GALBIJJIM_IMAGE,
+    favorite: false,
+    bookmarked: true,
+    deleted: false,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
 function removeSampleRecipes(recipes: Recipe[]) {
   return recipes.filter((recipe) => !SAMPLE_RECIPE_IDS.has(recipe.id));
 }
@@ -2532,6 +2581,8 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     storageAvailable && window.localStorage.getItem(GREEN_ONION_TUNA_TOAST_RECIPE_KEY) === "done";
   const chickenCabbageRollDone =
     storageAvailable && window.localStorage.getItem(CHICKEN_CABBAGE_ROLL_RECIPE_KEY) === "done";
+  const pearDrinkPorkGalbijjimDone =
+    storageAvailable && window.localStorage.getItem(PEAR_DRINK_PORK_GALBIJJIM_RECIPE_KEY) === "done";
   const correctTitle = "육수에 푹 적신 알배추롤 & 구운 주먹밥";
   const samplesRemoved = recipes.some((recipe) => SAMPLE_RECIPE_IDS.has(recipe.id));
   const hadWrongRecipe = recipes.some(
@@ -2997,6 +3048,16 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     existingChickenCabbageRoll.deleted;
   nextRecipes = upsertManagedRecipe(nextRecipes, makeChickenCabbageRollRecipe());
 
+  const existingPearDrinkPorkGalbijjim = nextRecipes.find(
+    (recipe) =>
+      recipe.sourceUrl === PEAR_DRINK_PORK_GALBIJJIM_SOURCE || recipe.title === "20분 갈배 돼지갈비찜"
+  );
+  const pearDrinkPorkGalbijjimNeedsUpdate =
+    !existingPearDrinkPorkGalbijjim ||
+    existingPearDrinkPorkGalbijjim.imageUrl !== PEAR_DRINK_PORK_GALBIJJIM_IMAGE ||
+    existingPearDrinkPorkGalbijjim.deleted;
+  nextRecipes = upsertManagedRecipe(nextRecipes, makePearDrinkPorkGalbijjimRecipe());
+
   if (
     storageAvailable &&
     (samplesRemoved ||
@@ -3098,7 +3159,9 @@ function migrateManagedRecipes(recipes: Recipe[]) {
       !greenOnionTunaToastDone ||
       greenOnionTunaToastNeedsUpdate ||
       !chickenCabbageRollDone ||
-      chickenCabbageRollNeedsUpdate)
+      chickenCabbageRollNeedsUpdate ||
+      !pearDrinkPorkGalbijjimDone ||
+      pearDrinkPorkGalbijjimNeedsUpdate)
   ) {
     writeJson(RECIPES_KEY, nextRecipes);
     window.localStorage.setItem(CORRECT_INSTAGRAM_RECIPE_KEY, "done");
@@ -3150,6 +3213,7 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     window.localStorage.setItem(HONGTAK_STYLE_DAKBOKKEUMTANG_RECIPE_KEY, "done");
     window.localStorage.setItem(GREEN_ONION_TUNA_TOAST_RECIPE_KEY, "done");
     window.localStorage.setItem(CHICKEN_CABBAGE_ROLL_RECIPE_KEY, "done");
+    window.localStorage.setItem(PEAR_DRINK_PORK_GALBIJJIM_RECIPE_KEY, "done");
   }
 
   return nextRecipes;
