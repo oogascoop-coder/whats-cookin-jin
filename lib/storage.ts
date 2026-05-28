@@ -68,6 +68,9 @@ const CAULIFLOWER_ALFREDO_PASTA_IMAGE = "/recipe-media/cauliflower-alfredo-pasta
 const ALMOND_BUTTER_BURRATA_SANDWICH_RECIPE_KEY = "whats-cookin-jin-migration-instagram-DXMRvrREt2L-v1";
 const ALMOND_BUTTER_BURRATA_SANDWICH_SOURCE = "https://www.instagram.com/p/DXMRvrREt2L/";
 const ALMOND_BUTTER_BURRATA_SANDWICH_IMAGE = "/recipe-media/almond-butter-burrata-sandwich.jpg";
+const CRISPY_GNOCCHI_SALAD_RECIPE_KEY = "whats-cookin-jin-migration-instagram-DWiteipj5Xc-v1";
+const CRISPY_GNOCCHI_SALAD_SOURCE = "https://www.instagram.com/p/DWiteipj5Xc/";
+const CRISPY_GNOCCHI_SALAD_IMAGE = "/recipe-media/crispy-gnocchi-salad.jpg";
 const SAMPLE_RECIPE_IDS = new Set(sampleRecipes.map((recipe) => recipe.id));
 
 function canUseStorage() {
@@ -912,6 +915,57 @@ function makeAlmondButterBurrataSandwichRecipe(): Recipe {
   };
 }
 
+function makeCrispyGnocchiSaladRecipe(): Recipe {
+  const now = new Date().toISOString();
+
+  return {
+    id: `instagram-crispy-gnocchi-salad-${Date.now()}`,
+    title: "크리스피 뇨끼 샐러드",
+    sourceUrl: CRISPY_GNOCCHI_SALAD_SOURCE,
+    sourceType: "Instagram",
+    category: "샐러드",
+    mealType: "Meal Prep",
+    dietGoal: "High Protein",
+    time: "20 min",
+    difficulty: "Easy",
+    servings: 4,
+    ingredients: [
+      "뇨끼 500g",
+      "닭가슴살 500g",
+      "로메인 200g",
+      "오이 1개",
+      "방울토마토 20알",
+      "올리브오일 4큰술",
+      "파마산 가루 4큰술",
+      "소금 0.5큰술",
+      "마늘가루 3t",
+      "파프리카 가루 2t",
+      "그릭요거트 250g",
+      "우유 60g",
+      "레몬즙 2큰술",
+      "다진 딜 1큰술"
+    ],
+    steps: [
+      "냉동 뇨끼는 해동하지 않고 바로 준비해요.",
+      "뇨끼에 올리브오일, 파마산 가루, 소금, 마늘가루 2t, 파프리카 가루를 넣고 버무려요.",
+      "에어프라이어 190도에서 15분 굽고, 중간에 한 번 흔들어 고르게 바삭하게 만들어요.",
+      "그릭요거트, 우유, 레몬즙, 올리브오일 2큰술, 마늘가루 1t, 다진 딜, 소금 1t를 섞어 소스를 만들어요.",
+      "로메인, 오이, 방울토마토를 먹기 좋게 손질해요.",
+      "손질한 채소, 닭가슴살, 구운 뇨끼를 담고 소스를 부어 섞어요.",
+      "뇨끼의 바삭함이 살아있을 때 바로 먹어요."
+    ],
+    tags: ["뇨끼", "샐러드", "고단백", "닭가슴살", "딜요거트"],
+    notes:
+      "인스타그램 설명 기준 정리. 냉동 뇨끼는 해동하지 않고 바로 시즈닝해서 구워야 겉은 바삭하고 속은 쫀득해요. 소스를 섞으면 바삭함이 줄어드니 먹기 직전에 합치는 게 좋아요.",
+    imageUrl: CRISPY_GNOCCHI_SALAD_IMAGE,
+    favorite: false,
+    bookmarked: true,
+    deleted: false,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
 function removeSampleRecipes(recipes: Recipe[]) {
   return recipes.filter((recipe) => !SAMPLE_RECIPE_IDS.has(recipe.id));
 }
@@ -973,6 +1027,8 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     storageAvailable && window.localStorage.getItem(CAULIFLOWER_ALFREDO_PASTA_RECIPE_KEY) === "done";
   const almondButterBurrataSandwichDone =
     storageAvailable && window.localStorage.getItem(ALMOND_BUTTER_BURRATA_SANDWICH_RECIPE_KEY) === "done";
+  const crispyGnocchiSaladDone =
+    storageAvailable && window.localStorage.getItem(CRISPY_GNOCCHI_SALAD_RECIPE_KEY) === "done";
   const correctTitle = "육수에 푹 적신 알배추롤 & 구운 주먹밥";
   const samplesRemoved = recipes.some((recipe) => SAMPLE_RECIPE_IDS.has(recipe.id));
   const hadWrongRecipe = recipes.some(
@@ -1172,6 +1228,15 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     existingAlmondButterBurrataSandwich.deleted;
   nextRecipes = upsertManagedRecipe(nextRecipes, makeAlmondButterBurrataSandwichRecipe());
 
+  const existingCrispyGnocchiSalad = nextRecipes.find(
+    (recipe) => recipe.sourceUrl === CRISPY_GNOCCHI_SALAD_SOURCE || recipe.title === "크리스피 뇨끼 샐러드"
+  );
+  const crispyGnocchiSaladNeedsUpdate =
+    !existingCrispyGnocchiSalad ||
+    existingCrispyGnocchiSalad.imageUrl !== CRISPY_GNOCCHI_SALAD_IMAGE ||
+    existingCrispyGnocchiSalad.deleted;
+  nextRecipes = upsertManagedRecipe(nextRecipes, makeCrispyGnocchiSaladRecipe());
+
   if (
     storageAvailable &&
     (samplesRemoved ||
@@ -1213,7 +1278,9 @@ function migrateManagedRecipes(recipes: Recipe[]) {
       !cauliflowerAlfredoPastaDone ||
       cauliflowerAlfredoPastaNeedsUpdate ||
       !almondButterBurrataSandwichDone ||
-      almondButterBurrataSandwichNeedsUpdate)
+      almondButterBurrataSandwichNeedsUpdate ||
+      !crispyGnocchiSaladDone ||
+      crispyGnocchiSaladNeedsUpdate)
   ) {
     writeJson(RECIPES_KEY, nextRecipes);
     window.localStorage.setItem(CORRECT_INSTAGRAM_RECIPE_KEY, "done");
@@ -1235,6 +1302,7 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     window.localStorage.setItem(SALMON_POT_RICE_RECIPE_KEY, "done");
     window.localStorage.setItem(CAULIFLOWER_ALFREDO_PASTA_RECIPE_KEY, "done");
     window.localStorage.setItem(ALMOND_BUTTER_BURRATA_SANDWICH_RECIPE_KEY, "done");
+    window.localStorage.setItem(CRISPY_GNOCCHI_SALAD_RECIPE_KEY, "done");
   }
 
   return nextRecipes;
