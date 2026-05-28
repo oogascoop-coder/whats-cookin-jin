@@ -107,6 +107,9 @@ const MALA_CREAM_PASTA_IMAGE = "/recipe-media/mala-cream-pasta.jpg";
 const EGGPLANT_TOFU_SKIN_LASAGNA_RECIPE_KEY = "whats-cookin-jin-migration-youtube-wepwfXk1mok-v1";
 const EGGPLANT_TOFU_SKIN_LASAGNA_SOURCE = "https://www.youtube.com/watch?v=wepwfXk1mok";
 const EGGPLANT_TOFU_SKIN_LASAGNA_IMAGE = "/recipe-media/eggplant-tofu-skin-lasagna.jpg";
+const JOKBAL_MAKGUKSU_RECIPE_KEY = "whats-cookin-jin-migration-youtube-8Yj0LXNbdsk-v1";
+const JOKBAL_MAKGUKSU_SOURCE = "https://www.youtube.com/watch?v=8Yj0LXNbdsk";
+const JOKBAL_MAKGUKSU_IMAGE = "/recipe-media/jokbal-makguksu.jpg";
 const SAMPLE_RECIPE_IDS = new Set(sampleRecipes.map((recipe) => recipe.id));
 
 function canUseStorage() {
@@ -1539,6 +1542,54 @@ function makeEggplantTofuSkinLasagnaRecipe(): Recipe {
   };
 }
 
+function makeJokbalMakguksuRecipe(): Recipe {
+  const now = new Date().toISOString();
+
+  return {
+    id: `youtube-jokbal-makguksu-${Date.now()}`,
+    title: "족발 막국수",
+    sourceUrl: JOKBAL_MAKGUKSU_SOURCE,
+    sourceType: "YouTube",
+    category: "면 / 파스타",
+    mealType: "Dinner",
+    dietGoal: "None",
+    time: "10 min",
+    difficulty: "Easy",
+    servings: 1,
+    ingredients: [
+      "메밀면 또는 막국수면",
+      "족발",
+      "고추장 1큰술",
+      "설탕 1큰술",
+      "식초 1큰술",
+      "간장 0.5큰술",
+      "고춧가루 1큰술",
+      "다진마늘 0.5큰술",
+      "연겨자 0.5큰술",
+      "통깨 1큰술",
+      "김가루",
+      "참기름"
+    ],
+    steps: [
+      "면은 삶아 찬물에 헹군 뒤 물기를 빼요.",
+      "고추장, 설탕, 식초, 간장, 고춧가루, 다진마늘, 연겨자, 통깨를 섞어 양념장을 만들어요.",
+      "촉촉한 양념을 원하면 고추장 1큰술과 물 2큰술을 추가해요.",
+      "면에 양념장을 넣고 고루 비벼요.",
+      "족발을 먹기 좋게 썰어 면 위에 올려요.",
+      "김가루를 넉넉히 올리고 참기름을 듬뿍 둘러 마무리해요."
+    ],
+    tags: ["막국수", "족발", "비빔면", "야식", "고추장양념"],
+    notes:
+      "유튜브 설명란 기준 정리. 족발이 없어도 양념장과 면만으로 비빔 막국수처럼 먹기 좋고, 물기 많은 양념을 원하면 고추장 1큰술과 물 2큰술을 추가하면 된다고 안내되어 있어요.",
+    imageUrl: JOKBAL_MAKGUKSU_IMAGE,
+    favorite: false,
+    bookmarked: true,
+    deleted: false,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
 function removeSampleRecipes(recipes: Recipe[]) {
   return recipes.filter((recipe) => !SAMPLE_RECIPE_IDS.has(recipe.id));
 }
@@ -1623,6 +1674,7 @@ function migrateManagedRecipes(recipes: Recipe[]) {
   const malaCreamPastaDone = storageAvailable && window.localStorage.getItem(MALA_CREAM_PASTA_RECIPE_KEY) === "done";
   const eggplantTofuSkinLasagnaDone =
     storageAvailable && window.localStorage.getItem(EGGPLANT_TOFU_SKIN_LASAGNA_RECIPE_KEY) === "done";
+  const jokbalMakguksuDone = storageAvailable && window.localStorage.getItem(JOKBAL_MAKGUKSU_RECIPE_KEY) === "done";
   const correctTitle = "육수에 푹 적신 알배추롤 & 구운 주먹밥";
   const samplesRemoved = recipes.some((recipe) => SAMPLE_RECIPE_IDS.has(recipe.id));
   const hadWrongRecipe = recipes.some(
@@ -1935,6 +1987,13 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     existingEggplantTofuSkinLasagna.deleted;
   nextRecipes = upsertManagedRecipe(nextRecipes, makeEggplantTofuSkinLasagnaRecipe());
 
+  const existingJokbalMakguksu = nextRecipes.find(
+    (recipe) => recipe.sourceUrl === JOKBAL_MAKGUKSU_SOURCE || recipe.title === "족발 막국수"
+  );
+  const jokbalMakguksuNeedsUpdate =
+    !existingJokbalMakguksu || existingJokbalMakguksu.imageUrl !== JOKBAL_MAKGUKSU_IMAGE || existingJokbalMakguksu.deleted;
+  nextRecipes = upsertManagedRecipe(nextRecipes, makeJokbalMakguksuRecipe());
+
   if (
     storageAvailable &&
     (samplesRemoved ||
@@ -2002,7 +2061,9 @@ function migrateManagedRecipes(recipes: Recipe[]) {
       !malaCreamPastaDone ||
       malaCreamPastaNeedsUpdate ||
       !eggplantTofuSkinLasagnaDone ||
-      eggplantTofuSkinLasagnaNeedsUpdate)
+      eggplantTofuSkinLasagnaNeedsUpdate ||
+      !jokbalMakguksuDone ||
+      jokbalMakguksuNeedsUpdate)
   ) {
     writeJson(RECIPES_KEY, nextRecipes);
     window.localStorage.setItem(CORRECT_INSTAGRAM_RECIPE_KEY, "done");
@@ -2037,6 +2098,7 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     window.localStorage.setItem(MUSHROOM_CREAM_RIGATONI_RECIPE_KEY, "done");
     window.localStorage.setItem(MALA_CREAM_PASTA_RECIPE_KEY, "done");
     window.localStorage.setItem(EGGPLANT_TOFU_SKIN_LASAGNA_RECIPE_KEY, "done");
+    window.localStorage.setItem(JOKBAL_MAKGUKSU_RECIPE_KEY, "done");
   }
 
   return nextRecipes;
