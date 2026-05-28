@@ -125,6 +125,9 @@ const LAZY_SALMON_CHEESE_PASTA_IMAGE = "/recipe-media/lazy-salmon-cheese-pasta.j
 const JIKOBA_STYLE_CHICKEN_RECIPE_KEY = "whats-cookin-jin-migration-youtube-iDMyw61V1XM-v1";
 const JIKOBA_STYLE_CHICKEN_SOURCE = "https://www.youtube.com/watch?v=iDMyw61V1XM";
 const JIKOBA_STYLE_CHICKEN_IMAGE = "/recipe-media/jikoba-style-chicken.jpg";
+const LEMON_ALLULOSE_GRANITA_RECIPE_KEY = "whats-cookin-jin-migration-youtube-0GSZHRsSJxI-v1";
+const LEMON_ALLULOSE_GRANITA_SOURCE = "https://www.youtube.com/watch?v=0GSZHRsSJxI";
+const LEMON_ALLULOSE_GRANITA_IMAGE = "/recipe-media/lemon-allulose-granita.jpg";
 const SAMPLE_RECIPE_IDS = new Set(sampleRecipes.map((recipe) => recipe.id));
 
 function canUseStorage() {
@@ -1854,6 +1857,41 @@ function makeJikobaStyleChickenRecipe(): Recipe {
   };
 }
 
+function makeLemonAlluloseGranitaRecipe(): Recipe {
+  const now = new Date().toISOString();
+
+  return {
+    id: `youtube-lemon-allulose-granita-${Date.now()}`,
+    title: "레몬 알룰로스 그라니따",
+    sourceUrl: LEMON_ALLULOSE_GRANITA_SOURCE,
+    sourceType: "YouTube",
+    category: "간식",
+    mealType: "Dessert",
+    dietGoal: "Low Sugar",
+    time: "3 hr",
+    difficulty: "Easy",
+    servings: 2,
+    ingredients: ["레몬즙", "알룰로스", "물 선택", "레몬 슬라이스 선택"],
+    steps: [
+      "레몬을 짜서 레몬즙을 준비해요.",
+      "레몬즙에 알룰로스를 넣고 단맛이 고르게 섞이도록 저어요.",
+      "맛이 너무 진하면 물을 조금 섞어 농도를 맞춰요.",
+      "넓은 용기에 담아 냉동실에 넣어요.",
+      "1~2시간마다 꺼내 포크로 긁어 샤각샤각한 얼음 결을 만들어요.",
+      "전체가 얼면 컵에 담고 레몬 슬라이스를 올려 마무리해요."
+    ],
+    tags: ["레몬", "그라니따", "알룰로스", "다이어트디저트", "홈카페"],
+    notes:
+      "유튜브 설명란 기준 정리. 설탕 대신 알룰로스를 쓰는 디저트이고, 1~2시간마다 포크로 긁어줘야 그라니따 특유의 샤각샤각한 식감이 살아난다고 안내되어 있어요.",
+    imageUrl: LEMON_ALLULOSE_GRANITA_IMAGE,
+    favorite: false,
+    bookmarked: true,
+    deleted: false,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
 function removeSampleRecipes(recipes: Recipe[]) {
   return recipes.filter((recipe) => !SAMPLE_RECIPE_IDS.has(recipe.id));
 }
@@ -1948,6 +1986,8 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     storageAvailable && window.localStorage.getItem(LAZY_SALMON_CHEESE_PASTA_RECIPE_KEY) === "done";
   const jikobaStyleChickenDone =
     storageAvailable && window.localStorage.getItem(JIKOBA_STYLE_CHICKEN_RECIPE_KEY) === "done";
+  const lemonAlluloseGranitaDone =
+    storageAvailable && window.localStorage.getItem(LEMON_ALLULOSE_GRANITA_RECIPE_KEY) === "done";
   const correctTitle = "육수에 푹 적신 알배추롤 & 구운 주먹밥";
   const samplesRemoved = recipes.some((recipe) => SAMPLE_RECIPE_IDS.has(recipe.id));
   const hadWrongRecipe = recipes.some(
@@ -2311,6 +2351,16 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     existingJikobaStyleChicken.deleted;
   nextRecipes = upsertManagedRecipe(nextRecipes, makeJikobaStyleChickenRecipe());
 
+  const existingLemonAlluloseGranita = nextRecipes.find(
+    (recipe) =>
+      recipe.sourceUrl === LEMON_ALLULOSE_GRANITA_SOURCE || recipe.title === "레몬 알룰로스 그라니따"
+  );
+  const lemonAlluloseGranitaNeedsUpdate =
+    !existingLemonAlluloseGranita ||
+    existingLemonAlluloseGranita.imageUrl !== LEMON_ALLULOSE_GRANITA_IMAGE ||
+    existingLemonAlluloseGranita.deleted;
+  nextRecipes = upsertManagedRecipe(nextRecipes, makeLemonAlluloseGranitaRecipe());
+
   if (
     storageAvailable &&
     (samplesRemoved ||
@@ -2390,7 +2440,9 @@ function migrateManagedRecipes(recipes: Recipe[]) {
       !lazySalmonCheesePastaDone ||
       lazySalmonCheesePastaNeedsUpdate ||
       !jikobaStyleChickenDone ||
-      jikobaStyleChickenNeedsUpdate)
+      jikobaStyleChickenNeedsUpdate ||
+      !lemonAlluloseGranitaDone ||
+      lemonAlluloseGranitaNeedsUpdate)
   ) {
     writeJson(RECIPES_KEY, nextRecipes);
     window.localStorage.setItem(CORRECT_INSTAGRAM_RECIPE_KEY, "done");
@@ -2431,6 +2483,7 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     window.localStorage.setItem(SIMPLE_BURRITO_RECIPE_KEY, "done");
     window.localStorage.setItem(LAZY_SALMON_CHEESE_PASTA_RECIPE_KEY, "done");
     window.localStorage.setItem(JIKOBA_STYLE_CHICKEN_RECIPE_KEY, "done");
+    window.localStorage.setItem(LEMON_ALLULOSE_GRANITA_RECIPE_KEY, "done");
   }
 
   return nextRecipes;
