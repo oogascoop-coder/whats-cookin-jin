@@ -77,6 +77,9 @@ const APPLE_BRIE_SANDWICH_IMAGE = "/recipe-media/apple-brie-sandwich.jpg";
 const TZATZIKI_SAUCE_RECIPE_KEY = "whats-cookin-jin-migration-instagram-DYq12Y8SkX-v1";
 const TZATZIKI_SAUCE_SOURCE = "https://www.instagram.com/p/DYq12Y8SkX-/";
 const TZATZIKI_SAUCE_IMAGE = "/recipe-media/tzatziki-sauce.jpg";
+const MISO_CREAM_CHEESE_PASTA_RECIPE_KEY = "whats-cookin-jin-migration-instagram-DX1UsVuhdnJ-v1";
+const MISO_CREAM_CHEESE_PASTA_SOURCE = "https://www.instagram.com/p/DX1UsVuhdnJ/";
+const MISO_CREAM_CHEESE_PASTA_IMAGE = "/recipe-media/miso-cream-cheese-pasta.jpg";
 const SAMPLE_RECIPE_IDS = new Set(sampleRecipes.map((recipe) => recipe.id));
 
 function canUseStorage() {
@@ -1052,6 +1055,57 @@ function makeTzatzikiSauceRecipe(): Recipe {
   };
 }
 
+function makeMisoCreamCheesePastaRecipe(): Recipe {
+  const now = new Date().toISOString();
+
+  return {
+    id: `instagram-miso-cream-cheese-pasta-${Date.now()}`,
+    title: "미소 크림치즈 파스타",
+    sourceUrl: MISO_CREAM_CHEESE_PASTA_SOURCE,
+    sourceType: "Instagram",
+    category: "면 / 파스타",
+    mealType: "Dinner",
+    dietGoal: "None",
+    time: "25 min",
+    difficulty: "Medium",
+    servings: 1,
+    ingredients: [
+      "생연어 횟감 200g",
+      "시금치 한 줌",
+      "크림치즈 2T",
+      "미소 된장 1/2T",
+      "치킨스톡 1T",
+      "물 250ml",
+      "양파 1/4개",
+      "버터 2조각",
+      "파스타면",
+      "소금",
+      "후추",
+      "올리브오일"
+    ],
+    steps: [
+      "양파는 작게 다지고 생연어는 큼직하게 썰어요.",
+      "연어에 소금, 후추, 올리브오일로 밑간해요.",
+      "치킨스톡 1T와 물 250ml를 섞어 닭육수를 만들어요.",
+      "밑간한 연어는 한쪽 면만 바삭하게 구워 따로 빼둬요.",
+      "파스타면은 면 종류에 맞게 삶아요.",
+      "팬에 오일을 두르고 다진 양파와 버터를 넣어 양파가 투명해질 때까지 볶아요.",
+      "닭육수, 크림치즈, 미소 된장, 삶은 면, 면수를 넣고 섞어 소스가 면에 배도록 해요.",
+      "시금치를 넣어 숨이 살짝 죽게 섞어요.",
+      "마지막에 구운 연어를 올려 마무리해요."
+    ],
+    tags: ["연어", "미소", "크림치즈", "파스타", "집밥"],
+    notes:
+      "인스타그램 설명 기준 정리. 원문은 한신희 셰프 레시피를 참고했다고 되어 있어요. 연어는 한쪽 면만 바삭하게 구워 올리면 식감이 좋아요.",
+    imageUrl: MISO_CREAM_CHEESE_PASTA_IMAGE,
+    favorite: false,
+    bookmarked: true,
+    deleted: false,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
 function removeSampleRecipes(recipes: Recipe[]) {
   return recipes.filter((recipe) => !SAMPLE_RECIPE_IDS.has(recipe.id));
 }
@@ -1118,6 +1172,8 @@ function migrateManagedRecipes(recipes: Recipe[]) {
   const appleBrieSandwichDone =
     storageAvailable && window.localStorage.getItem(APPLE_BRIE_SANDWICH_RECIPE_KEY) === "done";
   const tzatzikiSauceDone = storageAvailable && window.localStorage.getItem(TZATZIKI_SAUCE_RECIPE_KEY) === "done";
+  const misoCreamCheesePastaDone =
+    storageAvailable && window.localStorage.getItem(MISO_CREAM_CHEESE_PASTA_RECIPE_KEY) === "done";
   const correctTitle = "육수에 푹 적신 알배추롤 & 구운 주먹밥";
   const samplesRemoved = recipes.some((recipe) => SAMPLE_RECIPE_IDS.has(recipe.id));
   const hadWrongRecipe = recipes.some(
@@ -1342,6 +1398,15 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     !existingTzatzikiSauce || existingTzatzikiSauce.imageUrl !== TZATZIKI_SAUCE_IMAGE || existingTzatzikiSauce.deleted;
   nextRecipes = upsertManagedRecipe(nextRecipes, makeTzatzikiSauceRecipe());
 
+  const existingMisoCreamCheesePasta = nextRecipes.find(
+    (recipe) => recipe.sourceUrl === MISO_CREAM_CHEESE_PASTA_SOURCE || recipe.title === "미소 크림치즈 파스타"
+  );
+  const misoCreamCheesePastaNeedsUpdate =
+    !existingMisoCreamCheesePasta ||
+    existingMisoCreamCheesePasta.imageUrl !== MISO_CREAM_CHEESE_PASTA_IMAGE ||
+    existingMisoCreamCheesePasta.deleted;
+  nextRecipes = upsertManagedRecipe(nextRecipes, makeMisoCreamCheesePastaRecipe());
+
   if (
     storageAvailable &&
     (samplesRemoved ||
@@ -1389,7 +1454,9 @@ function migrateManagedRecipes(recipes: Recipe[]) {
       !appleBrieSandwichDone ||
       appleBrieSandwichNeedsUpdate ||
       !tzatzikiSauceDone ||
-      tzatzikiSauceNeedsUpdate)
+      tzatzikiSauceNeedsUpdate ||
+      !misoCreamCheesePastaDone ||
+      misoCreamCheesePastaNeedsUpdate)
   ) {
     writeJson(RECIPES_KEY, nextRecipes);
     window.localStorage.setItem(CORRECT_INSTAGRAM_RECIPE_KEY, "done");
@@ -1414,6 +1481,7 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     window.localStorage.setItem(CRISPY_GNOCCHI_SALAD_RECIPE_KEY, "done");
     window.localStorage.setItem(APPLE_BRIE_SANDWICH_RECIPE_KEY, "done");
     window.localStorage.setItem(TZATZIKI_SAUCE_RECIPE_KEY, "done");
+    window.localStorage.setItem(MISO_CREAM_CHEESE_PASTA_RECIPE_KEY, "done");
   }
 
   return nextRecipes;
