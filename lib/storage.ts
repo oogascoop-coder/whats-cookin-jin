@@ -137,6 +137,9 @@ const SOUP_CURRY_IMAGE = "/recipe-media/soup-curry.jpg";
 const TRUFFLE_MUSHROOM_RICE_RECIPE_KEY = "whats-cookin-jin-migration-youtube-dUTFwtT9D50-v1";
 const TRUFFLE_MUSHROOM_RICE_SOURCE = "https://www.youtube.com/watch?v=dUTFwtT9D50";
 const TRUFFLE_MUSHROOM_RICE_IMAGE = "/recipe-media/truffle-mushroom-rice.jpg";
+const SHRIMP_CARPACCIO_RECIPE_KEY = "whats-cookin-jin-migration-youtube-9NoOkmmIR-U-v1";
+const SHRIMP_CARPACCIO_SOURCE = "https://www.youtube.com/watch?v=9NoOkmmIR-U";
+const SHRIMP_CARPACCIO_IMAGE = "/recipe-media/shrimp-carpaccio.jpg";
 const SAMPLE_RECIPE_IDS = new Set(sampleRecipes.map((recipe) => recipe.id));
 
 function canUseStorage() {
@@ -2053,6 +2056,53 @@ function makeTruffleMushroomRiceRecipe(): Recipe {
   };
 }
 
+function makeShrimpCarpaccioRecipe(): Recipe {
+  const now = new Date().toISOString();
+
+  return {
+    id: `youtube-shrimp-carpaccio-${Date.now()}`,
+    title: "새우 카르파쵸",
+    sourceUrl: SHRIMP_CARPACCIO_SOURCE,
+    sourceType: "YouTube",
+    category: "간단 요리",
+    mealType: "Appetizer",
+    dietGoal: "None",
+    time: "20 min",
+    difficulty: "Medium",
+    servings: 2,
+    ingredients: [
+      "손질 새우",
+      "달걀노른자 1개",
+      "케이퍼",
+      "트러플 오일",
+      "올리브오일",
+      "레몬즙",
+      "소금",
+      "후추",
+      "파르미지아노 치즈 선택",
+      "루꼴라 선택"
+    ],
+    steps: [
+      "새우는 껍질과 내장을 제거하고 깨끗하게 손질해요.",
+      "손질한 새우를 얇게 펴서 접시에 넓게 깔아요.",
+      "소금, 후추, 레몬즙을 가볍게 뿌려 밑간해요.",
+      "가운데 달걀노른자를 올리고 케이퍼를 흩뿌려요.",
+      "올리브오일과 트러플 오일을 둘러 향을 더해요.",
+      "취향에 따라 파르미지아노 치즈나 루꼴라를 곁들여요.",
+      "차갑게 두었다가 먹기 직전에 가볍게 섞어 먹어요."
+    ],
+    tags: ["카르파쵸", "새우", "트러플오일", "와인안주", "전채요리"],
+    notes:
+      "유튜브 설명란에는 #카르파쵸 해시태그만 있어요. 썸네일과 영상 제목 기준으로 정리했으니, 정확한 계량을 알게 되면 나중에 수정하면 돼요.",
+    imageUrl: SHRIMP_CARPACCIO_IMAGE,
+    favorite: false,
+    bookmarked: true,
+    deleted: false,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
 function removeSampleRecipes(recipes: Recipe[]) {
   return recipes.filter((recipe) => !SAMPLE_RECIPE_IDS.has(recipe.id));
 }
@@ -2154,6 +2204,8 @@ function migrateManagedRecipes(recipes: Recipe[]) {
   const soupCurryDone = storageAvailable && window.localStorage.getItem(SOUP_CURRY_RECIPE_KEY) === "done";
   const truffleMushroomRiceDone =
     storageAvailable && window.localStorage.getItem(TRUFFLE_MUSHROOM_RICE_RECIPE_KEY) === "done";
+  const shrimpCarpaccioDone =
+    storageAvailable && window.localStorage.getItem(SHRIMP_CARPACCIO_RECIPE_KEY) === "done";
   const correctTitle = "육수에 푹 적신 알배추롤 & 구운 주먹밥";
   const samplesRemoved = recipes.some((recipe) => SAMPLE_RECIPE_IDS.has(recipe.id));
   const hadWrongRecipe = recipes.some(
@@ -2553,6 +2605,15 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     existingTruffleMushroomRice.deleted;
   nextRecipes = upsertManagedRecipe(nextRecipes, makeTruffleMushroomRiceRecipe());
 
+  const existingShrimpCarpaccio = nextRecipes.find(
+    (recipe) => recipe.sourceUrl === SHRIMP_CARPACCIO_SOURCE || recipe.title === "새우 카르파쵸"
+  );
+  const shrimpCarpaccioNeedsUpdate =
+    !existingShrimpCarpaccio ||
+    existingShrimpCarpaccio.imageUrl !== SHRIMP_CARPACCIO_IMAGE ||
+    existingShrimpCarpaccio.deleted;
+  nextRecipes = upsertManagedRecipe(nextRecipes, makeShrimpCarpaccioRecipe());
+
   if (
     storageAvailable &&
     (samplesRemoved ||
@@ -2640,7 +2701,9 @@ function migrateManagedRecipes(recipes: Recipe[]) {
       !soupCurryDone ||
       soupCurryNeedsUpdate ||
       !truffleMushroomRiceDone ||
-      truffleMushroomRiceNeedsUpdate)
+      truffleMushroomRiceNeedsUpdate ||
+      !shrimpCarpaccioDone ||
+      shrimpCarpaccioNeedsUpdate)
   ) {
     writeJson(RECIPES_KEY, nextRecipes);
     window.localStorage.setItem(CORRECT_INSTAGRAM_RECIPE_KEY, "done");
@@ -2685,6 +2748,7 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     window.localStorage.setItem(ROASTED_CABBAGE_STEAKS_RECIPE_KEY, "done");
     window.localStorage.setItem(SOUP_CURRY_RECIPE_KEY, "done");
     window.localStorage.setItem(TRUFFLE_MUSHROOM_RICE_RECIPE_KEY, "done");
+    window.localStorage.setItem(SHRIMP_CARPACCIO_RECIPE_KEY, "done");
   }
 
   return nextRecipes;
