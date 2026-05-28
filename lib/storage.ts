@@ -83,6 +83,9 @@ const MISO_CREAM_CHEESE_PASTA_IMAGE = "/recipe-media/miso-cream-cheese-pasta.jpg
 const YUPDDUK_STYLE_TTEOKBOKKI_RECIPE_KEY = "whats-cookin-jin-migration-youtube-D2cc-cDwpYA-v1";
 const YUPDDUK_STYLE_TTEOKBOKKI_SOURCE = "https://www.youtube.com/watch?v=D2cc-cDwpYA";
 const YUPDDUK_STYLE_TTEOKBOKKI_IMAGE = "/recipe-media/yupdduk-style-tteokbokki.jpg";
+const SHEPHERDS_PURSE_DOENJANG_RAMEN_RECIPE_KEY = "whats-cookin-jin-migration-youtube-RbpoDQV-UWY-v1";
+const SHEPHERDS_PURSE_DOENJANG_RAMEN_SOURCE = "https://www.youtube.com/watch?v=RbpoDQV-UWY";
+const SHEPHERDS_PURSE_DOENJANG_RAMEN_IMAGE = "/recipe-media/shepherds-purse-doenjang-ramen.jpg";
 const SAMPLE_RECIPE_IDS = new Set(sampleRecipes.map((recipe) => recipe.id));
 
 function canUseStorage() {
@@ -1158,6 +1161,48 @@ function makeYupddukStyleTteokbokkiRecipe(): Recipe {
   };
 }
 
+function makeShepherdsPurseDoenjangRamenRecipe(): Recipe {
+  const now = new Date().toISOString();
+
+  return {
+    id: `youtube-shepherds-purse-doenjang-ramen-${Date.now()}`,
+    title: "냉이 된장라면",
+    sourceUrl: SHEPHERDS_PURSE_DOENJANG_RAMEN_SOURCE,
+    sourceType: "YouTube",
+    category: "국 / 찌개",
+    mealType: "Lunch",
+    dietGoal: "None",
+    time: "10 min",
+    difficulty: "Easy",
+    servings: 1,
+    ingredients: [
+      "농심 감자면 1개",
+      "냉이 30g",
+      "청양고춧가루 1g",
+      "된장 15g",
+      "멸치액젓 1g",
+      "뜨거운 물 500g"
+    ],
+    steps: [
+      "냉이는 흙을 털어내고 깨끗하게 씻은 뒤 먹기 좋게 다듬어요.",
+      "냄비에 뜨거운 물 500g을 붓고 된장과 멸치액젓을 풀어요.",
+      "감자면의 면과 스프를 넣고 끓여요.",
+      "면이 풀어지기 시작하면 냉이를 넣어 향을 살려요.",
+      "청양고춧가루를 한 꼬집 넣고 면이 익을 때까지 끓여요.",
+      "국물 간을 보고 짜면 물을 조금 더하고, 싱거우면 된장을 아주 조금만 더해요."
+    ],
+    tags: ["라면", "냉이", "된장", "감자면", "간단요리"],
+    notes:
+      "유튜브 설명란 기준 정리. 기준량은 564g, 염도 1.06%, 원가 2,229원으로 안내되어 있어요. 숟가락 계량은 정확하지 않으니 가능하면 저울 계량을 추천한다고 적혀 있었어요.",
+    imageUrl: SHEPHERDS_PURSE_DOENJANG_RAMEN_IMAGE,
+    favorite: false,
+    bookmarked: true,
+    deleted: false,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
 function removeSampleRecipes(recipes: Recipe[]) {
   return recipes.filter((recipe) => !SAMPLE_RECIPE_IDS.has(recipe.id));
 }
@@ -1228,6 +1273,8 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     storageAvailable && window.localStorage.getItem(MISO_CREAM_CHEESE_PASTA_RECIPE_KEY) === "done";
   const yupddukStyleTteokbokkiDone =
     storageAvailable && window.localStorage.getItem(YUPDDUK_STYLE_TTEOKBOKKI_RECIPE_KEY) === "done";
+  const shepherdsPurseDoenjangRamenDone =
+    storageAvailable && window.localStorage.getItem(SHEPHERDS_PURSE_DOENJANG_RAMEN_RECIPE_KEY) === "done";
   const correctTitle = "육수에 푹 적신 알배추롤 & 구운 주먹밥";
   const samplesRemoved = recipes.some((recipe) => SAMPLE_RECIPE_IDS.has(recipe.id));
   const hadWrongRecipe = recipes.some(
@@ -1470,6 +1517,16 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     existingYupddukStyleTteokbokki.deleted;
   nextRecipes = upsertManagedRecipe(nextRecipes, makeYupddukStyleTteokbokkiRecipe());
 
+  const existingShepherdsPurseDoenjangRamen = nextRecipes.find(
+    (recipe) =>
+      recipe.sourceUrl === SHEPHERDS_PURSE_DOENJANG_RAMEN_SOURCE || recipe.title === "냉이 된장라면"
+  );
+  const shepherdsPurseDoenjangRamenNeedsUpdate =
+    !existingShepherdsPurseDoenjangRamen ||
+    existingShepherdsPurseDoenjangRamen.imageUrl !== SHEPHERDS_PURSE_DOENJANG_RAMEN_IMAGE ||
+    existingShepherdsPurseDoenjangRamen.deleted;
+  nextRecipes = upsertManagedRecipe(nextRecipes, makeShepherdsPurseDoenjangRamenRecipe());
+
   if (
     storageAvailable &&
     (samplesRemoved ||
@@ -1521,7 +1578,9 @@ function migrateManagedRecipes(recipes: Recipe[]) {
       !misoCreamCheesePastaDone ||
       misoCreamCheesePastaNeedsUpdate ||
       !yupddukStyleTteokbokkiDone ||
-      yupddukStyleTteokbokkiNeedsUpdate)
+      yupddukStyleTteokbokkiNeedsUpdate ||
+      !shepherdsPurseDoenjangRamenDone ||
+      shepherdsPurseDoenjangRamenNeedsUpdate)
   ) {
     writeJson(RECIPES_KEY, nextRecipes);
     window.localStorage.setItem(CORRECT_INSTAGRAM_RECIPE_KEY, "done");
@@ -1548,6 +1607,7 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     window.localStorage.setItem(TZATZIKI_SAUCE_RECIPE_KEY, "done");
     window.localStorage.setItem(MISO_CREAM_CHEESE_PASTA_RECIPE_KEY, "done");
     window.localStorage.setItem(YUPDDUK_STYLE_TTEOKBOKKI_RECIPE_KEY, "done");
+    window.localStorage.setItem(SHEPHERDS_PURSE_DOENJANG_RAMEN_RECIPE_KEY, "done");
   }
 
   return nextRecipes;
