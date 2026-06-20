@@ -16,7 +16,7 @@ export function IngredientSelector({ ingredients, selected, onToggle, onAdd }: I
   return (
     <div className="soft-card p-5">
       <div className="mb-4">
-        <p className="font-serif text-2xl text-cocoa">남은 재료 활용하기</p>
+        <p className="recipe-display text-2xl text-cocoa">남은 재료 활용하기</p>
         <p className="mt-1 text-sm text-[#7b6a5f]">냉장고에 있는 재료를 골라보세요.</p>
       </div>
 

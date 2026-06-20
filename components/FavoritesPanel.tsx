@@ -14,7 +14,7 @@ export function FavoritesPanel({ recipes, onOpen, onToggleFavorite }: FavoritesP
     <section className="soft-card p-5">
       <div className="mb-4 flex items-center justify-between gap-4">
         <div>
-          <h2 className="font-serif text-2xl text-cocoa">만들어본 레시피</h2>
+          <h2 className="recipe-display text-2xl text-cocoa">만들어본 레시피</h2>
           <p className="mt-1 text-sm text-[#7b6a5f]">직접 만들어본 레시피를 체크해두는 곳이에요.</p>
         </div>
         <Link href="/favorites" className="text-sm font-semibold text-tomato-600 hover:text-tomato-500">

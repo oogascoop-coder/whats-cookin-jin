@@ -55,7 +55,7 @@ export function RecipeCard({ recipe, onOpen, onToggleFavorite }: RecipeCardProps
               background: `radial-gradient(circle at 30% 35%, #fffdf8 0 12%, transparent 13%), linear-gradient(135deg, ${color}, #fff7eb)`
             }}
           >
-            <div className="rounded-full bg-white/70 px-5 py-3 font-serif text-xl text-cocoa shadow-card">
+            <div className="recipe-display rounded-full bg-white/70 px-5 py-3 text-xl text-cocoa shadow-card">
               {recipe.title.slice(0, 4)}
             </div>
           </div>
@@ -86,7 +86,7 @@ export function RecipeCard({ recipe, onOpen, onToggleFavorite }: RecipeCardProps
           <span className="text-xs font-semibold text-herb">{difficultyLabel(recipe.difficulty)}</span>
         </div>
 
-        <h3 className="font-serif text-3xl leading-tight text-cocoa">{recipe.title}</h3>
+        <h3 className="recipe-display text-3xl leading-tight text-cocoa">{recipe.title}</h3>
         <p className="mt-3 text-sm leading-6 text-[#7b6a5f]">{shortIngredientLine(recipe)}</p>
 
         <div className="mt-5 flex flex-wrap items-center gap-4 text-sm font-semibold text-[#6f6259]">

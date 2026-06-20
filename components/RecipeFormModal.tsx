@@ -126,7 +126,7 @@ export function RecipeFormModal({ open, recipe, onClose, onSave }: RecipeFormMod
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-tomato-600">
               {recipe ? "레시피 수정" : "새 레시피"}
             </p>
-            <h2 id="recipe-form-title" className="font-serif text-3xl text-cocoa">
+            <h2 id="recipe-form-title" className="recipe-display text-3xl text-cocoa">
               {recipe ? "저장한 레시피를 수정해요" : "맛있는 아이디어를 저장해요"}
             </h2>
           </div>

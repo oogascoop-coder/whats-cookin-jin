@@ -20,7 +20,7 @@ export function TipsPage() {
       <TopBar onNewRecipe={store.startNewRecipe} />
       <header className="mb-6 rounded-none border border-[#eadfcd] bg-white p-6 shadow-card">
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-tomato-600">요리 팁</p>
-        <h1 className="mt-2 font-serif text-5xl text-cocoa">작은 습관으로 요리를 쉽게</h1>
+        <h1 className="recipe-display mt-2 text-5xl text-cocoa">작은 습관으로 요리를 쉽게</h1>
         <p className="mt-3 max-w-2xl text-sm leading-6 text-[#7b6a5f]">
           초보 1인 가구를 위한 간단한 주방 팁이에요.
         </p>
@@ -35,7 +35,7 @@ export function TipsPage() {
               <span className="mb-4 flex h-11 w-11 items-center justify-center rounded-full bg-[#fff1e9] text-tomato-600">
                 <Icon size={20} aria-hidden="true" />
               </span>
-              <h2 className="font-serif text-2xl leading-tight text-cocoa">{tip.title}</h2>
+              <h2 className="recipe-display text-2xl leading-tight text-cocoa">{tip.title}</h2>
               <p className="mt-3 text-sm leading-6 text-[#7b6a5f]">{tip.body}</p>
             </article>
           );

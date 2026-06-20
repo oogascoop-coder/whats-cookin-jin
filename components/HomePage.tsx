@@ -84,7 +84,7 @@ export function HomePage() {
       <section className="mb-8">
         <div className="mb-4 flex items-end justify-between gap-4">
           <div>
-            <h2 className="font-serif text-3xl text-cocoa">카테고리로 보기</h2>
+            <h2 className="recipe-display text-3xl text-cocoa">카테고리로 보기</h2>
             <p className="mt-1 text-sm text-[#7b6a5f]">칩을 누르면 해당 카테고리만 보여요.</p>
           </div>
         </div>
@@ -108,7 +108,7 @@ export function HomePage() {
       <section>
         <div className="mb-4 flex items-center justify-between gap-4">
           <div>
-            <h2 className="font-serif text-3xl text-cocoa">레시피 카드</h2>
+            <h2 className="recipe-display text-3xl text-cocoa">레시피 카드</h2>
             <p className="mt-1 text-sm text-[#7b6a5f]">{filteredRecipes.length}개 레시피를 찾았어요.</p>
           </div>
         </div>

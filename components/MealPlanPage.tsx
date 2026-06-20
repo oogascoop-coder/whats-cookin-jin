@@ -42,7 +42,7 @@ export function MealPlanPage() {
       <TopBar onNewRecipe={store.startNewRecipe} />
       <header className="mb-6 rounded-none border border-[#eadfcd] bg-white p-6 shadow-card">
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-tomato-600">주간 식단표</p>
-        <h1 className="mt-2 font-serif text-5xl text-cocoa">이번 주 식사를 가볍게 계획해요</h1>
+        <h1 className="recipe-display mt-2 text-5xl text-cocoa">이번 주 식사를 가볍게 계획해요</h1>
         <p className="mt-3 max-w-2xl text-sm leading-6 text-[#7b6a5f]">
           저장한 레시피를 요일별로 넣어두면 평일 요리가 조금 더 쉬워져요.
         </p>
@@ -51,7 +51,7 @@ export function MealPlanPage() {
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         {days.map((day) => (
           <section key={day} className="soft-card p-5">
-            <h2 className="font-serif text-3xl text-cocoa">{day}</h2>
+            <h2 className="recipe-display text-3xl text-cocoa">{day}</h2>
             <div className="mt-4 space-y-2">
               {(plan[day] || []).map((recipeId) => {
                 const recipe = recipes.find((item) => item.id === recipeId);

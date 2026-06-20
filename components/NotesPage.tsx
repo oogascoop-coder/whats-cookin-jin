@@ -49,7 +49,7 @@ export function NotesPage() {
       <TopBar onNewRecipe={store.startNewRecipe} />
       <header className="mb-6 rounded-none border border-[#eadfcd] bg-white p-6 shadow-card">
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-tomato-600">주방 메모</p>
-        <h1 className="mt-2 font-serif text-5xl text-cocoa">요리 생각을 적어두는 곳</h1>
+        <h1 className="recipe-display mt-2 text-5xl text-cocoa">요리 생각을 적어두는 곳</h1>
         <p className="mt-3 max-w-2xl text-sm leading-6 text-[#7b6a5f]">
           소스 비율, 다음에 바꿔보고 싶은 점, 장보기 아이디어를 적어두세요.
         </p>
@@ -57,7 +57,7 @@ export function NotesPage() {
 
       <div className="grid gap-6 lg:grid-cols-[380px_1fr]">
         <section className="soft-card p-5">
-          <h2 className="font-serif text-2xl text-cocoa">{editingId ? "메모 수정" : "새 메모"}</h2>
+          <h2 className="recipe-display text-2xl text-cocoa">{editingId ? "메모 수정" : "새 메모"}</h2>
           <label className="mt-4 block">
             <span className="mb-2 block text-sm font-semibold">제목</span>
             <input className="input-field" value={title} onChange={(event) => setTitle(event.target.value)} />
@@ -85,7 +85,7 @@ export function NotesPage() {
           ) : (
             notes.map((note) => (
               <article key={note.id} className="soft-card p-5">
-                <h3 className="font-serif text-2xl text-cocoa">{note.title}</h3>
+                <h3 className="recipe-display text-2xl text-cocoa">{note.title}</h3>
                 <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-[#6f6259]">{note.body}</p>
                 <div className="mt-4 flex gap-2">
                   <button

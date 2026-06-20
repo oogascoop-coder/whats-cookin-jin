@@ -50,7 +50,7 @@ export function RecipeModal({
         <div className="sticky top-0 z-10 flex items-center justify-between gap-3 border-b border-[#eadfcd] bg-white/95 p-4 backdrop-blur">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-tomato-600">{recipe.category}</p>
-            <h2 id="recipe-modal-title" className="font-serif text-3xl text-cocoa">
+            <h2 id="recipe-modal-title" className="recipe-display text-3xl text-cocoa">
               {recipe.title}
             </h2>
           </div>
@@ -63,7 +63,7 @@ export function RecipeModal({
           <div>
             {galleryImages.length > 0 ? (
               <section className="mb-4">
-                <h3 className="mb-2 font-serif text-2xl text-cocoa">참고 이미지</h3>
+                <h3 className="recipe-display mb-2 text-2xl text-cocoa">참고 이미지</h3>
                 <div className="grid gap-3">
                   {galleryImages.map((image, index) => (
                     <div key={`${image}-${index}`} className="overflow-hidden rounded-none border border-[#eadfcd] bg-white shadow-card">
@@ -76,7 +76,7 @@ export function RecipeModal({
             ) : null}
 
             <div className="rounded-none border border-[#eadfcd] bg-white p-6 shadow-card">
-              <p className="font-serif text-5xl leading-tight text-cocoa">{recipe.title}</p>
+              <p className="recipe-display text-5xl leading-tight text-cocoa">{recipe.title}</p>
               <div className="mt-6 grid grid-cols-2 gap-3 text-sm">
                 <span className="rounded-none border border-[#eadfcd] bg-white p-3">시간<br /><strong>{recipe.time}</strong></span>
                 <span className="rounded-none border border-[#eadfcd] bg-white p-3">난이도<br /><strong>{difficultyLabel(recipe.difficulty)}</strong></span>
@@ -108,7 +108,7 @@ export function RecipeModal({
 
           <div className="space-y-5">
             <section>
-              <h3 className="mb-2 font-serif text-2xl text-cocoa">재료</h3>
+              <h3 className="recipe-display mb-2 text-2xl text-cocoa">재료</h3>
               <div className="flex flex-wrap gap-2">
                 {recipe.ingredients.map((ingredient) => (
                   <span key={ingredient} className="chip">
@@ -119,7 +119,7 @@ export function RecipeModal({
             </section>
 
             <section>
-              <h3 className="mb-2 font-serif text-2xl text-cocoa">조리 순서</h3>
+              <h3 className="recipe-display mb-2 text-2xl text-cocoa">조리 순서</h3>
               <ol className="space-y-2">
                 {recipe.steps.map((step, index) => (
                   <li key={`${step}-${index}`} className="rounded-none border border-[#eadfcd] bg-white p-3 text-sm leading-6 text-[#5c4f46]">
@@ -132,7 +132,7 @@ export function RecipeModal({
 
             {recipe.notes ? (
               <section className="rounded-none border border-[#eadfcd] bg-white p-4">
-                <h3 className="font-serif text-xl text-cocoa">메모</h3>
+                <h3 className="recipe-display text-xl text-cocoa">메모</h3>
                 <p className="mt-1 text-sm leading-6 text-[#6f6259]">{recipe.notes}</p>
               </section>
             ) : null}

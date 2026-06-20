@@ -46,7 +46,7 @@ export function GroceryListPage() {
       <TopBar onNewRecipe={store.startNewRecipe} />
       <header className="mb-6 rounded-none border border-[#eadfcd] bg-white p-6 shadow-card">
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-tomato-600">장보기 리스트</p>
-        <h1 className="mt-2 font-serif text-5xl text-cocoa">레시피에서 장보기 준비하기</h1>
+        <h1 className="recipe-display mt-2 text-5xl text-cocoa">레시피에서 장보기 준비하기</h1>
         <p className="mt-3 max-w-2xl text-sm leading-6 text-[#7b6a5f]">
           직접 항목을 추가하거나 저장한 레시피의 재료를 한 번에 담을 수 있어요.
         </p>
@@ -109,7 +109,7 @@ export function GroceryListPage() {
         </section>
 
         <aside className="soft-card p-5">
-          <h2 className="font-serif text-2xl text-cocoa">레시피에서 추가</h2>
+          <h2 className="recipe-display text-2xl text-cocoa">레시피에서 추가</h2>
           <p className="mt-1 text-sm text-[#7b6a5f]">레시피를 고르면 재료가 장보기 리스트에 들어가요.</p>
           <label className="mt-4 block">
             <span className="sr-only">레시피 선택</span>

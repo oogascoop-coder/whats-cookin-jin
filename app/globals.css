@@ -2,6 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: "Esamanru";
+  src: url("/fonts/esamanru-bold.otf") format("opentype");
+  font-display: swap;
+  font-style: normal;
+  font-weight: 700;
+}
+
 :root {
   --background: #ffffff;
   --surface: #ffffff;
@@ -43,6 +51,12 @@ textarea:focus-visible {
 }
 
 @layer components {
+  .recipe-display {
+    font-family: "Esamanru", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-weight: 700;
+    letter-spacing: 0;
+  }
+
   .soft-card {
     @apply rounded-none border border-[#eadfcd] bg-white shadow-card;
   }
