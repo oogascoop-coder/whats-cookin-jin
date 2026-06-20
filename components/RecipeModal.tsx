@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect } from "react";
-import { Bookmark, ExternalLink, Heart, Pencil, ShoppingBasket, Trash2, X } from "lucide-react";
-import { difficultyLabel, mealTypeLabel } from "@/lib/labels";
+import { ExternalLink, Pencil, ShoppingBasket, Trash2, X } from "lucide-react";
+import { difficultyLabel } from "@/lib/labels";
 import { Recipe } from "@/lib/types";
 
 type RecipeModalProps = {
@@ -11,7 +11,6 @@ type RecipeModalProps = {
   onEdit: (recipe: Recipe) => void;
   onDelete: (recipe: Recipe) => void;
   onToggleFavorite: (recipe: Recipe) => void;
-  onToggleBookmark: (recipe: Recipe) => void;
   onAddIngredientsToGrocery: (recipe: Recipe) => void;
 };
 
@@ -21,7 +20,6 @@ export function RecipeModal({
   onEdit,
   onDelete,
   onToggleFavorite,
-  onToggleBookmark,
   onAddIngredientsToGrocery
 }: RecipeModalProps) {
   useEffect(() => {
@@ -83,7 +81,6 @@ export function RecipeModal({
                 <span className="rounded-2xl bg-white p-3">시간<br /><strong>{recipe.time}</strong></span>
                 <span className="rounded-2xl bg-white p-3">난이도<br /><strong>{difficultyLabel(recipe.difficulty)}</strong></span>
                 <span className="rounded-2xl bg-white p-3">인분<br /><strong>{recipe.servings}인분</strong></span>
-                <span className="rounded-2xl bg-white p-3">식사<br /><strong>{mealTypeLabel(recipe.mealType)}</strong></span>
               </div>
             </div>
 
@@ -91,20 +88,11 @@ export function RecipeModal({
               <button
                 className="secondary-button"
                 type="button"
-                aria-label={recipe.favorite ? "즐겨찾기 해제" : "즐겨찾기 추가"}
+                aria-label={recipe.favorite ? "만들어본 레시피 체크 해제" : "만들어본 레시피로 체크"}
                 onClick={() => onToggleFavorite(recipe)}
               >
-                <Heart size={17} fill={recipe.favorite ? "currentColor" : "none"} aria-hidden="true" />
-                즐겨찾기
-              </button>
-              <button
-                className="secondary-button"
-                type="button"
-                aria-label={recipe.bookmarked ? "북마크 해제" : "북마크 추가"}
-                onClick={() => onToggleBookmark(recipe)}
-              >
-                <Bookmark size={17} fill={recipe.bookmarked ? "currentColor" : "none"} aria-hidden="true" />
-                북마크
+                <span className="text-base font-bold leading-none" aria-hidden="true">✔</span>
+                만들어봄
               </button>
               <button
                 className="secondary-button"

@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { RotateCcw, Trash2 } from "lucide-react";
-import { categories, dietGoals, mealTypes } from "@/data/recipes";
+import { dietGoals } from "@/data/recipes";
 import { CategoryChips } from "@/components/CategoryChips";
 import { EmptyState } from "@/components/EmptyState";
 import { IngredientSelector } from "@/components/IngredientSelector";
@@ -11,11 +11,11 @@ import { RecipeGrid } from "@/components/RecipeGrid";
 import { RecipeModal } from "@/components/RecipeModal";
 import { TopBar } from "@/components/TopBar";
 import { useRecipeStore } from "@/components/useRecipeStore";
-import { dietGoalLabel, mealTypeLabel } from "@/lib/labels";
+import { dietGoalLabel } from "@/lib/labels";
 import {
-  favoriteRecipes,
   filterByCategory,
   filterByIngredients,
+  madeRecipes,
   recentRecipes,
   searchRecipes,
   visibleRecipes
@@ -26,7 +26,6 @@ type CollectionMode =
   | "my-recipes"
   | "ingredients"
   | "categories"
-  | "meal-types"
   | "diet-goals"
   | "favorites"
   | "recent"
@@ -45,17 +44,13 @@ const pageCopy: Record<CollectionMode, { title: string; description: string }> =
     title: "카테고리",
     description: "한식, 간단 요리, 샐러드, 국물 요리, 간식까지 카테고리별로 찾아요."
   },
-  "meal-types": {
-    title: "식사 타입",
-    description: "아침, 점심, 저녁, 간식, 야식처럼 먹는 시간에 맞춰 골라요."
-  },
   "diet-goals": {
     title: "식단 목표",
     description: "가볍게 먹고 싶은 날, 단백질이 필요한 날에 맞춰 찾아요."
   },
   favorites: {
-    title: "즐겨찾기",
-    description: "하트나 북마크로 저장한 레시피가 여기에 모여요."
+    title: "만들어본 레시피",
+    description: "체크해둔 레시피를 모아두고 다시 만들 때 참고해요."
   },
   recent: {
     title: "최근 본 레시피",
@@ -75,7 +70,6 @@ export function RecipeCollectionPage({ mode }: RecipeCollectionPageProps) {
   const store = useRecipeStore();
   const [query, setQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [selectedMealType, setSelectedMealType] = useState<string | null>(null);
   const [selectedDietGoal, setSelectedDietGoal] = useState<string | null>(null);
   const [savedIngredients, setSavedIngredients] = useState<string[]>(["오이", "달걀", "두부", "양파", "대파"]);
   const [selectedIngredients, setSelectedIngredients] = useState<string[]>(mode === "ingredients" ? ["오이"] : []);
@@ -91,19 +85,16 @@ export function RecipeCollectionPage({ mode }: RecipeCollectionPageProps) {
 
     let nextRecipes = visibleRecipes(store.recipes);
 
-    if (mode === "favorites") nextRecipes = favoriteRecipes(store.recipes);
+    if (mode === "favorites") nextRecipes = madeRecipes(store.recipes);
     if (mode === "recent") nextRecipes = recentRecipes(store.recipes);
     if (mode === "categories") nextRecipes = filterByCategory(nextRecipes, selectedCategory);
-    if (mode === "meal-types" && selectedMealType) {
-      nextRecipes = nextRecipes.filter((recipe) => recipe.mealType === selectedMealType);
-    }
     if (mode === "diet-goals" && selectedDietGoal) {
       nextRecipes = nextRecipes.filter((recipe) => recipe.dietGoal === selectedDietGoal);
     }
     if (mode === "ingredients") nextRecipes = filterByIngredients(nextRecipes, selectedIngredients);
 
     return searchRecipes(nextRecipes, query);
-  }, [store.recipes, mode, selectedCategory, selectedMealType, selectedDietGoal, selectedIngredients, query]);
+  }, [store.recipes, mode, selectedCategory, selectedDietGoal, selectedIngredients, query]);
 
   function toggleIngredient(ingredient: string) {
     setSelectedIngredients((current) =>
@@ -148,25 +139,6 @@ export function RecipeCollectionPage({ mode }: RecipeCollectionPageProps) {
         </div>
       ) : null}
 
-      {mode === "meal-types" ? (
-        <div className="mb-6 flex flex-wrap gap-2">
-          <button className={`chip ${!selectedMealType ? "chip-active" : ""}`} type="button" aria-label="전체 식사 타입 보기" onClick={() => setSelectedMealType(null)}>
-            전체
-          </button>
-          {mealTypes.map((mealType) => (
-            <button
-              key={mealType}
-              className={`chip ${selectedMealType === mealType ? "chip-active" : ""}`}
-              type="button"
-              aria-label={`${mealTypeLabel(mealType)} 식사 타입으로 필터링`}
-              onClick={() => setSelectedMealType(mealType)}
-            >
-              {mealTypeLabel(mealType)}
-            </button>
-          ))}
-        </div>
-      ) : null}
-
       {mode === "diet-goals" ? (
         <div className="mb-6 flex flex-wrap gap-2">
           <button className={`chip ${!selectedDietGoal ? "chip-active" : ""}`} type="button" aria-label="전체 식단 목표 보기" onClick={() => setSelectedDietGoal(null)}>
@@ -199,7 +171,6 @@ export function RecipeCollectionPage({ mode }: RecipeCollectionPageProps) {
           emptyDescription="검색어나 필터를 바꾸거나 새 레시피를 추가해보세요."
           onOpen={store.openRecipe}
           onToggleFavorite={store.toggleFavorite}
-          onToggleBookmark={store.toggleBookmark}
         />
       )}
 
@@ -209,7 +180,6 @@ export function RecipeCollectionPage({ mode }: RecipeCollectionPageProps) {
         onEdit={store.startEditRecipe}
         onDelete={store.moveToTrash}
         onToggleFavorite={store.toggleFavorite}
-        onToggleBookmark={store.toggleBookmark}
         onAddIngredientsToGrocery={store.addIngredientsToGrocery}
       />
       <RecipeFormModal

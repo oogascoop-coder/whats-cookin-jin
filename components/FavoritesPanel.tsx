@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { Heart } from "lucide-react";
 import { Recipe } from "@/lib/types";
 
 type FavoritesPanelProps = {
@@ -15,8 +14,8 @@ export function FavoritesPanel({ recipes, onOpen, onToggleFavorite }: FavoritesP
     <section className="soft-card p-5">
       <div className="mb-4 flex items-center justify-between gap-4">
         <div>
-          <h2 className="font-serif text-2xl text-cocoa">즐겨찾기</h2>
-          <p className="mt-1 text-sm text-[#7b6a5f]">나중에 다시 보려고 저장한 레시피예요.</p>
+          <h2 className="font-serif text-2xl text-cocoa">만들어본 레시피</h2>
+          <p className="mt-1 text-sm text-[#7b6a5f]">직접 만들어본 레시피를 체크해두는 곳이에요.</p>
         </div>
         <Link href="/favorites" className="text-sm font-semibold text-tomato-600 hover:text-tomato-500">
           전체 보기
@@ -25,7 +24,7 @@ export function FavoritesPanel({ recipes, onOpen, onToggleFavorite }: FavoritesP
 
       <div className="space-y-3">
         {recipes.length === 0 ? (
-          <p className="text-sm text-[#7b6a5f]">레시피의 하트를 누르면 여기에 저장돼요.</p>
+          <p className="text-sm text-[#7b6a5f]">레시피의 체크를 누르면 여기에 모여요.</p>
         ) : (
           recipes.slice(0, 4).map((recipe) => (
             <div key={recipe.id} className="flex items-center justify-between gap-3 rounded-2xl bg-[#fbf8f1] p-3">
@@ -41,10 +40,10 @@ export function FavoritesPanel({ recipes, onOpen, onToggleFavorite }: FavoritesP
               <button
                 type="button"
                 className="icon-button h-9 w-9 text-tomato-500"
-                aria-label="즐겨찾기 해제"
+                aria-label="만들어본 레시피 체크 해제"
                 onClick={() => onToggleFavorite(recipe)}
               >
-                <Heart size={17} fill="currentColor" aria-hidden="true" />
+                <span className="text-base font-bold leading-none" aria-hidden="true">✔</span>
               </button>
             </div>
           ))

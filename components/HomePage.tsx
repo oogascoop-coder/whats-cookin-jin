@@ -11,7 +11,7 @@ import { RecipeGrid } from "@/components/RecipeGrid";
 import { RecipeModal } from "@/components/RecipeModal";
 import { TopBar } from "@/components/TopBar";
 import { useRecipeStore } from "@/components/useRecipeStore";
-import { favoriteRecipes, filterByCategory, filterByIngredients, searchRecipes, visibleRecipes } from "@/lib/recipe-utils";
+import { filterByCategory, filterByIngredients, madeRecipes, searchRecipes, visibleRecipes } from "@/lib/recipe-utils";
 import { getSavedIngredients, saveSavedIngredients } from "@/lib/storage";
 
 export function HomePage() {
@@ -32,7 +32,7 @@ export function HomePage() {
     return filterByIngredients(byCategory, selectedIngredients);
   }, [store.recipes, query, selectedCategory, selectedIngredients]);
 
-  const favorites = useMemo(() => favoriteRecipes(store.recipes), [store.recipes]);
+  const made = useMemo(() => madeRecipes(store.recipes), [store.recipes]);
 
   function toggleIngredient(ingredient: string) {
     setSelectedIngredients((current) =>
@@ -60,7 +60,7 @@ export function HomePage() {
           </span>
           <h1 className="font-serif text-5xl leading-tight text-cocoa md:text-6xl">What are we cooking today?</h1>
           <p className="mt-4 max-w-xl text-base leading-8 text-[#6f6259]">
-            Find recipes with what you have, save your favorites, and cook with ease.
+            Find recipes with what you have, mark what you&apos;ve cooked, and cook with ease.
           </p>
           <div className="mt-6">
             <Link className="primary-button" href="/ingredients">
@@ -99,7 +99,7 @@ export function HomePage() {
           onAdd={addIngredient}
         />
         <FavoritesPanel
-          recipes={favorites}
+          recipes={made}
           onOpen={store.openRecipe}
           onToggleFavorite={store.toggleFavorite}
         />
@@ -118,7 +118,6 @@ export function HomePage() {
           emptyDescription="다른 재료, 카테고리, 검색어를 입력해보세요."
           onOpen={store.openRecipe}
           onToggleFavorite={store.toggleFavorite}
-          onToggleBookmark={store.toggleBookmark}
         />
       </section>
 
@@ -128,7 +127,6 @@ export function HomePage() {
         onEdit={store.startEditRecipe}
         onDelete={store.moveToTrash}
         onToggleFavorite={store.toggleFavorite}
-        onToggleBookmark={store.toggleBookmark}
         onAddIngredientsToGrocery={store.addIngredientsToGrocery}
       />
       <RecipeFormModal

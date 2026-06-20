@@ -52,8 +52,8 @@ export function visibleRecipes(recipes: Recipe[]) {
   return recipes.filter((recipe) => !recipe.deleted);
 }
 
-export function favoriteRecipes(recipes: Recipe[]) {
-  return visibleRecipes(recipes).filter((recipe) => recipe.favorite || recipe.bookmarked);
+export function madeRecipes(recipes: Recipe[]) {
+  return visibleRecipes(recipes).filter((recipe) => recipe.favorite);
 }
 
 export function recentRecipes(recipes: Recipe[]) {

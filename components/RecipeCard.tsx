@@ -1,6 +1,6 @@
 "use client";
 
-import { Bookmark, Clock3, Heart, Play, UsersRound } from "lucide-react";
+import { Clock3, Play, UsersRound } from "lucide-react";
 import { Recipe } from "@/lib/types";
 import { difficultyLabel } from "@/lib/labels";
 import { isVideoUrl, shortIngredientLine } from "@/lib/recipe-utils";
@@ -9,12 +9,11 @@ type RecipeCardProps = {
   recipe: Recipe;
   onOpen: (recipe: Recipe) => void;
   onToggleFavorite: (recipe: Recipe) => void;
-  onToggleBookmark: (recipe: Recipe) => void;
 };
 
 const swatches = ["#f6d4b8", "#f3e3c9", "#dce8ea", "#f5c9bc", "#dfe8d4"];
 
-export function RecipeCard({ recipe, onOpen, onToggleFavorite, onToggleBookmark }: RecipeCardProps) {
+export function RecipeCard({ recipe, onOpen, onToggleFavorite }: RecipeCardProps) {
   const color = swatches[Math.abs(recipe.id.length) % swatches.length];
 
   return (
@@ -64,26 +63,17 @@ export function RecipeCard({ recipe, onOpen, onToggleFavorite, onToggleBookmark 
 
         <div className="absolute right-3 top-3 flex gap-2 opacity-95">
           <button
-            className={`icon-button h-10 w-10 bg-white/92 shadow-sm ${recipe.bookmarked ? "border-tomato-500 text-tomato-500" : ""}`}
+            className={`icon-button h-10 w-10 shadow-sm ${
+              recipe.favorite ? "border-tomato-500 bg-tomato-500 text-white" : "bg-white/92 text-[#5c4f46]"
+            }`}
             type="button"
-            aria-label={recipe.bookmarked ? "북마크 해제" : "북마크 추가"}
-            onClick={(event) => {
-              event.stopPropagation();
-              onToggleBookmark(recipe);
-            }}
-          >
-            <Bookmark size={17} fill={recipe.bookmarked ? "currentColor" : "none"} aria-hidden="true" />
-          </button>
-          <button
-            className={`icon-button h-10 w-10 bg-white/92 shadow-sm ${recipe.favorite ? "border-tomato-500 text-tomato-500" : ""}`}
-            type="button"
-            aria-label={recipe.favorite ? "즐겨찾기 해제" : "즐겨찾기 추가"}
+            aria-label={recipe.favorite ? "만들어본 레시피 체크 해제" : "만들어본 레시피로 체크"}
             onClick={(event) => {
               event.stopPropagation();
               onToggleFavorite(recipe);
             }}
           >
-            <Heart size={17} fill={recipe.favorite ? "currentColor" : "none"} aria-hidden="true" />
+            <span className="text-lg font-bold leading-none" aria-hidden="true">✔</span>
           </button>
         </div>
       </div>

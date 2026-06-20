@@ -23,7 +23,7 @@ export function TopBar({ searchValue, onSearchChange, onNewRecipe }: TopBarProps
       ) : (
         <div>
           <p className="text-sm font-semibold text-tomato-600">What&apos;s Cookin&apos;, Jin</p>
-          <p className="text-sm text-[#7b6a5f]">좋아하는 레시피를 저장하고 쉽게 찾아요.</p>
+          <p className="text-sm text-[#7b6a5f]">레시피를 모으고 만들어본 건 체크해요.</p>
         </div>
       )}
 

@@ -10,7 +10,6 @@ type RecipeGridProps = {
   emptyDescription?: string;
   onOpen: (recipe: Recipe) => void;
   onToggleFavorite: (recipe: Recipe) => void;
-  onToggleBookmark: (recipe: Recipe) => void;
 };
 
 export function RecipeGrid({
@@ -18,8 +17,7 @@ export function RecipeGrid({
   emptyTitle = "아직 레시피가 없어요",
   emptyDescription = "새 레시피를 추가하거나 필터를 바꿔보세요.",
   onOpen,
-  onToggleFavorite,
-  onToggleBookmark
+  onToggleFavorite
 }: RecipeGridProps) {
   if (recipes.length === 0) {
     return <EmptyState title={emptyTitle} description={emptyDescription} />;
@@ -33,7 +31,6 @@ export function RecipeGrid({
           recipe={recipe}
           onOpen={onOpen}
           onToggleFavorite={onToggleFavorite}
-          onToggleBookmark={onToggleBookmark}
         />
       ))}
     </div>

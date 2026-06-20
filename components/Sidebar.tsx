@@ -5,15 +5,14 @@ import { usePathname } from "next/navigation";
 import {
   BookOpen,
   ChefHat,
+  CircleCheck,
   ClipboardList,
-  Heart,
   Home,
   Lightbulb,
   NotebookPen,
   Refrigerator,
   Tags,
-  Trash2,
-  Utensils
+  Trash2
 } from "lucide-react";
 
 const menuItems = [
@@ -21,8 +20,7 @@ const menuItems = [
   { href: "/my-recipes", label: "내 레시피", icon: BookOpen },
   { href: "/ingredients", label: "재료로 찾기", icon: Refrigerator },
   { href: "/categories", label: "카테고리", icon: Tags },
-  { href: "/meal-types", label: "식사 타입", icon: Utensils },
-  { href: "/favorites", label: "즐겨찾기", icon: Heart },
+  { href: "/favorites", label: "만들어본 레시피", icon: CircleCheck },
   { href: "/trash", label: "휴지통", icon: Trash2 },
   { href: "/grocery-list", label: "장보기 리스트", icon: ClipboardList },
   { href: "/tips", label: "요리 팁", icon: Lightbulb },
