@@ -47,7 +47,7 @@ export function NotesPage() {
   return (
     <>
       <TopBar onNewRecipe={store.startNewRecipe} />
-      <header className="mb-6 rounded-3xl border border-[#eadfcd] bg-[#fbf8f1] p-6 shadow-card">
+      <header className="mb-6 rounded-none border border-[#eadfcd] bg-white p-6 shadow-card">
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-tomato-600">주방 메모</p>
         <h1 className="mt-2 font-serif text-5xl text-cocoa">요리 생각을 적어두는 곳</h1>
         <p className="mt-3 max-w-2xl text-sm leading-6 text-[#7b6a5f]">

@@ -27,7 +27,7 @@ export function FavoritesPanel({ recipes, onOpen, onToggleFavorite }: FavoritesP
           <p className="text-sm text-[#7b6a5f]">레시피의 체크를 누르면 여기에 모여요.</p>
         ) : (
           recipes.slice(0, 4).map((recipe) => (
-            <div key={recipe.id} className="flex items-center justify-between gap-3 rounded-2xl bg-[#fbf8f1] p-3">
+            <div key={recipe.id} className="flex items-center justify-between gap-3 rounded-none border border-[#eadfcd] bg-white p-3">
               <button
                 type="button"
                 className="min-w-0 text-left"

@@ -3,9 +3,9 @@
 @tailwind utilities;
 
 :root {
-  --background: #fffdf8;
+  --background: #ffffff;
   --surface: #ffffff;
-  --surface-warm: #fbf8f1;
+  --surface-warm: #ffffff;
   --border: #eadfcd;
   --accent: #d84a1b;
   --accent-dark: #b93b15;
@@ -44,7 +44,7 @@ textarea:focus-visible {
 
 @layer components {
   .soft-card {
-    @apply rounded-2xl border border-[#eadfcd] bg-white shadow-card;
+    @apply rounded-none border border-[#eadfcd] bg-white shadow-card;
   }
 
   .icon-button {
@@ -52,15 +52,15 @@ textarea:focus-visible {
   }
 
   .primary-button {
-    @apply inline-flex items-center justify-center gap-2 rounded-full bg-tomato-500 px-5 py-3 text-sm font-semibold text-white shadow-card transition hover:bg-tomato-600;
+    @apply inline-flex items-center justify-center gap-2 rounded-none bg-tomato-500 px-5 py-3 text-sm font-semibold text-white shadow-card transition hover:bg-tomato-600;
   }
 
   .secondary-button {
-    @apply inline-flex items-center justify-center gap-2 rounded-full border border-[#eadfcd] bg-white px-4 py-2 text-sm font-semibold text-cocoa transition hover:border-tomato-500 hover:text-tomato-500;
+    @apply inline-flex items-center justify-center gap-2 rounded-none border border-[#eadfcd] bg-white px-4 py-2 text-sm font-semibold text-cocoa transition hover:border-tomato-500 hover:text-tomato-500;
   }
 
   .input-field {
-    @apply w-full rounded-2xl border border-[#eadfcd] bg-white px-4 py-3 text-sm text-cocoa shadow-sm transition placeholder:text-[#8d7b6e] focus:border-tomato-500;
+    @apply w-full rounded-none border border-[#eadfcd] bg-white px-4 py-3 text-sm text-cocoa shadow-sm transition placeholder:text-[#8d7b6e] focus:border-tomato-500;
   }
 
   .chip {

@@ -115,13 +115,13 @@ export function RecipeFormModal({ open, recipe, onClose, onSave }: RecipeFormMod
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-cocoa/40 p-3 backdrop-blur-sm sm:items-center">
       <form
-        className="max-h-[92vh] w-full max-w-4xl overflow-y-auto rounded-3xl border border-[#eadfcd] bg-[#fffdf8] shadow-soft"
+        className="max-h-[92vh] w-full max-w-4xl overflow-y-auto rounded-none border border-[#eadfcd] bg-white shadow-soft"
         onSubmit={handleSubmit}
         role="dialog"
         aria-modal="true"
         aria-labelledby="recipe-form-title"
       >
-        <div className="sticky top-0 z-10 flex items-center justify-between gap-3 border-b border-[#eadfcd] bg-[#fffdf8]/95 p-4 backdrop-blur">
+        <div className="sticky top-0 z-10 flex items-center justify-between gap-3 border-b border-[#eadfcd] bg-white/95 p-4 backdrop-blur">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-tomato-600">
               {recipe ? "레시피 수정" : "새 레시피"}
@@ -295,7 +295,7 @@ export function RecipeFormModal({ open, recipe, onClose, onSave }: RecipeFormMod
           </label>
         </div>
 
-        <div className="sticky bottom-0 flex justify-end gap-2 border-t border-[#eadfcd] bg-[#fffdf8]/95 p-4 backdrop-blur">
+        <div className="sticky bottom-0 flex justify-end gap-2 border-t border-[#eadfcd] bg-white/95 p-4 backdrop-blur">
           <button className="secondary-button" type="button" aria-label="레시피 입력 취소" onClick={onClose}>
             취소
           </button>

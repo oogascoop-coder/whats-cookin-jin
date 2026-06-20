@@ -18,7 +18,7 @@ export function RecipeCard({ recipe, onOpen, onToggleFavorite }: RecipeCardProps
 
   return (
     <article
-      className="group cursor-pointer overflow-hidden rounded-[1.35rem] border border-[#eadfcd] bg-white transition hover:-translate-y-0.5 hover:border-[#dfcdb4]"
+      className="group cursor-pointer overflow-hidden rounded-none border border-[#eadfcd] bg-white transition hover:-translate-y-0.5 hover:border-[#dfcdb4]"
       onClick={() => onOpen(recipe)}
       role="button"
       tabIndex={0}

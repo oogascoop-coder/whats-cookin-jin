@@ -42,12 +42,12 @@ export function RecipeModal({
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-cocoa/40 p-3 backdrop-blur-sm sm:items-center">
       <div
-        className="max-h-[92vh] w-full max-w-3xl overflow-y-auto rounded-3xl border border-[#eadfcd] bg-[#fffdf8] shadow-soft"
+        className="max-h-[92vh] w-full max-w-3xl overflow-y-auto rounded-none border border-[#eadfcd] bg-white shadow-soft"
         role="dialog"
         aria-modal="true"
         aria-labelledby="recipe-modal-title"
       >
-        <div className="sticky top-0 z-10 flex items-center justify-between gap-3 border-b border-[#eadfcd] bg-[#fffdf8]/95 p-4 backdrop-blur">
+        <div className="sticky top-0 z-10 flex items-center justify-between gap-3 border-b border-[#eadfcd] bg-white/95 p-4 backdrop-blur">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-tomato-600">{recipe.category}</p>
             <h2 id="recipe-modal-title" className="font-serif text-3xl text-cocoa">
@@ -66,7 +66,7 @@ export function RecipeModal({
                 <h3 className="mb-2 font-serif text-2xl text-cocoa">참고 이미지</h3>
                 <div className="grid gap-3">
                   {galleryImages.map((image, index) => (
-                    <div key={`${image}-${index}`} className="overflow-hidden rounded-3xl border border-[#eadfcd] bg-white shadow-card">
+                    <div key={`${image}-${index}`} className="overflow-hidden rounded-none border border-[#eadfcd] bg-white shadow-card">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={image} alt={`${recipe.title} 참고 이미지 ${index + 1}`} className="h-auto w-full object-cover" />
                     </div>
@@ -75,12 +75,12 @@ export function RecipeModal({
               </section>
             ) : null}
 
-            <div className="rounded-3xl bg-[#f6efe4] p-6 shadow-card">
+            <div className="rounded-none border border-[#eadfcd] bg-white p-6 shadow-card">
               <p className="font-serif text-5xl leading-tight text-cocoa">{recipe.title}</p>
               <div className="mt-6 grid grid-cols-2 gap-3 text-sm">
-                <span className="rounded-2xl bg-white p-3">시간<br /><strong>{recipe.time}</strong></span>
-                <span className="rounded-2xl bg-white p-3">난이도<br /><strong>{difficultyLabel(recipe.difficulty)}</strong></span>
-                <span className="rounded-2xl bg-white p-3">인분<br /><strong>{recipe.servings}인분</strong></span>
+                <span className="rounded-none border border-[#eadfcd] bg-white p-3">시간<br /><strong>{recipe.time}</strong></span>
+                <span className="rounded-none border border-[#eadfcd] bg-white p-3">난이도<br /><strong>{difficultyLabel(recipe.difficulty)}</strong></span>
+                <span className="rounded-none border border-[#eadfcd] bg-white p-3">인분<br /><strong>{recipe.servings}인분</strong></span>
               </div>
             </div>
 
@@ -122,7 +122,7 @@ export function RecipeModal({
               <h3 className="mb-2 font-serif text-2xl text-cocoa">조리 순서</h3>
               <ol className="space-y-2">
                 {recipe.steps.map((step, index) => (
-                  <li key={`${step}-${index}`} className="rounded-2xl bg-white p-3 text-sm leading-6 text-[#5c4f46]">
+                  <li key={`${step}-${index}`} className="rounded-none border border-[#eadfcd] bg-white p-3 text-sm leading-6 text-[#5c4f46]">
                     <span className="mr-2 font-semibold text-tomato-600">{index + 1}.</span>
                     {step}
                   </li>
@@ -131,7 +131,7 @@ export function RecipeModal({
             </section>
 
             {recipe.notes ? (
-              <section className="rounded-2xl bg-[#fbf8f1] p-4">
+              <section className="rounded-none border border-[#eadfcd] bg-white p-4">
                 <h3 className="font-serif text-xl text-cocoa">메모</h3>
                 <p className="mt-1 text-sm leading-6 text-[#6f6259]">{recipe.notes}</p>
               </section>

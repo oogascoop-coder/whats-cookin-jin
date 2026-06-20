@@ -52,7 +52,7 @@ export function HomePage() {
     <>
       <TopBar searchValue={query} onSearchChange={setQuery} onNewRecipe={store.startNewRecipe} />
 
-      <section className="mb-8 grid gap-6 overflow-hidden rounded-3xl border border-[#eadfcd] bg-[#fbf8f1] p-6 shadow-soft md:grid-cols-[1.1fr_0.9fr] md:p-8">
+      <section className="mb-8 grid gap-6 overflow-hidden rounded-none border border-[#eadfcd] bg-white p-6 shadow-soft md:grid-cols-[1.1fr_0.9fr] md:p-8">
         <div className="flex flex-col justify-center">
           <span className="mb-4 inline-flex w-fit items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-semibold text-tomato-600 shadow-card">
             <Sparkles size={16} aria-hidden="true" />
@@ -70,13 +70,13 @@ export function HomePage() {
           </div>
         </div>
 
-        <div className="relative min-h-72 overflow-hidden rounded-3xl border border-white bg-white p-3 shadow-card">
+        <div className="relative min-h-72 overflow-hidden rounded-none border border-[#eadfcd] bg-white p-3 shadow-card">
           {/* Home hero image: swap this file to change the large visual. */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/recipe-media/hero-meme-green.jpg"
             alt=""
-            className="h-full min-h-72 w-full rounded-[1.25rem] object-cover"
+            className="h-full min-h-72 w-full rounded-none object-cover"
           />
         </div>
       </section>

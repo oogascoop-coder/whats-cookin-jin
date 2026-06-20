@@ -18,7 +18,7 @@ export function TipsPage() {
   return (
     <>
       <TopBar onNewRecipe={store.startNewRecipe} />
-      <header className="mb-6 rounded-3xl border border-[#eadfcd] bg-[#fbf8f1] p-6 shadow-card">
+      <header className="mb-6 rounded-none border border-[#eadfcd] bg-white p-6 shadow-card">
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-tomato-600">요리 팁</p>
         <h1 className="mt-2 font-serif text-5xl text-cocoa">작은 습관으로 요리를 쉽게</h1>
         <p className="mt-3 max-w-2xl text-sm leading-6 text-[#7b6a5f]">

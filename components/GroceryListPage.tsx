@@ -44,7 +44,7 @@ export function GroceryListPage() {
   return (
     <>
       <TopBar onNewRecipe={store.startNewRecipe} />
-      <header className="mb-6 rounded-3xl border border-[#eadfcd] bg-[#fbf8f1] p-6 shadow-card">
+      <header className="mb-6 rounded-none border border-[#eadfcd] bg-white p-6 shadow-card">
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-tomato-600">장보기 리스트</p>
         <h1 className="mt-2 font-serif text-5xl text-cocoa">레시피에서 장보기 준비하기</h1>
         <p className="mt-3 max-w-2xl text-sm leading-6 text-[#7b6a5f]">
@@ -78,10 +78,10 @@ export function GroceryListPage() {
 
           <div className="space-y-2">
             {items.length === 0 ? (
-              <p className="rounded-2xl bg-[#fbf8f1] p-4 text-sm text-[#7b6a5f]">장보기 리스트가 비어 있어요.</p>
+              <p className="rounded-none border border-[#eadfcd] bg-white p-4 text-sm text-[#7b6a5f]">장보기 리스트가 비어 있어요.</p>
             ) : (
               items.map((item) => (
-                <div key={item.id} className="flex items-center justify-between gap-3 rounded-2xl bg-[#fbf8f1] p-3">
+                <div key={item.id} className="flex items-center justify-between gap-3 rounded-none border border-[#eadfcd] bg-white p-3">
                   <label className="flex min-w-0 flex-1 items-center gap-3">
                     <input
                       type="checkbox"

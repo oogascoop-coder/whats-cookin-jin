@@ -116,7 +116,7 @@ export function RecipeCollectionPage({ mode }: RecipeCollectionPageProps) {
     <>
       <TopBar searchValue={query} onSearchChange={setQuery} onNewRecipe={store.startNewRecipe} />
 
-      <header className="mb-9 rounded-3xl border border-[#eadfcd] bg-[#fbf8f1] p-6 shadow-card">
+      <header className="mb-9 rounded-none border border-[#eadfcd] bg-white p-6 shadow-card">
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-tomato-600">레시피 보관함</p>
         <h1 className="mt-2 font-serif text-5xl text-cocoa">{copy.title}</h1>
         <p className="mt-3 max-w-2xl text-sm leading-6 text-[#7b6a5f]">{copy.description}</p>

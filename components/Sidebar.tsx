@@ -32,8 +32,8 @@ export function Sidebar() {
 
   return (
     <>
-      <aside className="fixed left-0 top-0 z-30 hidden h-screen w-72 border-r border-[#eadfcd] bg-[#fbf8f1]/95 px-5 py-6 shadow-soft backdrop-blur lg:block">
-        <Link href="/" className="mb-8 block rounded-2xl p-2">
+      <aside className="fixed left-0 top-0 z-30 hidden h-screen w-72 border-r border-[#eadfcd] bg-white px-5 py-6 shadow-soft lg:block">
+        <Link href="/" className="mb-8 block rounded-none p-2">
           <div className="flex items-center gap-3">
             <span className="flex h-12 w-12 items-center justify-center rounded-full bg-tomato-500 text-white">
               <ChefHat size={24} aria-hidden="true" />
@@ -56,10 +56,10 @@ export function Sidebar() {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold transition ${
+                className={`flex items-center gap-3 rounded-none px-4 py-3 text-sm font-semibold transition ${
                   active
-                    ? "bg-white text-tomato-600 shadow-card"
-                    : "text-[#5c4f46] hover:bg-white hover:text-tomato-600"
+                    ? "bg-[#fff7f2] text-tomato-600 shadow-card"
+                    : "text-[#5c4f46] hover:bg-[#fff7f2] hover:text-tomato-600"
                 }`}
               >
                 <Icon size={18} aria-hidden="true" />
@@ -72,7 +72,7 @@ export function Sidebar() {
 
       <nav
         aria-label="Mobile navigation"
-        className="fixed bottom-0 left-0 right-0 z-40 grid grid-cols-5 border-t border-[#eadfcd] bg-[#fffdf8]/95 px-2 py-2 shadow-soft backdrop-blur lg:hidden"
+        className="fixed bottom-0 left-0 right-0 z-40 grid grid-cols-5 border-t border-[#eadfcd] bg-white px-2 py-2 shadow-soft lg:hidden"
       >
         {menuItems.slice(0, 5).map((item) => {
           const Icon = item.icon;
@@ -82,7 +82,7 @@ export function Sidebar() {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex flex-col items-center gap-1 rounded-2xl px-1 py-2 text-[10px] font-semibold ${
+              className={`flex flex-col items-center gap-1 rounded-none px-1 py-2 text-[10px] font-semibold ${
                 active ? "bg-[#fff1e9] text-tomato-600" : "text-[#6f6259]"
               }`}
             >

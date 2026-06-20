@@ -40,7 +40,7 @@ export function MealPlanPage() {
   return (
     <>
       <TopBar onNewRecipe={store.startNewRecipe} />
-      <header className="mb-6 rounded-3xl border border-[#eadfcd] bg-[#fbf8f1] p-6 shadow-card">
+      <header className="mb-6 rounded-none border border-[#eadfcd] bg-white p-6 shadow-card">
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-tomato-600">주간 식단표</p>
         <h1 className="mt-2 font-serif text-5xl text-cocoa">이번 주 식사를 가볍게 계획해요</h1>
         <p className="mt-3 max-w-2xl text-sm leading-6 text-[#7b6a5f]">
@@ -58,7 +58,7 @@ export function MealPlanPage() {
                 if (!recipe) return null;
 
                 return (
-                  <div key={recipeId} className="flex items-center justify-between gap-2 rounded-2xl bg-[#fbf8f1] p-3">
+                  <div key={recipeId} className="flex items-center justify-between gap-2 rounded-none border border-[#eadfcd] bg-white p-3">
                     <button
                       type="button"
                       className="min-w-0 text-left"

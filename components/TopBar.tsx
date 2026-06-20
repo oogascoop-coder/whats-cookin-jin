@@ -38,7 +38,7 @@ export function TopBar({ searchValue, onSearchChange, onNewRecipe }: TopBarProps
             <Bell size={18} aria-hidden="true" />
           </button>
           {notificationsOpen ? (
-            <div className="absolute right-0 top-12 z-20 w-64 rounded-2xl border border-[#eadfcd] bg-white p-4 text-sm shadow-soft">
+            <div className="absolute right-0 top-12 z-20 w-64 rounded-none border border-[#eadfcd] bg-white p-4 text-sm shadow-soft">
               <p className="font-semibold text-cocoa">오늘의 알림</p>
               <p className="mt-2 leading-6 text-[#7b6a5f]">
                 오이로 만들 수 있는 레시피가 준비되어 있어요.
@@ -57,7 +57,7 @@ export function TopBar({ searchValue, onSearchChange, onNewRecipe }: TopBarProps
             <UserRound size={18} aria-hidden="true" />
           </button>
           {profileOpen ? (
-            <div className="absolute right-0 top-12 z-20 w-56 rounded-2xl border border-[#eadfcd] bg-white p-4 text-sm shadow-soft">
+            <div className="absolute right-0 top-12 z-20 w-56 rounded-none border border-[#eadfcd] bg-white p-4 text-sm shadow-soft">
               <p className="font-semibold text-cocoa">Hajin&apos;s kitchen</p>
               <p className="mt-1 text-[#7b6a5f]">브라우저에 저장되는 개인 레시피 박스</p>
             </div>
