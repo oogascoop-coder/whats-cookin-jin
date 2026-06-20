@@ -167,6 +167,9 @@ const CRISPY_HASH_BROWNS_IMAGE = "/recipe-media/crispy-hash-browns.jpg";
 const FETA_CHEESE_PASTA_RECIPE_KEY = "whats-cookin-jin-migration-youtube-ietQQPW87ng-v1";
 const FETA_CHEESE_PASTA_SOURCE = "https://www.youtube.com/watch?v=ietQQPW87ng";
 const FETA_CHEESE_PASTA_IMAGE = "/recipe-media/feta-cheese-pasta.jpg";
+const ALBAECHU_DIET_DUMPLINGS_RECIPE_KEY = "whats-cookin-jin-migration-instagram-C81DeXGJR9m-v1";
+const ALBAECHU_DIET_DUMPLINGS_SOURCE = "https://www.instagram.com/p/C81DeXGJR9m/";
+const ALBAECHU_DIET_DUMPLINGS_IMAGE = "/recipe-media/albaechu-diet-dumplings.jpg";
 const SAMPLE_RECIPE_IDS = new Set(sampleRecipes.map((recipe) => recipe.id));
 
 function canUseStorage() {
@@ -2567,6 +2570,55 @@ function makeFetaCheesePastaRecipe(): Recipe {
   };
 }
 
+function makeAlbaechuDietDumplingsRecipe(): Recipe {
+  const now = new Date().toISOString();
+
+  return {
+    id: `instagram-albaechu-diet-dumplings-${Date.now()}`,
+    title: "알배추만두",
+    sourceUrl: ALBAECHU_DIET_DUMPLINGS_SOURCE,
+    sourceType: "Instagram",
+    category: "다이어트",
+    mealType: "Lunch",
+    dietGoal: "Low Carb",
+    time: "30 min",
+    difficulty: "Medium",
+    servings: 2,
+    ingredients: [
+      "알배추",
+      "다진 닭가슴살 또는 다진 고기",
+      "두부",
+      "부추 또는 대파",
+      "달걀",
+      "다진 마늘",
+      "간장",
+      "참기름",
+      "후추",
+      "소금",
+      "전분가루 선택",
+      "식용유"
+    ],
+    steps: [
+      "알배추 잎은 한 장씩 떼어 깨끗하게 씻고, 끓는 물에 살짝 데쳐 부드럽게 만들어요.",
+      "두부는 물기를 꼭 짜고, 부추나 대파는 잘게 썰어요.",
+      "다진 닭가슴살 또는 다진 고기에 두부, 부추, 달걀, 다진 마늘, 간장, 참기름, 후추를 넣고 만두소처럼 섞어요.",
+      "물기를 닦은 알배추 잎 안쪽에 전분가루를 아주 살짝 묻혀요.",
+      "알배추 잎 위에 만두소를 올리고 네모나게 접어 감싸요.",
+      "팬에 기름을 아주 살짝 두르고 알배추만두를 앞뒤로 노릇하게 구워요.",
+      "속까지 익도록 약불에서 천천히 익히고, 간장 소스나 좋아하는 다이어트 소스와 곁들여요."
+    ],
+    tags: ["알배추", "알배추만두", "다이어트", "저탄수", "만두"],
+    notes:
+      "인스타그램 공개 설명 기준으로 정리했어요. 게시글에는 자세한 재료 정보가 프로필 링크에 있다고 되어 있어, 알배추만두 형태와 해시태그를 기준으로 따라 하기 쉬운 버전으로 저장했어요.",
+    imageUrl: ALBAECHU_DIET_DUMPLINGS_IMAGE,
+    favorite: false,
+    bookmarked: true,
+    deleted: false,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
 function removeSampleRecipes(recipes: Recipe[]) {
   return recipes.filter((recipe) => !SAMPLE_RECIPE_IDS.has(recipe.id));
 }
@@ -2688,6 +2740,8 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     storageAvailable && window.localStorage.getItem(CRISPY_HASH_BROWNS_RECIPE_KEY) === "done";
   const fetaCheesePastaDone =
     storageAvailable && window.localStorage.getItem(FETA_CHEESE_PASTA_RECIPE_KEY) === "done";
+  const albaechuDietDumplingsDone =
+    storageAvailable && window.localStorage.getItem(ALBAECHU_DIET_DUMPLINGS_RECIPE_KEY) === "done";
   const correctTitle = "육수에 푹 적신 알배추롤 & 구운 주먹밥";
   const samplesRemoved = recipes.some((recipe) => SAMPLE_RECIPE_IDS.has(recipe.id));
   const hadWrongRecipe = recipes.some(
@@ -3182,6 +3236,15 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     existingFetaCheesePasta.deleted;
   nextRecipes = upsertManagedRecipe(nextRecipes, makeFetaCheesePastaRecipe());
 
+  const existingAlbaechuDietDumplings = nextRecipes.find(
+    (recipe) => recipe.sourceUrl === ALBAECHU_DIET_DUMPLINGS_SOURCE || recipe.title === "알배추만두"
+  );
+  const albaechuDietDumplingsNeedsUpdate =
+    !existingAlbaechuDietDumplings ||
+    existingAlbaechuDietDumplings.imageUrl !== ALBAECHU_DIET_DUMPLINGS_IMAGE ||
+    existingAlbaechuDietDumplings.deleted;
+  nextRecipes = upsertManagedRecipe(nextRecipes, makeAlbaechuDietDumplingsRecipe());
+
   if (
     storageAvailable &&
     (samplesRemoved ||
@@ -3289,7 +3352,9 @@ function migrateManagedRecipes(recipes: Recipe[]) {
       !crispyHashBrownsDone ||
       crispyHashBrownsNeedsUpdate ||
       !fetaCheesePastaDone ||
-      fetaCheesePastaNeedsUpdate)
+      fetaCheesePastaNeedsUpdate ||
+      !albaechuDietDumplingsDone ||
+      albaechuDietDumplingsNeedsUpdate)
   ) {
     writeJson(RECIPES_KEY, nextRecipes);
     window.localStorage.setItem(CORRECT_INSTAGRAM_RECIPE_KEY, "done");
@@ -3344,6 +3409,7 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     window.localStorage.setItem(PEAR_DRINK_PORK_GALBIJJIM_RECIPE_KEY, "done");
     window.localStorage.setItem(CRISPY_HASH_BROWNS_RECIPE_KEY, "done");
     window.localStorage.setItem(FETA_CHEESE_PASTA_RECIPE_KEY, "done");
+    window.localStorage.setItem(ALBAECHU_DIET_DUMPLINGS_RECIPE_KEY, "done");
   }
 
   return nextRecipes;
