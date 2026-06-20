@@ -176,6 +176,9 @@ const ROMESCO_SET_IMAGE = "/recipe-media/romesco-set.jpg";
 const SOFT_TOFU_BAGEL_BREAD_RECIPE_KEY = "whats-cookin-jin-migration-instagram-DXY1JGqDw2p-v1";
 const SOFT_TOFU_BAGEL_BREAD_SOURCE = "https://www.instagram.com/p/DXY1JGqDw2p/";
 const SOFT_TOFU_BAGEL_BREAD_IMAGE = "/recipe-media/soft-tofu-bread.jpg";
+const MUSHROOM_CHICKEN_CREAM_SANDWICH_RECIPE_KEY = "whats-cookin-jin-migration-instagram-DUqPrtZErRv-v1";
+const MUSHROOM_CHICKEN_CREAM_SANDWICH_SOURCE = "https://www.instagram.com/p/DUqPrtZErRv/";
+const MUSHROOM_CHICKEN_CREAM_SANDWICH_IMAGE = "/recipe-media/mushroom-chicken-cream-sandwich.jpg";
 const SAMPLE_RECIPE_IDS = new Set(sampleRecipes.map((recipe) => recipe.id));
 
 function canUseStorage() {
@@ -2711,6 +2714,57 @@ function makeSoftTofuBagelBreadRecipe(): Recipe {
   };
 }
 
+function makeMushroomChickenCreamSandwichRecipe(): Recipe {
+  const now = new Date().toISOString();
+
+  return {
+    id: `instagram-mushroom-chicken-cream-sandwich-${Date.now()}`,
+    title: "머쉬룸 치킨크림 멜팅 치즈 샌드위치",
+    sourceUrl: MUSHROOM_CHICKEN_CREAM_SANDWICH_SOURCE,
+    sourceType: "Instagram",
+    category: "간단 요리",
+    mealType: "Lunch",
+    dietGoal: "High Protein",
+    time: "25 min",
+    difficulty: "Easy",
+    servings: 1,
+    ingredients: [
+      "닭가슴살",
+      "양송이버섯",
+      "느타리버섯",
+      "표고버섯",
+      "생크림",
+      "양파 반개",
+      "다진 마늘",
+      "버터",
+      "소금",
+      "후추",
+      "꿀",
+      "크러쉬드페퍼",
+      "타임",
+      "사워도우",
+      "하바티 치즈"
+    ],
+    steps: [
+      "닭가슴살은 익혀서 잘게 찢거나 먹기 좋게 다져요.",
+      "양파와 버섯은 얇게 썰고, 팬에 버터를 녹인 뒤 양파와 다진 마늘을 먼저 볶아요.",
+      "버섯을 넣고 수분이 날아가며 진하게 볶아질 때까지 익혀요.",
+      "닭가슴살, 생크림, 소금, 후추, 꿀, 크러쉬드페퍼, 타임을 넣고 걸쭉한 치킨크림 필링처럼 졸여요.",
+      "사워도우 한쪽에 하바티 치즈를 올리고 치킨크림 필링을 듬뿍 얹어요.",
+      "다른 빵으로 덮은 뒤 팬에서 앞뒤로 노릇하게 굽고 치즈가 녹으면 반으로 잘라 먹어요."
+    ],
+    tags: ["샌드위치", "브런치", "스타벅스", "버섯", "닭가슴살"],
+    notes:
+      "인스타그램 공개 캡션 기준으로 정리했어요. 원문은 사용 재료 중심이라, 스타벅스 머쉬룸 치킨크림 멜팅 치즈 샌드위치 느낌으로 따라 만들기 쉬운 순서를 보완했어요.",
+    imageUrl: MUSHROOM_CHICKEN_CREAM_SANDWICH_IMAGE,
+    favorite: false,
+    bookmarked: true,
+    deleted: false,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
 function removeSampleRecipes(recipes: Recipe[]) {
   return recipes.filter((recipe) => !SAMPLE_RECIPE_IDS.has(recipe.id));
 }
@@ -2837,6 +2891,8 @@ function migrateManagedRecipes(recipes: Recipe[]) {
   const romescoSetDone = storageAvailable && window.localStorage.getItem(ROMESCO_SET_RECIPE_KEY) === "done";
   const softTofuBagelBreadDone =
     storageAvailable && window.localStorage.getItem(SOFT_TOFU_BAGEL_BREAD_RECIPE_KEY) === "done";
+  const mushroomChickenCreamSandwichDone =
+    storageAvailable && window.localStorage.getItem(MUSHROOM_CHICKEN_CREAM_SANDWICH_RECIPE_KEY) === "done";
   const correctTitle = "육수에 푹 적신 알배추롤 & 구운 주먹밥";
   const samplesRemoved = recipes.some((recipe) => SAMPLE_RECIPE_IDS.has(recipe.id));
   const hadWrongRecipe = recipes.some(
@@ -3356,6 +3412,17 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     existingSoftTofuBagelBread.deleted;
   nextRecipes = upsertManagedRecipe(nextRecipes, makeSoftTofuBagelBreadRecipe());
 
+  const existingMushroomChickenCreamSandwich = nextRecipes.find(
+    (recipe) =>
+      recipe.sourceUrl === MUSHROOM_CHICKEN_CREAM_SANDWICH_SOURCE ||
+      recipe.title === "머쉬룸 치킨크림 멜팅 치즈 샌드위치"
+  );
+  const mushroomChickenCreamSandwichNeedsUpdate =
+    !existingMushroomChickenCreamSandwich ||
+    existingMushroomChickenCreamSandwich.imageUrl !== MUSHROOM_CHICKEN_CREAM_SANDWICH_IMAGE ||
+    existingMushroomChickenCreamSandwich.deleted;
+  nextRecipes = upsertManagedRecipe(nextRecipes, makeMushroomChickenCreamSandwichRecipe());
+
   if (
     storageAvailable &&
     (samplesRemoved ||
@@ -3469,7 +3536,9 @@ function migrateManagedRecipes(recipes: Recipe[]) {
       !romescoSetDone ||
       romescoSetNeedsUpdate ||
       !softTofuBagelBreadDone ||
-      softTofuBagelBreadNeedsUpdate)
+      softTofuBagelBreadNeedsUpdate ||
+      !mushroomChickenCreamSandwichDone ||
+      mushroomChickenCreamSandwichNeedsUpdate)
   ) {
     writeJson(RECIPES_KEY, nextRecipes);
     window.localStorage.setItem(CORRECT_INSTAGRAM_RECIPE_KEY, "done");
@@ -3527,6 +3596,7 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     window.localStorage.setItem(ALBAECHU_DIET_DUMPLINGS_RECIPE_KEY, "done");
     window.localStorage.setItem(ROMESCO_SET_RECIPE_KEY, "done");
     window.localStorage.setItem(SOFT_TOFU_BAGEL_BREAD_RECIPE_KEY, "done");
+    window.localStorage.setItem(MUSHROOM_CHICKEN_CREAM_SANDWICH_RECIPE_KEY, "done");
   }
 
   return nextRecipes;
