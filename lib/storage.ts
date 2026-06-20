@@ -170,6 +170,9 @@ const FETA_CHEESE_PASTA_IMAGE = "/recipe-media/feta-cheese-pasta.jpg";
 const ALBAECHU_DIET_DUMPLINGS_RECIPE_KEY = "whats-cookin-jin-migration-instagram-C81DeXGJR9m-v1";
 const ALBAECHU_DIET_DUMPLINGS_SOURCE = "https://www.instagram.com/p/C81DeXGJR9m/";
 const ALBAECHU_DIET_DUMPLINGS_IMAGE = "/recipe-media/albaechu-diet-dumplings.jpg";
+const ROMESCO_SET_RECIPE_KEY = "whats-cookin-jin-migration-instagram-DYWi1YfJmRD-v1";
+const ROMESCO_SET_SOURCE = "https://www.instagram.com/p/DYWi1YfJmRD/";
+const ROMESCO_SET_IMAGE = "/recipe-media/romesco-set.jpg";
 const SAMPLE_RECIPE_IDS = new Set(sampleRecipes.map((recipe) => recipe.id));
 
 function canUseStorage() {
@@ -2619,6 +2622,49 @@ function makeAlbaechuDietDumplingsRecipe(): Recipe {
   };
 }
 
+function makeRomescoSetRecipe(): Recipe {
+  const now = new Date().toISOString();
+
+  return {
+    id: `instagram-romesco-set-${Date.now()}`,
+    title: "로메스코 정식",
+    sourceUrl: ROMESCO_SET_SOURCE,
+    sourceType: "Instagram",
+    category: "간단 요리",
+    mealType: "Lunch",
+    dietGoal: "None",
+    time: "20 min",
+    difficulty: "Easy",
+    servings: 1,
+    ingredients: [
+      "로메스코 소스",
+      "바게트",
+      "가지",
+      "계란",
+      "할루미 치즈",
+      "크러시드 페퍼",
+      "올리브유",
+      "소금",
+      "후추"
+    ],
+    steps: [
+      "가지는 먹기 좋게 썰고 올리브유를 두른 뒤 소금, 후추를 뿌려 노릇하게 구워요.",
+      "계란은 소금을 살짝 뿌려 반숙으로 굽고, 크러시드 페퍼를 뿌려요.",
+      "바게트와 할루미 치즈도 팬이나 오븐에서 겉이 노릇하게 굽습니다.",
+      "바게트에 로메스코 소스를 듬뿍 얹고, 구운 가지, 반숙 계란, 할루미 치즈를 원하는 조합으로 곁들여 먹어요."
+    ],
+    tags: ["로메스코", "바게트", "브런치", "가지", "할루미"],
+    notes:
+      "인스타그램 공개 설명 기준으로 정리했어요. 게시글에서는 이전 영상의 로메스코 소스를 사용하므로, 이 카드는 완성 로메스코 소스를 바게트와 토핑에 곁들이는 정식 구성으로 저장했어요.",
+    imageUrl: ROMESCO_SET_IMAGE,
+    favorite: false,
+    bookmarked: true,
+    deleted: false,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
 function removeSampleRecipes(recipes: Recipe[]) {
   return recipes.filter((recipe) => !SAMPLE_RECIPE_IDS.has(recipe.id));
 }
@@ -2742,6 +2788,7 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     storageAvailable && window.localStorage.getItem(FETA_CHEESE_PASTA_RECIPE_KEY) === "done";
   const albaechuDietDumplingsDone =
     storageAvailable && window.localStorage.getItem(ALBAECHU_DIET_DUMPLINGS_RECIPE_KEY) === "done";
+  const romescoSetDone = storageAvailable && window.localStorage.getItem(ROMESCO_SET_RECIPE_KEY) === "done";
   const correctTitle = "육수에 푹 적신 알배추롤 & 구운 주먹밥";
   const samplesRemoved = recipes.some((recipe) => SAMPLE_RECIPE_IDS.has(recipe.id));
   const hadWrongRecipe = recipes.some(
@@ -3245,6 +3292,13 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     existingAlbaechuDietDumplings.deleted;
   nextRecipes = upsertManagedRecipe(nextRecipes, makeAlbaechuDietDumplingsRecipe());
 
+  const existingRomescoSet = nextRecipes.find(
+    (recipe) => recipe.sourceUrl === ROMESCO_SET_SOURCE || recipe.title === "로메스코 정식"
+  );
+  const romescoSetNeedsUpdate =
+    !existingRomescoSet || existingRomescoSet.imageUrl !== ROMESCO_SET_IMAGE || existingRomescoSet.deleted;
+  nextRecipes = upsertManagedRecipe(nextRecipes, makeRomescoSetRecipe());
+
   if (
     storageAvailable &&
     (samplesRemoved ||
@@ -3354,7 +3408,9 @@ function migrateManagedRecipes(recipes: Recipe[]) {
       !fetaCheesePastaDone ||
       fetaCheesePastaNeedsUpdate ||
       !albaechuDietDumplingsDone ||
-      albaechuDietDumplingsNeedsUpdate)
+      albaechuDietDumplingsNeedsUpdate ||
+      !romescoSetDone ||
+      romescoSetNeedsUpdate)
   ) {
     writeJson(RECIPES_KEY, nextRecipes);
     window.localStorage.setItem(CORRECT_INSTAGRAM_RECIPE_KEY, "done");
@@ -3410,6 +3466,7 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     window.localStorage.setItem(CRISPY_HASH_BROWNS_RECIPE_KEY, "done");
     window.localStorage.setItem(FETA_CHEESE_PASTA_RECIPE_KEY, "done");
     window.localStorage.setItem(ALBAECHU_DIET_DUMPLINGS_RECIPE_KEY, "done");
+    window.localStorage.setItem(ROMESCO_SET_RECIPE_KEY, "done");
   }
 
   return nextRecipes;
