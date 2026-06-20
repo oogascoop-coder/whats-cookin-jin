@@ -179,6 +179,9 @@ const SOFT_TOFU_BAGEL_BREAD_IMAGE = "/recipe-media/soft-tofu-bread.jpg";
 const MUSHROOM_CHICKEN_CREAM_SANDWICH_RECIPE_KEY = "whats-cookin-jin-migration-instagram-DUqPrtZErRv-v1";
 const MUSHROOM_CHICKEN_CREAM_SANDWICH_SOURCE = "https://www.instagram.com/p/DUqPrtZErRv/";
 const MUSHROOM_CHICKEN_CREAM_SANDWICH_IMAGE = "/recipe-media/mushroom-chicken-cream-sandwich.jpg";
+const UMAI_TSUYU_SUMMER_NOODLES_RECIPE_KEY = "whats-cookin-jin-migration-instagram-DXyrPgLTUwq-v1";
+const UMAI_TSUYU_SUMMER_NOODLES_SOURCE = "https://www.instagram.com/p/DXyrPgLTUwq/";
+const UMAI_TSUYU_SUMMER_NOODLES_IMAGE = "/recipe-media/umai-tsuyu-summer-noodles.jpg";
 const SAMPLE_RECIPE_IDS = new Set(sampleRecipes.map((recipe) => recipe.id));
 
 function canUseStorage() {
@@ -2765,6 +2768,51 @@ function makeMushroomChickenCreamSandwichRecipe(): Recipe {
   };
 }
 
+function makeUmaiTsuyuSummerNoodlesRecipe(): Recipe {
+  const now = new Date().toISOString();
+
+  return {
+    id: `instagram-umai-tsuyu-summer-noodles-${Date.now()}`,
+    title: "우마이쯔유 여름국수",
+    sourceUrl: UMAI_TSUYU_SUMMER_NOODLES_SOURCE,
+    sourceType: "Instagram",
+    category: "면 / 파스타",
+    mealType: "Lunch",
+    dietGoal: "Light",
+    time: "10 min",
+    difficulty: "Easy",
+    servings: 1,
+    ingredients: [
+      "소면 또는 중면",
+      "우마이쯔유",
+      "찬물",
+      "얼음",
+      "오이",
+      "레몬",
+      "쪽파 또는 대파",
+      "김가루 선택",
+      "깨 선택",
+      "고추다대기 선택"
+    ],
+    steps: [
+      "소면이나 중면을 끓는 물에 삶고 찬물에 여러 번 헹궈 전분기를 빼요.",
+      "그릇이나 컵에 우마이쯔유를 넣고 찬물과 얼음으로 입맛에 맞게 희석해요.",
+      "오이는 얇게 썰고, 레몬과 쪽파를 준비해 쯔유에 넣어요.",
+      "면은 물기를 빼서 따로 담거나 한입 크기로 말아 담아요.",
+      "차가운 쯔유에 면을 찍어 먹고, 취향에 따라 김가루, 깨, 고추다대기를 곁들여요."
+    ],
+    tags: ["여름국수", "쯔유", "소면", "시원한", "간단요리"],
+    notes:
+      "인스타그램 공개 캡션과 썸네일 기준으로 정리했어요. 원문은 우마이쯔유 활용 소개라, 차갑게 찍어 먹는 여름국수 기본 버전으로 저장했어요.",
+    imageUrl: UMAI_TSUYU_SUMMER_NOODLES_IMAGE,
+    favorite: false,
+    bookmarked: true,
+    deleted: false,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
 function removeSampleRecipes(recipes: Recipe[]) {
   return recipes.filter((recipe) => !SAMPLE_RECIPE_IDS.has(recipe.id));
 }
@@ -2893,6 +2941,8 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     storageAvailable && window.localStorage.getItem(SOFT_TOFU_BAGEL_BREAD_RECIPE_KEY) === "done";
   const mushroomChickenCreamSandwichDone =
     storageAvailable && window.localStorage.getItem(MUSHROOM_CHICKEN_CREAM_SANDWICH_RECIPE_KEY) === "done";
+  const umaiTsuyuSummerNoodlesDone =
+    storageAvailable && window.localStorage.getItem(UMAI_TSUYU_SUMMER_NOODLES_RECIPE_KEY) === "done";
   const correctTitle = "육수에 푹 적신 알배추롤 & 구운 주먹밥";
   const samplesRemoved = recipes.some((recipe) => SAMPLE_RECIPE_IDS.has(recipe.id));
   const hadWrongRecipe = recipes.some(
@@ -3423,6 +3473,15 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     existingMushroomChickenCreamSandwich.deleted;
   nextRecipes = upsertManagedRecipe(nextRecipes, makeMushroomChickenCreamSandwichRecipe());
 
+  const existingUmaiTsuyuSummerNoodles = nextRecipes.find(
+    (recipe) => recipe.sourceUrl === UMAI_TSUYU_SUMMER_NOODLES_SOURCE || recipe.title === "우마이쯔유 여름국수"
+  );
+  const umaiTsuyuSummerNoodlesNeedsUpdate =
+    !existingUmaiTsuyuSummerNoodles ||
+    existingUmaiTsuyuSummerNoodles.imageUrl !== UMAI_TSUYU_SUMMER_NOODLES_IMAGE ||
+    existingUmaiTsuyuSummerNoodles.deleted;
+  nextRecipes = upsertManagedRecipe(nextRecipes, makeUmaiTsuyuSummerNoodlesRecipe());
+
   if (
     storageAvailable &&
     (samplesRemoved ||
@@ -3538,7 +3597,9 @@ function migrateManagedRecipes(recipes: Recipe[]) {
       !softTofuBagelBreadDone ||
       softTofuBagelBreadNeedsUpdate ||
       !mushroomChickenCreamSandwichDone ||
-      mushroomChickenCreamSandwichNeedsUpdate)
+      mushroomChickenCreamSandwichNeedsUpdate ||
+      !umaiTsuyuSummerNoodlesDone ||
+      umaiTsuyuSummerNoodlesNeedsUpdate)
   ) {
     writeJson(RECIPES_KEY, nextRecipes);
     window.localStorage.setItem(CORRECT_INSTAGRAM_RECIPE_KEY, "done");
@@ -3597,6 +3658,7 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     window.localStorage.setItem(ROMESCO_SET_RECIPE_KEY, "done");
     window.localStorage.setItem(SOFT_TOFU_BAGEL_BREAD_RECIPE_KEY, "done");
     window.localStorage.setItem(MUSHROOM_CHICKEN_CREAM_SANDWICH_RECIPE_KEY, "done");
+    window.localStorage.setItem(UMAI_TSUYU_SUMMER_NOODLES_RECIPE_KEY, "done");
   }
 
   return nextRecipes;
