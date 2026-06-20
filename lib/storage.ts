@@ -173,6 +173,9 @@ const ALBAECHU_DIET_DUMPLINGS_IMAGE = "/recipe-media/albaechu-diet-dumplings.jpg
 const ROMESCO_SET_RECIPE_KEY = "whats-cookin-jin-migration-instagram-DYWi1YfJmRD-v1";
 const ROMESCO_SET_SOURCE = "https://www.instagram.com/p/DYWi1YfJmRD/";
 const ROMESCO_SET_IMAGE = "/recipe-media/romesco-set.jpg";
+const SOFT_TOFU_BAGEL_BREAD_RECIPE_KEY = "whats-cookin-jin-migration-instagram-DXY1JGqDw2p-v1";
+const SOFT_TOFU_BAGEL_BREAD_SOURCE = "https://www.instagram.com/p/DXY1JGqDw2p/";
+const SOFT_TOFU_BAGEL_BREAD_IMAGE = "/recipe-media/soft-tofu-bread.jpg";
 const SAMPLE_RECIPE_IDS = new Set(sampleRecipes.map((recipe) => recipe.id));
 
 function canUseStorage() {
@@ -2665,6 +2668,49 @@ function makeRomescoSetRecipe(): Recipe {
   };
 }
 
+function makeSoftTofuBagelBreadRecipe(): Recipe {
+  const now = new Date().toISOString();
+
+  return {
+    id: `instagram-soft-tofu-bagel-bread-${Date.now()}`,
+    title: "순두부 베이글빵",
+    sourceUrl: SOFT_TOFU_BAGEL_BREAD_SOURCE,
+    sourceType: "Instagram",
+    category: "다이어트",
+    mealType: "Breakfast",
+    dietGoal: "High Protein",
+    time: "15 min",
+    difficulty: "Easy",
+    servings: 1,
+    ingredients: [
+      "순두부 또는 연두부",
+      "달걀",
+      "오트밀가루 또는 아몬드가루",
+      "베이킹파우더",
+      "소금",
+      "알룰로스 또는 꿀 선택",
+      "버터 또는 오일"
+    ],
+    steps: [
+      "순두부 또는 연두부는 물기를 가볍게 빼고 볼에 넣어 으깨요.",
+      "달걀을 넣고 부드럽게 섞은 뒤 오트밀가루나 아몬드가루, 베이킹파우더, 소금 한 꼬집을 넣어요.",
+      "달달하게 먹고 싶으면 알룰로스나 꿀을 조금 넣어 반죽을 만들어요.",
+      "팬에 버터나 오일을 아주 살짝 두르고 반죽을 도톰한 베이글 모양으로 올려요.",
+      "약불에서 뚜껑을 덮고 속까지 익힌 뒤 조심히 뒤집어 양면을 노릇하게 구워요.",
+      "프렌치토스트처럼 촉촉하게 먹거나, 그릭요거트와 과일을 곁들여 먹어요."
+    ],
+    tags: ["순두부", "순두부빵", "식단", "고단백", "아침"],
+    notes:
+      "인스타그램 공개 캡션과 썸네일 기준으로 정리했어요. 원문에는 자세한 계량이 없어, 순두부나 연두부로 만들 수 있는 기본 식단빵 버전으로 저장했어요.",
+    imageUrl: SOFT_TOFU_BAGEL_BREAD_IMAGE,
+    favorite: false,
+    bookmarked: true,
+    deleted: false,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
 function removeSampleRecipes(recipes: Recipe[]) {
   return recipes.filter((recipe) => !SAMPLE_RECIPE_IDS.has(recipe.id));
 }
@@ -2789,6 +2835,8 @@ function migrateManagedRecipes(recipes: Recipe[]) {
   const albaechuDietDumplingsDone =
     storageAvailable && window.localStorage.getItem(ALBAECHU_DIET_DUMPLINGS_RECIPE_KEY) === "done";
   const romescoSetDone = storageAvailable && window.localStorage.getItem(ROMESCO_SET_RECIPE_KEY) === "done";
+  const softTofuBagelBreadDone =
+    storageAvailable && window.localStorage.getItem(SOFT_TOFU_BAGEL_BREAD_RECIPE_KEY) === "done";
   const correctTitle = "육수에 푹 적신 알배추롤 & 구운 주먹밥";
   const samplesRemoved = recipes.some((recipe) => SAMPLE_RECIPE_IDS.has(recipe.id));
   const hadWrongRecipe = recipes.some(
@@ -3299,6 +3347,15 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     !existingRomescoSet || existingRomescoSet.imageUrl !== ROMESCO_SET_IMAGE || existingRomescoSet.deleted;
   nextRecipes = upsertManagedRecipe(nextRecipes, makeRomescoSetRecipe());
 
+  const existingSoftTofuBagelBread = nextRecipes.find(
+    (recipe) => recipe.sourceUrl === SOFT_TOFU_BAGEL_BREAD_SOURCE || recipe.title === "순두부 베이글빵"
+  );
+  const softTofuBagelBreadNeedsUpdate =
+    !existingSoftTofuBagelBread ||
+    existingSoftTofuBagelBread.imageUrl !== SOFT_TOFU_BAGEL_BREAD_IMAGE ||
+    existingSoftTofuBagelBread.deleted;
+  nextRecipes = upsertManagedRecipe(nextRecipes, makeSoftTofuBagelBreadRecipe());
+
   if (
     storageAvailable &&
     (samplesRemoved ||
@@ -3410,7 +3467,9 @@ function migrateManagedRecipes(recipes: Recipe[]) {
       !albaechuDietDumplingsDone ||
       albaechuDietDumplingsNeedsUpdate ||
       !romescoSetDone ||
-      romescoSetNeedsUpdate)
+      romescoSetNeedsUpdate ||
+      !softTofuBagelBreadDone ||
+      softTofuBagelBreadNeedsUpdate)
   ) {
     writeJson(RECIPES_KEY, nextRecipes);
     window.localStorage.setItem(CORRECT_INSTAGRAM_RECIPE_KEY, "done");
@@ -3467,6 +3526,7 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     window.localStorage.setItem(FETA_CHEESE_PASTA_RECIPE_KEY, "done");
     window.localStorage.setItem(ALBAECHU_DIET_DUMPLINGS_RECIPE_KEY, "done");
     window.localStorage.setItem(ROMESCO_SET_RECIPE_KEY, "done");
+    window.localStorage.setItem(SOFT_TOFU_BAGEL_BREAD_RECIPE_KEY, "done");
   }
 
   return nextRecipes;
