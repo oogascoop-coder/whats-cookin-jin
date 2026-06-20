@@ -182,6 +182,9 @@ const MUSHROOM_CHICKEN_CREAM_SANDWICH_IMAGE = "/recipe-media/mushroom-chicken-cr
 const UMAI_TSUYU_SUMMER_NOODLES_RECIPE_KEY = "whats-cookin-jin-migration-instagram-DXyrPgLTUwq-v1";
 const UMAI_TSUYU_SUMMER_NOODLES_SOURCE = "https://www.instagram.com/p/DXyrPgLTUwq/";
 const UMAI_TSUYU_SUMMER_NOODLES_IMAGE = "/recipe-media/umai-tsuyu-summer-noodles.jpg";
+const MUGWORT_PEA_PASTA_RECIPE_KEY = "whats-cookin-jin-migration-instagram-DXFhphgk_eQ-v1";
+const MUGWORT_PEA_PASTA_SOURCE = "https://www.instagram.com/p/DXFhphgk_eQ/";
+const MUGWORT_PEA_PASTA_IMAGE = "/recipe-media/mugwort-pea-pasta.jpg";
 const SAMPLE_RECIPE_IDS = new Set(sampleRecipes.map((recipe) => recipe.id));
 
 function canUseStorage() {
@@ -2813,6 +2816,53 @@ function makeUmaiTsuyuSummerNoodlesRecipe(): Recipe {
   };
 }
 
+function makeMugwortPeaPastaRecipe(): Recipe {
+  const now = new Date().toISOString();
+
+  return {
+    id: `instagram-mugwort-pea-pasta-${Date.now()}`,
+    title: "쑥 완두콩 파스타",
+    sourceUrl: MUGWORT_PEA_PASTA_SOURCE,
+    sourceType: "Instagram",
+    category: "면 / 파스타",
+    mealType: "Lunch",
+    dietGoal: "Light",
+    time: "20 min",
+    difficulty: "Easy",
+    servings: 1,
+    ingredients: [
+      "파스타면",
+      "쑥",
+      "완두콩",
+      "마늘",
+      "올리브오일",
+      "버터 선택",
+      "파스타 삶은 물",
+      "파르메산 치즈",
+      "소금",
+      "후추",
+      "레몬즙 선택"
+    ],
+    steps: [
+      "쑥은 억센 줄기를 정리하고 깨끗하게 씻어 물기를 빼요.",
+      "완두콩은 끓는 물에 살짝 데치고, 파스타면은 소금을 넣은 물에 삶아요.",
+      "팬에 올리브오일을 두르고 마늘을 약불에서 향이 나게 볶아요.",
+      "완두콩과 쑥을 넣고 숨이 죽을 정도로 가볍게 볶아요.",
+      "삶은 파스타와 파스타 삶은 물을 넣고 버터나 파르메산 치즈를 더해 촉촉하게 버무려요.",
+      "소금, 후추로 간하고 취향에 따라 레몬즙을 조금 뿌려 산뜻하게 마무리해요."
+    ],
+    tags: ["쑥", "완두콩", "쑥파스타", "봄파스타", "제철"],
+    notes:
+      "인스타그램 공개 캡션과 썸네일 기준으로 정리했어요. 원문에는 자세한 계량이 없어, 쑥과 완두콩을 활용한 제철 오일 파스타 기본 버전으로 저장했어요.",
+    imageUrl: MUGWORT_PEA_PASTA_IMAGE,
+    favorite: false,
+    bookmarked: true,
+    deleted: false,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
 function removeSampleRecipes(recipes: Recipe[]) {
   return recipes.filter((recipe) => !SAMPLE_RECIPE_IDS.has(recipe.id));
 }
@@ -2943,6 +2993,8 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     storageAvailable && window.localStorage.getItem(MUSHROOM_CHICKEN_CREAM_SANDWICH_RECIPE_KEY) === "done";
   const umaiTsuyuSummerNoodlesDone =
     storageAvailable && window.localStorage.getItem(UMAI_TSUYU_SUMMER_NOODLES_RECIPE_KEY) === "done";
+  const mugwortPeaPastaDone =
+    storageAvailable && window.localStorage.getItem(MUGWORT_PEA_PASTA_RECIPE_KEY) === "done";
   const correctTitle = "육수에 푹 적신 알배추롤 & 구운 주먹밥";
   const samplesRemoved = recipes.some((recipe) => SAMPLE_RECIPE_IDS.has(recipe.id));
   const hadWrongRecipe = recipes.some(
@@ -3482,6 +3534,15 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     existingUmaiTsuyuSummerNoodles.deleted;
   nextRecipes = upsertManagedRecipe(nextRecipes, makeUmaiTsuyuSummerNoodlesRecipe());
 
+  const existingMugwortPeaPasta = nextRecipes.find(
+    (recipe) => recipe.sourceUrl === MUGWORT_PEA_PASTA_SOURCE || recipe.title === "쑥 완두콩 파스타"
+  );
+  const mugwortPeaPastaNeedsUpdate =
+    !existingMugwortPeaPasta ||
+    existingMugwortPeaPasta.imageUrl !== MUGWORT_PEA_PASTA_IMAGE ||
+    existingMugwortPeaPasta.deleted;
+  nextRecipes = upsertManagedRecipe(nextRecipes, makeMugwortPeaPastaRecipe());
+
   if (
     storageAvailable &&
     (samplesRemoved ||
@@ -3599,7 +3660,9 @@ function migrateManagedRecipes(recipes: Recipe[]) {
       !mushroomChickenCreamSandwichDone ||
       mushroomChickenCreamSandwichNeedsUpdate ||
       !umaiTsuyuSummerNoodlesDone ||
-      umaiTsuyuSummerNoodlesNeedsUpdate)
+      umaiTsuyuSummerNoodlesNeedsUpdate ||
+      !mugwortPeaPastaDone ||
+      mugwortPeaPastaNeedsUpdate)
   ) {
     writeJson(RECIPES_KEY, nextRecipes);
     window.localStorage.setItem(CORRECT_INSTAGRAM_RECIPE_KEY, "done");
@@ -3659,6 +3722,7 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     window.localStorage.setItem(SOFT_TOFU_BAGEL_BREAD_RECIPE_KEY, "done");
     window.localStorage.setItem(MUSHROOM_CHICKEN_CREAM_SANDWICH_RECIPE_KEY, "done");
     window.localStorage.setItem(UMAI_TSUYU_SUMMER_NOODLES_RECIPE_KEY, "done");
+    window.localStorage.setItem(MUGWORT_PEA_PASTA_RECIPE_KEY, "done");
   }
 
   return nextRecipes;
