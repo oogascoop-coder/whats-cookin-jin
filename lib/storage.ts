@@ -185,6 +185,10 @@ const UMAI_TSUYU_SUMMER_NOODLES_IMAGE = "/recipe-media/umai-tsuyu-summer-noodles
 const MUGWORT_PEA_PASTA_RECIPE_KEY = "whats-cookin-jin-migration-instagram-DXFhphgk_eQ-v1";
 const MUGWORT_PEA_PASTA_SOURCE = "https://www.instagram.com/p/DXFhphgk_eQ/";
 const MUGWORT_PEA_PASTA_IMAGE = "/recipe-media/mugwort-pea-pasta.jpg";
+const SILKEN_TOFU_GOCHUJANG_CREAM_PASTA_RECIPE_KEY =
+  "whats-cookin-jin-migration-instagram-DYhSr3qPL7f-v1";
+const SILKEN_TOFU_GOCHUJANG_CREAM_PASTA_SOURCE = "https://www.instagram.com/p/DYhSr3qPL7f/";
+const SILKEN_TOFU_GOCHUJANG_CREAM_PASTA_IMAGE = "/recipe-media/silken-tofu-gochujang-cream-pasta.jpg";
 const SAMPLE_RECIPE_IDS = new Set(sampleRecipes.map((recipe) => recipe.id));
 
 function canUseStorage() {
@@ -2863,6 +2867,57 @@ function makeMugwortPeaPastaRecipe(): Recipe {
   };
 }
 
+function makeSilkenTofuGochujangCreamPastaRecipe(): Recipe {
+  const now = new Date().toISOString();
+
+  return {
+    id: `instagram-silken-tofu-gochujang-cream-pasta-${Date.now()}`,
+    title: "순두부 고추장 크림 파스타",
+    sourceUrl: SILKEN_TOFU_GOCHUJANG_CREAM_PASTA_SOURCE,
+    sourceType: "Instagram",
+    category: "면 / 파스타",
+    mealType: "Dinner",
+    dietGoal: "High Protein",
+    time: "25 min",
+    difficulty: "Easy",
+    servings: 4,
+    ingredients: [
+      "파스타면 400g",
+      "닭안심 12줄",
+      "순두부 350g",
+      "우유 60ml",
+      "버터 1큰술",
+      "올리브오일 1큰술",
+      "다진 마늘 1큰술",
+      "고추장 4큰술",
+      "파마산 치즈 약 50g",
+      "건바질 1작은술",
+      "크러쉬드 레드페퍼 1작은술",
+      "소금 1/2작은술",
+      "쪽파",
+      "면수"
+    ],
+    steps: [
+      "믹서기에 순두부와 우유를 넣고 입자 없이 부드럽게 갈아 순두부 크림을 만들어요.",
+      "끓는 소금물에 파스타면을 알맞게 삶고, 면수는 1컵 정도 따로 남겨요.",
+      "팬에 버터, 올리브오일, 다진 마늘, 고추장을 넣고 향이 올라오도록 자글자글 볶아요.",
+      "먹기 좋게 자른 닭안심을 넣고 겉면이 익을 때까지 볶아요.",
+      "갈아둔 순두부 크림, 파마산 치즈, 건바질, 크러쉬드 레드페퍼, 소금을 넣고 잘 섞으며 끓여요.",
+      "삶은 파스타면을 넣고 소스가 면에 착 감기도록 버무려요. 뻑뻑하면 면수를 2~3큰술씩 더해 농도를 맞춰요.",
+      "접시에 담고 다진 쪽파와 파마산 치즈를 올려 마무리해요."
+    ],
+    tags: ["순두부", "고추장크림", "파스타", "고단백", "닭안심"],
+    notes:
+      "인스타그램 공개 캡션 기준으로 정리했어요. 생크림 대신 순두부와 우유를 갈아 꾸덕한 크림 소스를 만드는 고단백 파스타예요. 원문 영양성분은 1인분 기준 약 658kcal, 단백질 45.4g으로 적혀 있어요.",
+    imageUrl: SILKEN_TOFU_GOCHUJANG_CREAM_PASTA_IMAGE,
+    favorite: false,
+    bookmarked: true,
+    deleted: false,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
 function removeSampleRecipes(recipes: Recipe[]) {
   return recipes.filter((recipe) => !SAMPLE_RECIPE_IDS.has(recipe.id));
 }
@@ -2995,6 +3050,8 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     storageAvailable && window.localStorage.getItem(UMAI_TSUYU_SUMMER_NOODLES_RECIPE_KEY) === "done";
   const mugwortPeaPastaDone =
     storageAvailable && window.localStorage.getItem(MUGWORT_PEA_PASTA_RECIPE_KEY) === "done";
+  const silkenTofuGochujangCreamPastaDone =
+    storageAvailable && window.localStorage.getItem(SILKEN_TOFU_GOCHUJANG_CREAM_PASTA_RECIPE_KEY) === "done";
   const correctTitle = "육수에 푹 적신 알배추롤 & 구운 주먹밥";
   const samplesRemoved = recipes.some((recipe) => SAMPLE_RECIPE_IDS.has(recipe.id));
   const hadWrongRecipe = recipes.some(
@@ -3543,6 +3600,17 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     existingMugwortPeaPasta.deleted;
   nextRecipes = upsertManagedRecipe(nextRecipes, makeMugwortPeaPastaRecipe());
 
+  const existingSilkenTofuGochujangCreamPasta = nextRecipes.find(
+    (recipe) =>
+      recipe.sourceUrl === SILKEN_TOFU_GOCHUJANG_CREAM_PASTA_SOURCE ||
+      recipe.title === "순두부 고추장 크림 파스타"
+  );
+  const silkenTofuGochujangCreamPastaNeedsUpdate =
+    !existingSilkenTofuGochujangCreamPasta ||
+    existingSilkenTofuGochujangCreamPasta.imageUrl !== SILKEN_TOFU_GOCHUJANG_CREAM_PASTA_IMAGE ||
+    existingSilkenTofuGochujangCreamPasta.deleted;
+  nextRecipes = upsertManagedRecipe(nextRecipes, makeSilkenTofuGochujangCreamPastaRecipe());
+
   if (
     storageAvailable &&
     (samplesRemoved ||
@@ -3662,7 +3730,9 @@ function migrateManagedRecipes(recipes: Recipe[]) {
       !umaiTsuyuSummerNoodlesDone ||
       umaiTsuyuSummerNoodlesNeedsUpdate ||
       !mugwortPeaPastaDone ||
-      mugwortPeaPastaNeedsUpdate)
+      mugwortPeaPastaNeedsUpdate ||
+      !silkenTofuGochujangCreamPastaDone ||
+      silkenTofuGochujangCreamPastaNeedsUpdate)
   ) {
     writeJson(RECIPES_KEY, nextRecipes);
     window.localStorage.setItem(CORRECT_INSTAGRAM_RECIPE_KEY, "done");
@@ -3723,6 +3793,7 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     window.localStorage.setItem(MUSHROOM_CHICKEN_CREAM_SANDWICH_RECIPE_KEY, "done");
     window.localStorage.setItem(UMAI_TSUYU_SUMMER_NOODLES_RECIPE_KEY, "done");
     window.localStorage.setItem(MUGWORT_PEA_PASTA_RECIPE_KEY, "done");
+    window.localStorage.setItem(SILKEN_TOFU_GOCHUJANG_CREAM_PASTA_RECIPE_KEY, "done");
   }
 
   return nextRecipes;
