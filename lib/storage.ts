@@ -198,6 +198,9 @@ const SHIOKONBU_OIL_PASTA_IMAGE = "/recipe-media/shiokonbu-oil-pasta.jpg";
 const SEAFOOD_PLATE_RECIPE_KEY = "whats-cookin-jin-migration-instagram-DXRUM4diccw-v1";
 const SEAFOOD_PLATE_SOURCE = "https://www.instagram.com/p/DXRUM4diccw/";
 const SEAFOOD_PLATE_IMAGE = "/recipe-media/seafood-plate.jpg";
+const INJEOLMI_TOFU_CHIPS_RECIPE_KEY = "whats-cookin-jin-migration-instagram-DX6jPG7xlbS-v1";
+const INJEOLMI_TOFU_CHIPS_SOURCE = "https://www.instagram.com/p/DX6jPG7xlbS/";
+const INJEOLMI_TOFU_CHIPS_IMAGE = "/recipe-media/injeolmi-tofu-chips.jpg";
 const SAMPLE_RECIPE_IDS = new Set(sampleRecipes.map((recipe) => recipe.id));
 
 function canUseStorage() {
@@ -3045,6 +3048,42 @@ function makeSeafoodPlateReferenceRecipe(): Recipe {
   };
 }
 
+function makeInjeolmiTofuChipsRecipe(): Recipe {
+  const now = new Date().toISOString();
+
+  return {
+    id: `instagram-injeolmi-tofu-chips-${Date.now()}`,
+    title: "살 안찌는 인절미 두부칩",
+    sourceUrl: INJEOLMI_TOFU_CHIPS_SOURCE,
+    sourceType: "Instagram",
+    category: "간식",
+    mealType: "Snack",
+    dietGoal: "Diet",
+    time: "15 min",
+    difficulty: "Easy",
+    servings: 2,
+    ingredients: ["두부 300g", "소금 2꼬집", "알룰로스 2스푼", "인절미 가루 4스푼"],
+    steps: [
+      "두부를 최대한 얇게 썰어요.",
+      "키친타월로 두부 물기를 확실하게 제거해요.",
+      "소금을 살짝 뿌린 뒤 전자레인지에 5분 돌려요.",
+      "두부를 뒤집고 다시 전자레인지에 5분 돌려요.",
+      "아직 덜 바삭하면 1분씩 추가로 돌려 바삭하게 만들어요.",
+      "완성된 두부칩에 알룰로스를 넣고 골고루 버무려요.",
+      "인절미 가루를 뿌린 뒤 한 번 더 흔들어 마무리해요."
+    ],
+    tags: ["두부", "인절미", "다이어트간식", "간단레시피", "두부요리"],
+    notes:
+      "인스타그램 공개 캡션 기준으로 정리했어요. 물기를 확실히 제거해야 바삭해지고, 한 번에 많이 돌리지 말고 나눠서 조리하면 좋아요. 식히면 더 바삭해져요.",
+    imageUrl: INJEOLMI_TOFU_CHIPS_IMAGE,
+    favorite: false,
+    bookmarked: true,
+    deleted: false,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
 function removeSampleRecipes(recipes: Recipe[]) {
   return recipes.filter((recipe) => !SAMPLE_RECIPE_IDS.has(recipe.id));
 }
@@ -3183,6 +3222,8 @@ function migrateManagedRecipes(recipes: Recipe[]) {
   const shiokonbuOilPastaDone =
     storageAvailable && window.localStorage.getItem(SHIOKONBU_OIL_PASTA_RECIPE_KEY) === "done";
   const seafoodPlateDone = storageAvailable && window.localStorage.getItem(SEAFOOD_PLATE_RECIPE_KEY) === "done";
+  const injeolmiTofuChipsDone =
+    storageAvailable && window.localStorage.getItem(INJEOLMI_TOFU_CHIPS_RECIPE_KEY) === "done";
   const correctTitle = "육수에 푹 적신 알배추롤 & 구운 주먹밥";
   const samplesRemoved = recipes.some((recipe) => SAMPLE_RECIPE_IDS.has(recipe.id));
   const hadWrongRecipe = recipes.some(
@@ -3765,6 +3806,15 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     !existingSeafoodPlate || existingSeafoodPlate.imageUrl !== SEAFOOD_PLATE_IMAGE || existingSeafoodPlate.deleted;
   nextRecipes = upsertManagedRecipe(nextRecipes, makeSeafoodPlateReferenceRecipe());
 
+  const existingInjeolmiTofuChips = nextRecipes.find(
+    (recipe) => recipe.sourceUrl === INJEOLMI_TOFU_CHIPS_SOURCE || recipe.title === "살 안찌는 인절미 두부칩"
+  );
+  const injeolmiTofuChipsNeedsUpdate =
+    !existingInjeolmiTofuChips ||
+    existingInjeolmiTofuChips.imageUrl !== INJEOLMI_TOFU_CHIPS_IMAGE ||
+    existingInjeolmiTofuChips.deleted;
+  nextRecipes = upsertManagedRecipe(nextRecipes, makeInjeolmiTofuChipsRecipe());
+
   if (
     storageAvailable &&
     (samplesRemoved ||
@@ -3892,7 +3942,9 @@ function migrateManagedRecipes(recipes: Recipe[]) {
       !shiokonbuOilPastaDone ||
       shiokonbuOilPastaNeedsUpdate ||
       !seafoodPlateDone ||
-      seafoodPlateNeedsUpdate)
+      seafoodPlateNeedsUpdate ||
+      !injeolmiTofuChipsDone ||
+      injeolmiTofuChipsNeedsUpdate)
   ) {
     writeJson(RECIPES_KEY, nextRecipes);
     window.localStorage.setItem(CORRECT_INSTAGRAM_RECIPE_KEY, "done");
@@ -3957,6 +4009,7 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     window.localStorage.setItem(EGG_POTATO_SALAD_RECIPE_KEY, "done");
     window.localStorage.setItem(SHIOKONBU_OIL_PASTA_RECIPE_KEY, "done");
     window.localStorage.setItem(SEAFOOD_PLATE_RECIPE_KEY, "done");
+    window.localStorage.setItem(INJEOLMI_TOFU_CHIPS_RECIPE_KEY, "done");
   }
 
   return nextRecipes;
