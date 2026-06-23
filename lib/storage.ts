@@ -192,6 +192,9 @@ const SILKEN_TOFU_GOCHUJANG_CREAM_PASTA_IMAGE = "/recipe-media/silken-tofu-gochu
 const EGG_POTATO_SALAD_RECIPE_KEY = "whats-cookin-jin-migration-instagram-DZKUIm4v4VX-v1";
 const EGG_POTATO_SALAD_SOURCE = "https://www.instagram.com/p/DZKUIm4v4VX/";
 const EGG_POTATO_SALAD_IMAGE = "/recipe-media/egg-potato-salad.jpg";
+const SHIOKONBU_OIL_PASTA_RECIPE_KEY = "whats-cookin-jin-migration-instagram-DZH6uEFzRNt-v1";
+const SHIOKONBU_OIL_PASTA_SOURCE = "https://www.instagram.com/p/DZH6uEFzRNt/";
+const SHIOKONBU_OIL_PASTA_IMAGE = "/recipe-media/shiokonbu-oil-pasta.jpg";
 const SAMPLE_RECIPE_IDS = new Set(sampleRecipes.map((recipe) => recipe.id));
 
 function canUseStorage() {
@@ -2966,6 +2969,51 @@ function makeEggPotatoSaladRecipe(): Recipe {
   };
 }
 
+function makeShiokonbuOilPastaRecipe(): Recipe {
+  const now = new Date().toISOString();
+
+  return {
+    id: `instagram-shiokonbu-oil-pasta-${Date.now()}`,
+    title: "시오콘부 오일파스타",
+    sourceUrl: SHIOKONBU_OIL_PASTA_SOURCE,
+    sourceType: "Instagram",
+    category: "면 / 파스타",
+    mealType: "Dinner",
+    dietGoal: "None",
+    time: "15 min",
+    difficulty: "Easy",
+    servings: 1,
+    ingredients: [
+      "파스타면 80g",
+      "시오콘부 1스푼",
+      "마늘 4개",
+      "올리브오일 4스푼",
+      "버터",
+      "면수 1국자",
+      "노른자",
+      "라유",
+      "후추"
+    ],
+    steps: [
+      "파스타면은 소금을 넣은 끓는 물에 삶고, 면수는 1국자 정도 남겨요.",
+      "마늘은 얇게 썰고 팬에 올리브오일을 두른 뒤 약불에서 마늘 향을 천천히 내요.",
+      "삶은 파스타면을 팬에 넣고 마늘 오일과 가볍게 볶아요.",
+      "시오콘부, 버터, 면수 1국자를 넣고 소스가 면에 붙도록 섞어요.",
+      "그릇에 담고 노른자를 올린 뒤 후추를 넉넉히 뿌려요.",
+      "취향에 따라 라유를 조금 더해 매콤한 향을 더해요."
+    ],
+    tags: ["시오콘부", "오일파스타", "알리오올리오", "간단요리", "파스타"],
+    notes:
+      "인스타그램 공개 캡션 기준으로 정리했어요. 알리오올리오처럼 만들고 시오콘부로 짭조름한 감칠맛을 더하는 간단 파스타예요.",
+    imageUrl: SHIOKONBU_OIL_PASTA_IMAGE,
+    favorite: false,
+    bookmarked: true,
+    deleted: false,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
 function removeSampleRecipes(recipes: Recipe[]) {
   return recipes.filter((recipe) => !SAMPLE_RECIPE_IDS.has(recipe.id));
 }
@@ -3101,6 +3149,8 @@ function migrateManagedRecipes(recipes: Recipe[]) {
   const silkenTofuGochujangCreamPastaDone =
     storageAvailable && window.localStorage.getItem(SILKEN_TOFU_GOCHUJANG_CREAM_PASTA_RECIPE_KEY) === "done";
   const eggPotatoSaladDone = storageAvailable && window.localStorage.getItem(EGG_POTATO_SALAD_RECIPE_KEY) === "done";
+  const shiokonbuOilPastaDone =
+    storageAvailable && window.localStorage.getItem(SHIOKONBU_OIL_PASTA_RECIPE_KEY) === "done";
   const correctTitle = "육수에 푹 적신 알배추롤 & 구운 주먹밥";
   const samplesRemoved = recipes.some((recipe) => SAMPLE_RECIPE_IDS.has(recipe.id));
   const hadWrongRecipe = recipes.some(
@@ -3667,6 +3717,15 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     !existingEggPotatoSalad || existingEggPotatoSalad.imageUrl !== EGG_POTATO_SALAD_IMAGE || existingEggPotatoSalad.deleted;
   nextRecipes = upsertManagedRecipe(nextRecipes, makeEggPotatoSaladRecipe());
 
+  const existingShiokonbuOilPasta = nextRecipes.find(
+    (recipe) => recipe.sourceUrl === SHIOKONBU_OIL_PASTA_SOURCE || recipe.title === "시오콘부 오일파스타"
+  );
+  const shiokonbuOilPastaNeedsUpdate =
+    !existingShiokonbuOilPasta ||
+    existingShiokonbuOilPasta.imageUrl !== SHIOKONBU_OIL_PASTA_IMAGE ||
+    existingShiokonbuOilPasta.deleted;
+  nextRecipes = upsertManagedRecipe(nextRecipes, makeShiokonbuOilPastaRecipe());
+
   if (
     storageAvailable &&
     (samplesRemoved ||
@@ -3790,7 +3849,9 @@ function migrateManagedRecipes(recipes: Recipe[]) {
       !silkenTofuGochujangCreamPastaDone ||
       silkenTofuGochujangCreamPastaNeedsUpdate ||
       !eggPotatoSaladDone ||
-      eggPotatoSaladNeedsUpdate)
+      eggPotatoSaladNeedsUpdate ||
+      !shiokonbuOilPastaDone ||
+      shiokonbuOilPastaNeedsUpdate)
   ) {
     writeJson(RECIPES_KEY, nextRecipes);
     window.localStorage.setItem(CORRECT_INSTAGRAM_RECIPE_KEY, "done");
@@ -3853,6 +3914,7 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     window.localStorage.setItem(MUGWORT_PEA_PASTA_RECIPE_KEY, "done");
     window.localStorage.setItem(SILKEN_TOFU_GOCHUJANG_CREAM_PASTA_RECIPE_KEY, "done");
     window.localStorage.setItem(EGG_POTATO_SALAD_RECIPE_KEY, "done");
+    window.localStorage.setItem(SHIOKONBU_OIL_PASTA_RECIPE_KEY, "done");
   }
 
   return nextRecipes;
