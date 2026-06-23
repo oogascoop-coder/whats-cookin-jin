@@ -189,6 +189,9 @@ const SILKEN_TOFU_GOCHUJANG_CREAM_PASTA_RECIPE_KEY =
   "whats-cookin-jin-migration-instagram-DYhSr3qPL7f-v1";
 const SILKEN_TOFU_GOCHUJANG_CREAM_PASTA_SOURCE = "https://www.instagram.com/p/DYhSr3qPL7f/";
 const SILKEN_TOFU_GOCHUJANG_CREAM_PASTA_IMAGE = "/recipe-media/silken-tofu-gochujang-cream-pasta.jpg";
+const EGG_POTATO_SALAD_RECIPE_KEY = "whats-cookin-jin-migration-instagram-DZKUIm4v4VX-v1";
+const EGG_POTATO_SALAD_SOURCE = "https://www.instagram.com/p/DZKUIm4v4VX/";
+const EGG_POTATO_SALAD_IMAGE = "/recipe-media/egg-potato-salad.jpg";
 const SAMPLE_RECIPE_IDS = new Set(sampleRecipes.map((recipe) => recipe.id));
 
 function canUseStorage() {
@@ -2918,6 +2921,51 @@ function makeSilkenTofuGochujangCreamPastaRecipe(): Recipe {
   };
 }
 
+function makeEggPotatoSaladRecipe(): Recipe {
+  const now = new Date().toISOString();
+
+  return {
+    id: `instagram-egg-potato-salad-${Date.now()}`,
+    title: "초간단 계란감자샐러드",
+    sourceUrl: EGG_POTATO_SALAD_SOURCE,
+    sourceType: "Instagram",
+    category: "샐러드",
+    mealType: "Lunch",
+    dietGoal: "Light",
+    time: "20 min",
+    difficulty: "Easy",
+    servings: 2,
+    ingredients: [
+      "계란 2개",
+      "감자 1개",
+      "오이 1개",
+      "베이컨 3~4줄",
+      "그릭요거트 3큰술",
+      "마요네즈 1.5큰술",
+      "홀그레인 머스타드 1큰술",
+      "우유 2큰술",
+      "소금"
+    ],
+    steps: [
+      "감자와 계란은 삶아서 준비해요. 감자는 젓가락이 부드럽게 들어갈 정도로 익혀요.",
+      "오이는 얇게 슬라이스하고 소금을 살짝 뿌려 절인 뒤 물기를 꼭 짜요.",
+      "베이컨은 잘게 썰어 팬에서 바삭하게 볶아요.",
+      "그릭요거트, 마요네즈, 홀그레인 머스타드, 우유를 섞어 소스를 만들어요.",
+      "삶은 감자와 계란을 먹기 좋게 으깨거나 자르고, 오이와 베이컨을 넣어요.",
+      "소스를 넣고 전체를 부드럽게 섞어 마무리해요. 빵에 올려 먹어도 좋고 그대로 먹어도 좋아요."
+    ],
+    tags: ["계란", "감자", "오이", "샐러드", "브런치"],
+    notes:
+      "인스타그램 공개 캡션 기준으로 정리했어요. 감자, 계란, 오이, 베이컨에 그릭요거트 머스타드 소스를 섞는 간단한 샐러드예요.",
+    imageUrl: EGG_POTATO_SALAD_IMAGE,
+    favorite: false,
+    bookmarked: true,
+    deleted: false,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
 function removeSampleRecipes(recipes: Recipe[]) {
   return recipes.filter((recipe) => !SAMPLE_RECIPE_IDS.has(recipe.id));
 }
@@ -3052,6 +3100,7 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     storageAvailable && window.localStorage.getItem(MUGWORT_PEA_PASTA_RECIPE_KEY) === "done";
   const silkenTofuGochujangCreamPastaDone =
     storageAvailable && window.localStorage.getItem(SILKEN_TOFU_GOCHUJANG_CREAM_PASTA_RECIPE_KEY) === "done";
+  const eggPotatoSaladDone = storageAvailable && window.localStorage.getItem(EGG_POTATO_SALAD_RECIPE_KEY) === "done";
   const correctTitle = "육수에 푹 적신 알배추롤 & 구운 주먹밥";
   const samplesRemoved = recipes.some((recipe) => SAMPLE_RECIPE_IDS.has(recipe.id));
   const hadWrongRecipe = recipes.some(
@@ -3611,6 +3660,13 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     existingSilkenTofuGochujangCreamPasta.deleted;
   nextRecipes = upsertManagedRecipe(nextRecipes, makeSilkenTofuGochujangCreamPastaRecipe());
 
+  const existingEggPotatoSalad = nextRecipes.find(
+    (recipe) => recipe.sourceUrl === EGG_POTATO_SALAD_SOURCE || recipe.title === "초간단 계란감자샐러드"
+  );
+  const eggPotatoSaladNeedsUpdate =
+    !existingEggPotatoSalad || existingEggPotatoSalad.imageUrl !== EGG_POTATO_SALAD_IMAGE || existingEggPotatoSalad.deleted;
+  nextRecipes = upsertManagedRecipe(nextRecipes, makeEggPotatoSaladRecipe());
+
   if (
     storageAvailable &&
     (samplesRemoved ||
@@ -3732,7 +3788,9 @@ function migrateManagedRecipes(recipes: Recipe[]) {
       !mugwortPeaPastaDone ||
       mugwortPeaPastaNeedsUpdate ||
       !silkenTofuGochujangCreamPastaDone ||
-      silkenTofuGochujangCreamPastaNeedsUpdate)
+      silkenTofuGochujangCreamPastaNeedsUpdate ||
+      !eggPotatoSaladDone ||
+      eggPotatoSaladNeedsUpdate)
   ) {
     writeJson(RECIPES_KEY, nextRecipes);
     window.localStorage.setItem(CORRECT_INSTAGRAM_RECIPE_KEY, "done");
@@ -3794,6 +3852,7 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     window.localStorage.setItem(UMAI_TSUYU_SUMMER_NOODLES_RECIPE_KEY, "done");
     window.localStorage.setItem(MUGWORT_PEA_PASTA_RECIPE_KEY, "done");
     window.localStorage.setItem(SILKEN_TOFU_GOCHUJANG_CREAM_PASTA_RECIPE_KEY, "done");
+    window.localStorage.setItem(EGG_POTATO_SALAD_RECIPE_KEY, "done");
   }
 
   return nextRecipes;
