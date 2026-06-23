@@ -195,6 +195,9 @@ const EGG_POTATO_SALAD_IMAGE = "/recipe-media/egg-potato-salad.jpg";
 const SHIOKONBU_OIL_PASTA_RECIPE_KEY = "whats-cookin-jin-migration-instagram-DZH6uEFzRNt-v1";
 const SHIOKONBU_OIL_PASTA_SOURCE = "https://www.instagram.com/p/DZH6uEFzRNt/";
 const SHIOKONBU_OIL_PASTA_IMAGE = "/recipe-media/shiokonbu-oil-pasta.jpg";
+const SEAFOOD_PLATE_RECIPE_KEY = "whats-cookin-jin-migration-instagram-DXRUM4diccw-v1";
+const SEAFOOD_PLATE_SOURCE = "https://www.instagram.com/p/DXRUM4diccw/";
+const SEAFOOD_PLATE_IMAGE = "/recipe-media/seafood-plate.jpg";
 const SAMPLE_RECIPE_IDS = new Set(sampleRecipes.map((recipe) => recipe.id));
 
 function canUseStorage() {
@@ -3014,6 +3017,34 @@ function makeShiokonbuOilPastaRecipe(): Recipe {
   };
 }
 
+function makeSeafoodPlateReferenceRecipe(): Recipe {
+  const now = new Date().toISOString();
+
+  return {
+    id: `instagram-seafood-plate-${Date.now()}`,
+    title: "해산물 플레이트",
+    sourceUrl: SEAFOOD_PLATE_SOURCE,
+    sourceType: "Instagram",
+    category: "간단 요리",
+    mealType: "Dinner",
+    dietGoal: "None",
+    time: "참고용",
+    difficulty: "Easy",
+    servings: 3,
+    ingredients: ["참치", "우니", "관자", "단새우", "이쿠라", "엔가와", "고노와다", "광어소금김밥"],
+    steps: ["레시피 정리 없이 해산물 플레이트 구성과 플레이팅을 참고하는 카드예요."],
+    tags: ["해산물", "플레이트", "홈자카야", "홈마카세", "참고용"],
+    notes:
+      "참치, 우니, 관자, 단새우, 이쿠라를 담은 해산물 플레이트 참고용 카드예요. 원문에는 엔가와, 고노와다, 광어소금김밥 조합과 화이트 와인 또는 별빛청하 추천도 함께 적혀 있어요.",
+    imageUrl: SEAFOOD_PLATE_IMAGE,
+    favorite: false,
+    bookmarked: true,
+    deleted: false,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
 function removeSampleRecipes(recipes: Recipe[]) {
   return recipes.filter((recipe) => !SAMPLE_RECIPE_IDS.has(recipe.id));
 }
@@ -3151,6 +3182,7 @@ function migrateManagedRecipes(recipes: Recipe[]) {
   const eggPotatoSaladDone = storageAvailable && window.localStorage.getItem(EGG_POTATO_SALAD_RECIPE_KEY) === "done";
   const shiokonbuOilPastaDone =
     storageAvailable && window.localStorage.getItem(SHIOKONBU_OIL_PASTA_RECIPE_KEY) === "done";
+  const seafoodPlateDone = storageAvailable && window.localStorage.getItem(SEAFOOD_PLATE_RECIPE_KEY) === "done";
   const correctTitle = "육수에 푹 적신 알배추롤 & 구운 주먹밥";
   const samplesRemoved = recipes.some((recipe) => SAMPLE_RECIPE_IDS.has(recipe.id));
   const hadWrongRecipe = recipes.some(
@@ -3726,6 +3758,13 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     existingShiokonbuOilPasta.deleted;
   nextRecipes = upsertManagedRecipe(nextRecipes, makeShiokonbuOilPastaRecipe());
 
+  const existingSeafoodPlate = nextRecipes.find(
+    (recipe) => recipe.sourceUrl === SEAFOOD_PLATE_SOURCE || recipe.title === "해산물 플레이트"
+  );
+  const seafoodPlateNeedsUpdate =
+    !existingSeafoodPlate || existingSeafoodPlate.imageUrl !== SEAFOOD_PLATE_IMAGE || existingSeafoodPlate.deleted;
+  nextRecipes = upsertManagedRecipe(nextRecipes, makeSeafoodPlateReferenceRecipe());
+
   if (
     storageAvailable &&
     (samplesRemoved ||
@@ -3851,7 +3890,9 @@ function migrateManagedRecipes(recipes: Recipe[]) {
       !eggPotatoSaladDone ||
       eggPotatoSaladNeedsUpdate ||
       !shiokonbuOilPastaDone ||
-      shiokonbuOilPastaNeedsUpdate)
+      shiokonbuOilPastaNeedsUpdate ||
+      !seafoodPlateDone ||
+      seafoodPlateNeedsUpdate)
   ) {
     writeJson(RECIPES_KEY, nextRecipes);
     window.localStorage.setItem(CORRECT_INSTAGRAM_RECIPE_KEY, "done");
@@ -3915,6 +3956,7 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     window.localStorage.setItem(SILKEN_TOFU_GOCHUJANG_CREAM_PASTA_RECIPE_KEY, "done");
     window.localStorage.setItem(EGG_POTATO_SALAD_RECIPE_KEY, "done");
     window.localStorage.setItem(SHIOKONBU_OIL_PASTA_RECIPE_KEY, "done");
+    window.localStorage.setItem(SEAFOOD_PLATE_RECIPE_KEY, "done");
   }
 
   return nextRecipes;
