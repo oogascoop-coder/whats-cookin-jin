@@ -218,6 +218,10 @@ const DANHOBAK_BRAZIL_CHEESE_BREAD_IMAGE = "/recipe-media/danhobak-brazil-cheese
 const ANKIMO_KIMBAP_RECIPE_KEY = "whats-cookin-jin-migration-instagram-DW9yhNsBxdd-v1";
 const ANKIMO_KIMBAP_SOURCE = "https://www.instagram.com/p/DW9yhNsBxdd/";
 const ANKIMO_KIMBAP_IMAGE = "/recipe-media/ankimo-kimbap.jpg";
+const SHIOKONBU_SPINACH_PASTA_RECIPE_KEY =
+  "whats-cookin-jin-migration-instagram-DcXhR1JTmG9-v1";
+const SHIOKONBU_SPINACH_PASTA_SOURCE = "https://www.instagram.com/p/DcXhR1JTmG9/";
+const SHIOKONBU_SPINACH_PASTA_IMAGE = "/recipe-media/shiokonbu-spinach-pasta.jpg";
 const SAMPLE_RECIPE_IDS = new Set(sampleRecipes.map((recipe) => recipe.id));
 
 function canUseStorage() {
@@ -3305,6 +3309,49 @@ function makeAnkimoKimbapRecipe(): Recipe {
   };
 }
 
+function makeShiokonbuSpinachPastaRecipe(): Recipe {
+  const now = new Date().toISOString();
+
+  return {
+    id: `instagram-shiokonbu-spinach-pasta-${Date.now()}`,
+    title: "시오콘부 시금치 원팬 파스타",
+    sourceUrl: SHIOKONBU_SPINACH_PASTA_SOURCE,
+    sourceType: "Instagram",
+    category: "면 / 파스타",
+    mealType: "Dinner",
+    dietGoal: "Diet",
+    time: "15 min",
+    difficulty: "Easy",
+    servings: 1,
+    ingredients: [
+      "파스타 면 1인분",
+      "시오콘부 10-15g",
+      "시금치 한 줌",
+      "비프스톡 1/2개",
+      "다진 마늘 1티스푼",
+      "물 700ml (약 4컵)",
+      "참기름 약간",
+      "레드페퍼 약간",
+      "후추 약간"
+    ],
+    steps: [
+      "팬에 비프스톡 1/2개, 시오콘부, 물 700ml를 넣고 끓여요.",
+      "물이 끓으면 파스타 면을 넣고 약 11분간 졸이듯 익혀요.",
+      "물이 자작해지면 약불로 줄이고 시금치, 다진 마늘, 후추를 넣어요.",
+      "시금치 숨이 죽으면 접시에 담고 참기름과 레드페퍼를 뿌려 완성해요."
+    ],
+    tags: ["시오콘부", "시금치", "원팬파스타", "비프스톡", "다이어트"],
+    notes:
+      "인스타그램 공개 설명 기준으로 정리했어요. 면에서 나온 전분이 소스를 꾸덕하게 만들어 한 팬으로 조리할수록 풍미가 좋아져요. 시금치는 잔열에도 금방 익으니 마지막에 넣고 짧게 섞는 것이 포인트예요.",
+    imageUrl: SHIOKONBU_SPINACH_PASTA_IMAGE,
+    favorite: false,
+    bookmarked: true,
+    deleted: false,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
 function removeSampleRecipes(recipes: Recipe[]) {
   return recipes.filter((recipe) => !SAMPLE_RECIPE_IDS.has(recipe.id));
 }
@@ -3456,6 +3503,8 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     window.localStorage.getItem(DANHOBAK_BRAZIL_CHEESE_BREAD_RECIPE_KEY) === "done";
   const ankimoKimbapDone =
     storageAvailable && window.localStorage.getItem(ANKIMO_KIMBAP_RECIPE_KEY) === "done";
+  const shiokonbuSpinachPastaDone =
+    storageAvailable && window.localStorage.getItem(SHIOKONBU_SPINACH_PASTA_RECIPE_KEY) === "done";
   const correctTitle = "육수에 푹 적신 알배추롤 & 구운 주먹밥";
   const samplesRemoved = recipes.some((recipe) => SAMPLE_RECIPE_IDS.has(recipe.id));
   const danhobakCheeseBreadRemoved = recipes.some(
@@ -4103,6 +4152,17 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     existingAnkimoKimbap.deleted;
   nextRecipes = upsertManagedRecipe(nextRecipes, makeAnkimoKimbapRecipe());
 
+  const existingShiokonbuSpinachPasta = nextRecipes.find(
+    (recipe) =>
+      recipe.sourceUrl === SHIOKONBU_SPINACH_PASTA_SOURCE ||
+      recipe.title === "시오콘부 시금치 원팬 파스타"
+  );
+  const shiokonbuSpinachPastaNeedsUpdate =
+    !existingShiokonbuSpinachPasta ||
+    existingShiokonbuSpinachPasta.imageUrl !== SHIOKONBU_SPINACH_PASTA_IMAGE ||
+    existingShiokonbuSpinachPasta.deleted;
+  nextRecipes = upsertManagedRecipe(nextRecipes, makeShiokonbuSpinachPastaRecipe());
+
   if (
     storageAvailable &&
     (samplesRemoved ||
@@ -4243,7 +4303,9 @@ function migrateManagedRecipes(recipes: Recipe[]) {
       !danhobakBrazilCheeseBreadDone ||
       danhobakBrazilCheeseBreadNeedsUpdate ||
       !ankimoKimbapDone ||
-      ankimoKimbapNeedsUpdate)
+      ankimoKimbapNeedsUpdate ||
+      !shiokonbuSpinachPastaDone ||
+      shiokonbuSpinachPastaNeedsUpdate)
   ) {
     writeJson(RECIPES_KEY, nextRecipes);
     window.localStorage.setItem(CORRECT_INSTAGRAM_RECIPE_KEY, "done");
@@ -4314,6 +4376,7 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     window.localStorage.setItem(MINI_DANHOBAK_BREAD_RECIPE_KEY, "done");
     window.localStorage.setItem(DANHOBAK_BRAZIL_CHEESE_BREAD_RECIPE_KEY, "done");
     window.localStorage.setItem(ANKIMO_KIMBAP_RECIPE_KEY, "done");
+    window.localStorage.setItem(SHIOKONBU_SPINACH_PASTA_RECIPE_KEY, "done");
   }
 
   return nextRecipes;
