@@ -211,6 +211,9 @@ const DANHOBAK_CHEESE_BREAD_IMAGE = "/recipe-media/danhobak-cheese-bread.jpg";
 const DANHOBAK_EGG_TART_RECIPE_KEY = "whats-cookin-jin-migration-instagram-DbjuSXozYJZ-v1";
 const DANHOBAK_EGG_TART_SOURCE = "https://www.instagram.com/p/DbjuSXozYJZ/";
 const DANHOBAK_EGG_TART_IMAGE = "/recipe-media/danhobak-egg-tart.jpg";
+const MINI_DANHOBAK_BREAD_RECIPE_KEY = "whats-cookin-jin-migration-instagram-DbK8JszP6uY-v1";
+const MINI_DANHOBAK_BREAD_SOURCE = "https://www.instagram.com/p/DbK8JszP6uY/";
+const MINI_DANHOBAK_BREAD_IMAGE = "/recipe-media/mini-danhobak-bread.jpg";
 const SAMPLE_RECIPE_IDS = new Set(sampleRecipes.map((recipe) => recipe.id));
 
 function canUseStorage() {
@@ -3202,6 +3205,47 @@ function makeDanhobakEggTartRecipe(): Recipe {
   };
 }
 
+function makeMiniDanhobakBreadRecipe(): Recipe {
+  const now = new Date().toISOString();
+
+  return {
+    id: `instagram-mini-danhobak-bread-${Date.now()}`,
+    title: "미니 단호박빵",
+    sourceUrl: MINI_DANHOBAK_BREAD_SOURCE,
+    sourceType: "Instagram",
+    category: "간식",
+    mealType: "Snack",
+    dietGoal: "Light",
+    time: "15 min",
+    difficulty: "Easy",
+    servings: 2,
+    ingredients: [
+      "미니 단호박 2개",
+      "달걀 2-3개 (반죽 농도에 맞춰 조절)",
+      "소금 3꼬집",
+      "꿀 3큰술"
+    ],
+    steps: [
+      "씻은 미니 단호박 2개를 각각 전자레인지에 2분씩 돌려요.",
+      "속씨를 파내고 적당한 크기로 썬 뒤 다시 2분 돌려 익혀요.",
+      "뜨거울 때 포크로 곱게 으깨요.",
+      "달걀을 풀어 넣고 반죽처럼 되직한 농도가 될 때까지 섞어요.",
+      "소금 3꼬집과 꿀 3큰술을 넣어요. 단호박 크기에 따라 양을 조절해요.",
+      "용기에 나눠 담고 랩을 씌운 뒤 포크로 4-5번 찔러 공기 구멍을 내요.",
+      "전자레인지에 4분 돌려 완성해요. 가운데가 덜 익었으면 30초씩 추가해요."
+    ],
+    tags: ["단호박", "단호박빵", "노밀가루", "전자레인지", "아이간식"],
+    notes:
+      "인스타그램 공개 캡션 기준으로 정리했어요. 기본 비율은 단호박 1개, 계란 1개, 소금 1꼬집, 꿀 1큰술이며 단호박 크기에 맞춰 계란 양을 조절해요. 돌 전 아기에게 줄 때는 소금과 꿀을 빼라는 원문 안내가 있어요.",
+    imageUrl: MINI_DANHOBAK_BREAD_IMAGE,
+    favorite: false,
+    bookmarked: true,
+    deleted: false,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
 function removeSampleRecipes(recipes: Recipe[]) {
   return recipes.filter((recipe) => !SAMPLE_RECIPE_IDS.has(recipe.id));
 }
@@ -3348,6 +3392,8 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     storageAvailable && window.localStorage.getItem(DANHOBAK_CHEESE_BREAD_RECIPE_KEY) === "done";
   const danhobakEggTartDone =
     storageAvailable && window.localStorage.getItem(DANHOBAK_EGG_TART_RECIPE_KEY) === "done";
+  const miniDanhobakBreadDone =
+    storageAvailable && window.localStorage.getItem(MINI_DANHOBAK_BREAD_RECIPE_KEY) === "done";
   const correctTitle = "육수에 푹 적신 알배추롤 & 구운 주먹밥";
   const samplesRemoved = recipes.some((recipe) => SAMPLE_RECIPE_IDS.has(recipe.id));
   const hadWrongRecipe = recipes.some(
@@ -3968,6 +4014,15 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     existingDanhobakEggTart.deleted;
   nextRecipes = upsertManagedRecipe(nextRecipes, makeDanhobakEggTartRecipe());
 
+  const existingMiniDanhobakBread = nextRecipes.find(
+    (recipe) => recipe.sourceUrl === MINI_DANHOBAK_BREAD_SOURCE || recipe.title === "미니 단호박빵"
+  );
+  const miniDanhobakBreadNeedsUpdate =
+    !existingMiniDanhobakBread ||
+    existingMiniDanhobakBread.imageUrl !== MINI_DANHOBAK_BREAD_IMAGE ||
+    existingMiniDanhobakBread.deleted;
+  nextRecipes = upsertManagedRecipe(nextRecipes, makeMiniDanhobakBreadRecipe());
+
   if (
     storageAvailable &&
     (samplesRemoved ||
@@ -4103,7 +4158,9 @@ function migrateManagedRecipes(recipes: Recipe[]) {
       !danhobakCheeseBreadDone ||
       danhobakCheeseBreadNeedsUpdate ||
       !danhobakEggTartDone ||
-      danhobakEggTartNeedsUpdate)
+      danhobakEggTartNeedsUpdate ||
+      !miniDanhobakBreadDone ||
+      miniDanhobakBreadNeedsUpdate)
   ) {
     writeJson(RECIPES_KEY, nextRecipes);
     window.localStorage.setItem(CORRECT_INSTAGRAM_RECIPE_KEY, "done");
@@ -4172,6 +4229,7 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     window.localStorage.setItem(COCONUT_YOGURT_CHOCOLATE_BAR_RECIPE_KEY, "done");
     window.localStorage.setItem(DANHOBAK_CHEESE_BREAD_RECIPE_KEY, "done");
     window.localStorage.setItem(DANHOBAK_EGG_TART_RECIPE_KEY, "done");
+    window.localStorage.setItem(MINI_DANHOBAK_BREAD_RECIPE_KEY, "done");
   }
 
   return nextRecipes;
