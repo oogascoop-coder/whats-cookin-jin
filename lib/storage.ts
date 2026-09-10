@@ -205,9 +205,6 @@ const COCONUT_YOGURT_CHOCOLATE_BAR_RECIPE_KEY =
   "whats-cookin-jin-migration-instagram-Da6KFKCTc2X-v1";
 const COCONUT_YOGURT_CHOCOLATE_BAR_SOURCE = "https://www.instagram.com/p/Da6KFKCTc2X/";
 const COCONUT_YOGURT_CHOCOLATE_BAR_IMAGE = "/recipe-media/coconut-yogurt-chocolate-bar.jpg";
-const DANHOBAK_CHEESE_BREAD_RECIPE_KEY = "whats-cookin-jin-migration-instagram-DclqeiqCvHd-v1";
-const DANHOBAK_CHEESE_BREAD_SOURCE = "https://www.instagram.com/p/DclqeiqCvHd/";
-const DANHOBAK_CHEESE_BREAD_IMAGE = "/recipe-media/danhobak-cheese-bread.jpg";
 const DANHOBAK_EGG_TART_RECIPE_KEY = "whats-cookin-jin-migration-instagram-DbjuSXozYJZ-v1";
 const DANHOBAK_EGG_TART_SOURCE = "https://www.instagram.com/p/DbjuSXozYJZ/";
 const DANHOBAK_EGG_TART_IMAGE = "/recipe-media/danhobak-egg-tart.jpg";
@@ -3135,39 +3132,6 @@ function makeCoconutYogurtChocolateBarRecipe(): Recipe {
   };
 }
 
-function makeDanhobakCheeseBreadRecipe(): Recipe {
-  const now = new Date().toISOString();
-
-  return {
-    id: `instagram-danhobak-cheese-bread-${Date.now()}`,
-    title: "단호박 치즈빵",
-    sourceUrl: DANHOBAK_CHEESE_BREAD_SOURCE,
-    sourceType: "Instagram",
-    category: "간식",
-    mealType: "Snack",
-    dietGoal: "Light",
-    time: "6 min",
-    difficulty: "Easy",
-    servings: 1,
-    ingredients: ["단호박 200g", "계란 2알", "모짜렐라 치즈 20g", "오일 소량"],
-    steps: [
-      "익힌 단호박 한 덩이는 껍질째 작게 큐브로 썰고, 나머지는 껍질을 벗겨 으깨요.",
-      "계란물과 으깬 단호박을 섞고 오일을 바른 틀에 담아요.",
-      "전자레인지에 4-5분 돌려요.",
-      "반으로 잘라 모짜렐라 치즈를 넣고 전자레인지에 30초-1분 더 돌려 치즈를 녹여요."
-    ],
-    tags: ["단호박", "치즈빵", "전자레인지", "아이간식", "간단간식"],
-    notes:
-      "인스타그램 공개 캡션 기준으로 정리했어요. 단호박과 계란의 농도는 영상 속 질감을 참고하고, 전자레인지 출력에 따라 시간을 조절해 주세요.",
-    imageUrl: DANHOBAK_CHEESE_BREAD_IMAGE,
-    favorite: false,
-    bookmarked: true,
-    deleted: false,
-    createdAt: now,
-    updatedAt: now
-  };
-}
-
 function makeDanhobakEggTartRecipe(): Recipe {
   const now = new Date().toISOString();
 
@@ -3437,8 +3401,6 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     storageAvailable && window.localStorage.getItem(INJEOLMI_TOFU_CHIPS_RECIPE_KEY) === "done";
   const coconutYogurtChocolateBarDone =
     storageAvailable && window.localStorage.getItem(COCONUT_YOGURT_CHOCOLATE_BAR_RECIPE_KEY) === "done";
-  const danhobakCheeseBreadDone =
-    storageAvailable && window.localStorage.getItem(DANHOBAK_CHEESE_BREAD_RECIPE_KEY) === "done";
   const danhobakEggTartDone =
     storageAvailable && window.localStorage.getItem(DANHOBAK_EGG_TART_RECIPE_KEY) === "done";
   const miniDanhobakBreadDone =
@@ -3448,6 +3410,11 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     window.localStorage.getItem(DANHOBAK_BRAZIL_CHEESE_BREAD_RECIPE_KEY) === "done";
   const correctTitle = "육수에 푹 적신 알배추롤 & 구운 주먹밥";
   const samplesRemoved = recipes.some((recipe) => SAMPLE_RECIPE_IDS.has(recipe.id));
+  const danhobakCheeseBreadRemoved = recipes.some(
+    (recipe) =>
+      recipe.sourceUrl === "https://www.instagram.com/p/DclqeiqCvHd/" ||
+      recipe.title === "단호박 치즈빵"
+  );
   const hadWrongRecipe = recipes.some(
     (recipe) =>
       recipe.title === "냉털 나폴리탄 파스타" ||
@@ -3457,7 +3424,9 @@ function migrateManagedRecipes(recipes: Recipe[]) {
   let nextRecipes = removeSampleRecipes(recipes).filter(
     (recipe) =>
       recipe.title !== "냉털 나폴리탄 파스타" &&
-      !(recipe.sourceUrl === CORRECT_INSTAGRAM_SOURCE && recipe.title !== correctTitle)
+      !(recipe.sourceUrl === CORRECT_INSTAGRAM_SOURCE && recipe.title !== correctTitle) &&
+      recipe.sourceUrl !== "https://www.instagram.com/p/DclqeiqCvHd/" &&
+      recipe.title !== "단호박 치즈빵"
   );
 
   let hasCorrectRecipe = nextRecipes.some(
@@ -4048,15 +4017,6 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     existingCoconutYogurtChocolateBar.deleted;
   nextRecipes = upsertManagedRecipe(nextRecipes, makeCoconutYogurtChocolateBarRecipe());
 
-  const existingDanhobakCheeseBread = nextRecipes.find(
-    (recipe) => recipe.sourceUrl === DANHOBAK_CHEESE_BREAD_SOURCE || recipe.title === "단호박 치즈빵"
-  );
-  const danhobakCheeseBreadNeedsUpdate =
-    !existingDanhobakCheeseBread ||
-    existingDanhobakCheeseBread.imageUrl !== DANHOBAK_CHEESE_BREAD_IMAGE ||
-    existingDanhobakCheeseBread.deleted;
-  nextRecipes = upsertManagedRecipe(nextRecipes, makeDanhobakCheeseBreadRecipe());
-
   const existingDanhobakEggTart = nextRecipes.find(
     (recipe) => recipe.sourceUrl === DANHOBAK_EGG_TART_SOURCE || recipe.title === "단호박 에그타르트"
   );
@@ -4091,6 +4051,7 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     (samplesRemoved ||
       hadWrongRecipe ||
       updatedImage ||
+      danhobakCheeseBreadRemoved ||
       !migrationDone ||
       !chipotleDone ||
       chipotleNeedsUpdate ||
@@ -4218,8 +4179,6 @@ function migrateManagedRecipes(recipes: Recipe[]) {
       injeolmiTofuChipsNeedsUpdate ||
       !coconutYogurtChocolateBarDone ||
       coconutYogurtChocolateBarNeedsUpdate ||
-      !danhobakCheeseBreadDone ||
-      danhobakCheeseBreadNeedsUpdate ||
       !danhobakEggTartDone ||
       danhobakEggTartNeedsUpdate ||
       !miniDanhobakBreadDone ||
@@ -4292,7 +4251,6 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     window.localStorage.setItem(SEAFOOD_PLATE_RECIPE_KEY, "done");
     window.localStorage.setItem(INJEOLMI_TOFU_CHIPS_RECIPE_KEY, "done");
     window.localStorage.setItem(COCONUT_YOGURT_CHOCOLATE_BAR_RECIPE_KEY, "done");
-    window.localStorage.setItem(DANHOBAK_CHEESE_BREAD_RECIPE_KEY, "done");
     window.localStorage.setItem(DANHOBAK_EGG_TART_RECIPE_KEY, "done");
     window.localStorage.setItem(MINI_DANHOBAK_BREAD_RECIPE_KEY, "done");
     window.localStorage.setItem(DANHOBAK_BRAZIL_CHEESE_BREAD_RECIPE_KEY, "done");
