@@ -201,6 +201,10 @@ const SEAFOOD_PLATE_IMAGE = "/recipe-media/seafood-plate.jpg";
 const INJEOLMI_TOFU_CHIPS_RECIPE_KEY = "whats-cookin-jin-migration-instagram-DX6jPG7xlbS-v1";
 const INJEOLMI_TOFU_CHIPS_SOURCE = "https://www.instagram.com/p/DX6jPG7xlbS/";
 const INJEOLMI_TOFU_CHIPS_IMAGE = "/recipe-media/injeolmi-tofu-chips.jpg";
+const COCONUT_YOGURT_CHOCOLATE_BAR_RECIPE_KEY =
+  "whats-cookin-jin-migration-instagram-Da6KFKCTc2X-v1";
+const COCONUT_YOGURT_CHOCOLATE_BAR_SOURCE = "https://www.instagram.com/p/Da6KFKCTc2X/";
+const COCONUT_YOGURT_CHOCOLATE_BAR_IMAGE = "/recipe-media/coconut-yogurt-chocolate-bar.jpg";
 const SAMPLE_RECIPE_IDS = new Set(sampleRecipes.map((recipe) => recipe.id));
 
 function canUseStorage() {
@@ -3084,6 +3088,40 @@ function makeInjeolmiTofuChipsRecipe(): Recipe {
   };
 }
 
+function makeCoconutYogurtChocolateBarRecipe(): Recipe {
+  const now = new Date().toISOString();
+
+  return {
+    id: `instagram-coconut-yogurt-chocolate-bar-${Date.now()}`,
+    title: "코코넛 요거트 초코바",
+    sourceUrl: COCONUT_YOGURT_CHOCOLATE_BAR_SOURCE,
+    sourceType: "Instagram",
+    category: "간식",
+    mealType: "Snack",
+    dietGoal: "Light",
+    time: "2-3 hr",
+    difficulty: "Easy",
+    servings: 2,
+    ingredients: ["무가당 그릭요거트 200g", "코코넛가루 70g", "꿀 3큰술", "다크초콜릿 적당량"],
+    steps: [
+      "무가당 그릭요거트, 코코넛가루, 꿀을 넣고 잘 섞어요.",
+      "틀이나 트레이에 반죽을 평평하게 펴 담아요.",
+      "위에 다크초콜릿을 골고루 올려요.",
+      "냉동실에서 2-3시간 얼려요.",
+      "먹기 좋은 크기로 잘라 완성해요."
+    ],
+    tags: ["그릭요거트", "코코넛", "초코바", "다이어트 디저트", "노오븐"],
+    notes:
+      "인스타그램 공개 캡션 기준으로 정리했어요. 코코넛가루와 꿀의 양은 취향에 따라 조절하고, 충분히 얼린 뒤 잘라야 모양이 잘 잡혀요.",
+    imageUrl: COCONUT_YOGURT_CHOCOLATE_BAR_IMAGE,
+    favorite: false,
+    bookmarked: true,
+    deleted: false,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
 function removeSampleRecipes(recipes: Recipe[]) {
   return recipes.filter((recipe) => !SAMPLE_RECIPE_IDS.has(recipe.id));
 }
@@ -3224,6 +3262,8 @@ function migrateManagedRecipes(recipes: Recipe[]) {
   const seafoodPlateDone = storageAvailable && window.localStorage.getItem(SEAFOOD_PLATE_RECIPE_KEY) === "done";
   const injeolmiTofuChipsDone =
     storageAvailable && window.localStorage.getItem(INJEOLMI_TOFU_CHIPS_RECIPE_KEY) === "done";
+  const coconutYogurtChocolateBarDone =
+    storageAvailable && window.localStorage.getItem(COCONUT_YOGURT_CHOCOLATE_BAR_RECIPE_KEY) === "done";
   const correctTitle = "육수에 푹 적신 알배추롤 & 구운 주먹밥";
   const samplesRemoved = recipes.some((recipe) => SAMPLE_RECIPE_IDS.has(recipe.id));
   const hadWrongRecipe = recipes.some(
@@ -3815,6 +3855,17 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     existingInjeolmiTofuChips.deleted;
   nextRecipes = upsertManagedRecipe(nextRecipes, makeInjeolmiTofuChipsRecipe());
 
+  const existingCoconutYogurtChocolateBar = nextRecipes.find(
+    (recipe) =>
+      recipe.sourceUrl === COCONUT_YOGURT_CHOCOLATE_BAR_SOURCE ||
+      recipe.title === "코코넛 요거트 초코바"
+  );
+  const coconutYogurtChocolateBarNeedsUpdate =
+    !existingCoconutYogurtChocolateBar ||
+    existingCoconutYogurtChocolateBar.imageUrl !== COCONUT_YOGURT_CHOCOLATE_BAR_IMAGE ||
+    existingCoconutYogurtChocolateBar.deleted;
+  nextRecipes = upsertManagedRecipe(nextRecipes, makeCoconutYogurtChocolateBarRecipe());
+
   if (
     storageAvailable &&
     (samplesRemoved ||
@@ -3944,7 +3995,9 @@ function migrateManagedRecipes(recipes: Recipe[]) {
       !seafoodPlateDone ||
       seafoodPlateNeedsUpdate ||
       !injeolmiTofuChipsDone ||
-      injeolmiTofuChipsNeedsUpdate)
+      injeolmiTofuChipsNeedsUpdate ||
+      !coconutYogurtChocolateBarDone ||
+      coconutYogurtChocolateBarNeedsUpdate)
   ) {
     writeJson(RECIPES_KEY, nextRecipes);
     window.localStorage.setItem(CORRECT_INSTAGRAM_RECIPE_KEY, "done");
@@ -4010,6 +4063,7 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     window.localStorage.setItem(SHIOKONBU_OIL_PASTA_RECIPE_KEY, "done");
     window.localStorage.setItem(SEAFOOD_PLATE_RECIPE_KEY, "done");
     window.localStorage.setItem(INJEOLMI_TOFU_CHIPS_RECIPE_KEY, "done");
+    window.localStorage.setItem(COCONUT_YOGURT_CHOCOLATE_BAR_RECIPE_KEY, "done");
   }
 
   return nextRecipes;
