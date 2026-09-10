@@ -89,9 +89,7 @@ const SHEPHERDS_PURSE_DOENJANG_RAMEN_IMAGE = "/recipe-media/shepherds-purse-doen
 const EGGPLANT_MEAT_DUMPLINGS_RECIPE_KEY = "whats-cookin-jin-migration-youtube--QJ0bjOhiPM-v1";
 const EGGPLANT_MEAT_DUMPLINGS_SOURCE = "https://www.youtube.com/watch?v=-QJ0bjOhiPM";
 const EGGPLANT_MEAT_DUMPLINGS_IMAGE = "/recipe-media/eggplant-meat-dumplings.jpg";
-const PEANUT_BUTTER_BIBIM_NOODLES_RECIPE_KEY = "whats-cookin-jin-migration-youtube-TOUhVZnYKe8-v1";
 const PEANUT_BUTTER_BIBIM_NOODLES_SOURCE = "https://www.youtube.com/watch?v=TOUhVZnYKe8";
-const PEANUT_BUTTER_BIBIM_NOODLES_IMAGE = "/recipe-media/peanut-butter-bibim-noodles.jpg";
 const GOCHUJANG_JEYUK_RECIPE_KEY = "whats-cookin-jin-migration-youtube-ET8YRX3CET0-v1";
 const GOCHUJANG_JEYUK_SOURCE = "https://www.youtube.com/watch?v=ET8YRX3CET0";
 const GOCHUJANG_JEYUK_IMAGE = "/recipe-media/gochujang-jeyuk.jpg";
@@ -1383,54 +1381,6 @@ function makeEggplantMeatDumplingsRecipe(): Recipe {
     notes:
       "유튜브 제목과 썸네일 기준 정리. 영상 설명란에 정확한 재료와 계량은 공개되어 있지 않아, 화면에 보이는 가지 만두 형태를 기준으로 따라 하기 쉬운 버전으로 정리했어요.",
     imageUrl: EGGPLANT_MEAT_DUMPLINGS_IMAGE,
-    favorite: false,
-    bookmarked: true,
-    deleted: false,
-    createdAt: now,
-    updatedAt: now
-  };
-}
-
-function makePeanutButterBibimNoodlesRecipe(): Recipe {
-  const now = new Date().toISOString();
-
-  return {
-    id: `youtube-peanut-butter-bibim-noodles-${Date.now()}`,
-    title: "땅콩버터 비빔면",
-    sourceUrl: PEANUT_BUTTER_BIBIM_NOODLES_SOURCE,
-    sourceType: "YouTube",
-    category: "면 / 파스타",
-    mealType: "Snack",
-    dietGoal: "None",
-    time: "15 min",
-    difficulty: "Easy",
-    servings: 1,
-    ingredients: [
-      "중화면 또는 칼국수면",
-      "땅콩버터 1큰술",
-      "고추장 1큰술",
-      "간장 1큰술",
-      "식초 1큰술",
-      "설탕 또는 알룰로스 1큰술",
-      "다진마늘 1작은술",
-      "고춧가루",
-      "참기름",
-      "부추 또는 쪽파",
-      "오이",
-      "구운 어묵 또는 닭가슴살"
-    ],
-    steps: [
-      "면은 끓는 물에 삶은 뒤 찬물에 헹궈 물기를 빼요.",
-      "땅콩버터, 고추장, 간장, 식초, 설탕, 다진마늘을 섞어 꾸덕한 비빔장을 만들어요.",
-      "소스가 너무 되직하면 면수나 물을 1-2큰술 넣어 농도를 풀어요.",
-      "면에 비빔장을 넣고 고루 비벼요.",
-      "부추나 쪽파, 채 썬 오이를 넣고 가볍게 섞어요.",
-      "구운 어묵이나 닭가슴살을 곁들이고 참기름, 고춧가루를 더해 마무리해요."
-    ],
-    tags: ["땅콩버터", "비빔면", "야식", "매콤고소", "간단요리"],
-    notes:
-      "유튜브 제목과 썸네일 기준 정리. 영상 설명란에 정확한 재료와 계량이 공개되어 있지 않아, 땅콩버터를 넣은 매콤고소한 비빔면 흐름으로 정리했어요.",
-    imageUrl: PEANUT_BUTTER_BIBIM_NOODLES_IMAGE,
     favorite: false,
     bookmarked: true,
     deleted: false,
@@ -3420,7 +3370,7 @@ function upsertManagedRecipe(recipes: Recipe[], recipe: Recipe) {
           favorite: existing.favorite,
           bookmarked: existing.bookmarked || recipe.bookmarked,
           createdAt: existing.createdAt,
-          deleted: false,
+          deleted: existing.deleted,
           updatedAt: new Date().toISOString()
         }
       : item
@@ -3476,8 +3426,6 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     storageAvailable && window.localStorage.getItem(SHEPHERDS_PURSE_DOENJANG_RAMEN_RECIPE_KEY) === "done";
   const eggplantMeatDumplingsDone =
     storageAvailable && window.localStorage.getItem(EGGPLANT_MEAT_DUMPLINGS_RECIPE_KEY) === "done";
-  const peanutButterBibimNoodlesDone =
-    storageAvailable && window.localStorage.getItem(PEANUT_BUTTER_BIBIM_NOODLES_RECIPE_KEY) === "done";
   const gochujangJeyukDone = storageAvailable && window.localStorage.getItem(GOCHUJANG_JEYUK_RECIPE_KEY) === "done";
   const chewyRicePaperRollsDone =
     storageAvailable && window.localStorage.getItem(CHEWY_RICE_PAPER_ROLLS_RECIPE_KEY) === "done";
@@ -3570,13 +3518,20 @@ function migrateManagedRecipes(recipes: Recipe[]) {
       recipe.title === "냉털 나폴리탄 파스타" ||
       (recipe.sourceUrl === CORRECT_INSTAGRAM_SOURCE && recipe.title !== correctTitle)
   );
+  const peanutButterBibimNoodlesRemoved = recipes.some(
+    (recipe) =>
+      recipe.sourceUrl === PEANUT_BUTTER_BIBIM_NOODLES_SOURCE ||
+      recipe.title === "땅콩버터 비빔면"
+  );
 
   let nextRecipes = removeSampleRecipes(recipes).filter(
     (recipe) =>
       recipe.title !== "냉털 나폴리탄 파스타" &&
       !(recipe.sourceUrl === CORRECT_INSTAGRAM_SOURCE && recipe.title !== correctTitle) &&
       recipe.sourceUrl !== "https://www.instagram.com/p/DclqeiqCvHd/" &&
-      recipe.title !== "단호박 치즈빵"
+      recipe.title !== "단호박 치즈빵" &&
+      recipe.sourceUrl !== PEANUT_BUTTER_BIBIM_NOODLES_SOURCE &&
+      recipe.title !== "땅콩버터 비빔면"
   );
 
   let hasCorrectRecipe = nextRecipes.some(
@@ -3594,7 +3549,6 @@ function migrateManagedRecipes(recipes: Recipe[]) {
       return {
         ...recipe,
         imageUrl: CORRECT_INSTAGRAM_IMAGE,
-        deleted: false,
         updatedAt: new Date().toISOString()
       };
     }
@@ -3825,16 +3779,6 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     existingEggplantMeatDumplings.imageUrl !== EGGPLANT_MEAT_DUMPLINGS_IMAGE ||
     existingEggplantMeatDumplings.deleted;
   nextRecipes = upsertManagedRecipe(nextRecipes, makeEggplantMeatDumplingsRecipe());
-
-  const existingPeanutButterBibimNoodles = nextRecipes.find(
-    (recipe) =>
-      recipe.sourceUrl === PEANUT_BUTTER_BIBIM_NOODLES_SOURCE || recipe.title === "땅콩버터 비빔면"
-  );
-  const peanutButterBibimNoodlesNeedsUpdate =
-    !existingPeanutButterBibimNoodles ||
-    existingPeanutButterBibimNoodles.imageUrl !== PEANUT_BUTTER_BIBIM_NOODLES_IMAGE ||
-    existingPeanutButterBibimNoodles.deleted;
-  nextRecipes = upsertManagedRecipe(nextRecipes, makePeanutButterBibimNoodlesRecipe());
 
   const existingGochujangJeyuk = nextRecipes.find(
     (recipe) => recipe.sourceUrl === GOCHUJANG_JEYUK_SOURCE || recipe.title === "고추장 제육"
@@ -4233,6 +4177,7 @@ function migrateManagedRecipes(recipes: Recipe[]) {
       hadWrongRecipe ||
       updatedImage ||
       danhobakCheeseBreadRemoved ||
+      peanutButterBibimNoodlesRemoved ||
       !migrationDone ||
       !chipotleDone ||
       chipotleNeedsUpdate ||
@@ -4284,8 +4229,6 @@ function migrateManagedRecipes(recipes: Recipe[]) {
       shepherdsPurseDoenjangRamenNeedsUpdate ||
       !eggplantMeatDumplingsDone ||
       eggplantMeatDumplingsNeedsUpdate ||
-      !peanutButterBibimNoodlesDone ||
-      peanutButterBibimNoodlesNeedsUpdate ||
       !gochujangJeyukDone ||
       gochujangJeyukNeedsUpdate ||
       !chewyRicePaperRollsDone ||
@@ -4400,7 +4343,6 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     window.localStorage.setItem(YUPDDUK_STYLE_TTEOKBOKKI_RECIPE_KEY, "done");
     window.localStorage.setItem(SHEPHERDS_PURSE_DOENJANG_RAMEN_RECIPE_KEY, "done");
     window.localStorage.setItem(EGGPLANT_MEAT_DUMPLINGS_RECIPE_KEY, "done");
-    window.localStorage.setItem(PEANUT_BUTTER_BIBIM_NOODLES_RECIPE_KEY, "done");
     window.localStorage.setItem(GOCHUJANG_JEYUK_RECIPE_KEY, "done");
     window.localStorage.setItem(CHEWY_RICE_PAPER_ROLLS_RECIPE_KEY, "done");
     window.localStorage.setItem(MUSHROOM_CREAM_RIGATONI_RECIPE_KEY, "done");
