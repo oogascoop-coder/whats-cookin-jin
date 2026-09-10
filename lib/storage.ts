@@ -222,6 +222,10 @@ const SHIOKONBU_SPINACH_PASTA_RECIPE_KEY =
   "whats-cookin-jin-migration-instagram-DcXhR1JTmG9-v1";
 const SHIOKONBU_SPINACH_PASTA_SOURCE = "https://www.instagram.com/p/DcXhR1JTmG9/";
 const SHIOKONBU_SPINACH_PASTA_IMAGE = "/recipe-media/shiokonbu-spinach-pasta.jpg";
+const TOMATO_STRACCIATELLA_COLD_PASTA_RECIPE_KEY =
+  "whats-cookin-jin-migration-instagram-DcIgxppynkY-v1";
+const TOMATO_STRACCIATELLA_COLD_PASTA_SOURCE = "https://www.instagram.com/p/DcIgxppynkY/";
+const TOMATO_STRACCIATELLA_COLD_PASTA_IMAGE = "/recipe-media/tomato-stracciatella-cold-pasta.jpg";
 const SAMPLE_RECIPE_IDS = new Set(sampleRecipes.map((recipe) => recipe.id));
 
 function canUseStorage() {
@@ -3352,6 +3356,52 @@ function makeShiokonbuSpinachPastaRecipe(): Recipe {
   };
 }
 
+function makeTomatoStracciatellaColdPastaRecipe(): Recipe {
+  const now = new Date().toISOString();
+
+  return {
+    id: `instagram-tomato-stracciatella-cold-pasta-${Date.now()}`,
+    title: "토마토 & 스트라치아텔라 콜드 파스타",
+    sourceUrl: TOMATO_STRACCIATELLA_COLD_PASTA_SOURCE,
+    sourceType: "Instagram",
+    category: "면 / 파스타",
+    mealType: "Lunch",
+    dietGoal: "Balanced",
+    time: "20 min",
+    difficulty: "Easy",
+    servings: 1,
+    ingredients: [
+      "오레끼에떼 60-80g",
+      "스트라치아텔라 50-60g",
+      "드라이 토마토 25-30g",
+      "칼라마타 올리브 15-20g (5-7알)",
+      "코파 또는 프로슈토 20g (4장)",
+      "바질 잎 4-5장",
+      "얼린 토마토 또는 생토마토",
+      "올리브오일 1큰술",
+      "드라이 토마토 오일 1작은술",
+      "통후추 약간"
+    ],
+    steps: [
+      "오레끼에떼를 소금물에 삶아 찬물에 헹군 뒤 물기를 충분히 빼요. 차갑게 먹을 때는 포장지 표기 시간보다 1-2분 더 삶아요.",
+      "드라이 토마토와 칼라마타 올리브는 잘게 썰고, 코파 또는 프로슈토는 길쭉하게 썰어요.",
+      "오레끼에떼에 올리브오일과 드라이 토마토 오일을 넣고 잘 섞어요.",
+      "드라이 토마토, 올리브, 바질, 코파의 2/3를 넣고 고르게 섞어요.",
+      "접시에 담고 스트라치아텔라를 듬뿍 올린 뒤 얼린 토마토를 강판에 갈아 올려요. 얼린 토마토가 없으면 생토마토를 잘게 다져 올려요.",
+      "남겨둔 코파와 바질을 올리고 올리브오일과 통후추로 마무리해요."
+    ],
+    tags: ["콜드파스타", "오레끼에떼", "스트라치아텔라", "토마토", "여름요리"],
+    notes:
+      "인스타그램 고정 댓글 기준으로 정리했어요. 스트라치아텔라는 부라타 속에 들어가는 부드러운 치즈예요. 오레끼에떼는 차갑게 식히면 단단해질 수 있어 충분히 익히고, 얼린 토마토를 갈아 올리면 산뜻한 맛이 더해져요.",
+    imageUrl: TOMATO_STRACCIATELLA_COLD_PASTA_IMAGE,
+    favorite: false,
+    bookmarked: true,
+    deleted: false,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
 function removeSampleRecipes(recipes: Recipe[]) {
   return recipes.filter((recipe) => !SAMPLE_RECIPE_IDS.has(recipe.id));
 }
@@ -3505,6 +3555,9 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     storageAvailable && window.localStorage.getItem(ANKIMO_KIMBAP_RECIPE_KEY) === "done";
   const shiokonbuSpinachPastaDone =
     storageAvailable && window.localStorage.getItem(SHIOKONBU_SPINACH_PASTA_RECIPE_KEY) === "done";
+  const tomatoStracciatellaColdPastaDone =
+    storageAvailable &&
+    window.localStorage.getItem(TOMATO_STRACCIATELLA_COLD_PASTA_RECIPE_KEY) === "done";
   const correctTitle = "육수에 푹 적신 알배추롤 & 구운 주먹밥";
   const samplesRemoved = recipes.some((recipe) => SAMPLE_RECIPE_IDS.has(recipe.id));
   const danhobakCheeseBreadRemoved = recipes.some(
@@ -4163,6 +4216,17 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     existingShiokonbuSpinachPasta.deleted;
   nextRecipes = upsertManagedRecipe(nextRecipes, makeShiokonbuSpinachPastaRecipe());
 
+  const existingTomatoStracciatellaColdPasta = nextRecipes.find(
+    (recipe) =>
+      recipe.sourceUrl === TOMATO_STRACCIATELLA_COLD_PASTA_SOURCE ||
+      recipe.title === "토마토 & 스트라치아텔라 콜드 파스타"
+  );
+  const tomatoStracciatellaColdPastaNeedsUpdate =
+    !existingTomatoStracciatellaColdPasta ||
+    existingTomatoStracciatellaColdPasta.imageUrl !== TOMATO_STRACCIATELLA_COLD_PASTA_IMAGE ||
+    existingTomatoStracciatellaColdPasta.deleted;
+  nextRecipes = upsertManagedRecipe(nextRecipes, makeTomatoStracciatellaColdPastaRecipe());
+
   if (
     storageAvailable &&
     (samplesRemoved ||
@@ -4305,7 +4369,9 @@ function migrateManagedRecipes(recipes: Recipe[]) {
       !ankimoKimbapDone ||
       ankimoKimbapNeedsUpdate ||
       !shiokonbuSpinachPastaDone ||
-      shiokonbuSpinachPastaNeedsUpdate)
+      shiokonbuSpinachPastaNeedsUpdate ||
+      !tomatoStracciatellaColdPastaDone ||
+      tomatoStracciatellaColdPastaNeedsUpdate)
   ) {
     writeJson(RECIPES_KEY, nextRecipes);
     window.localStorage.setItem(CORRECT_INSTAGRAM_RECIPE_KEY, "done");
@@ -4377,6 +4443,7 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     window.localStorage.setItem(DANHOBAK_BRAZIL_CHEESE_BREAD_RECIPE_KEY, "done");
     window.localStorage.setItem(ANKIMO_KIMBAP_RECIPE_KEY, "done");
     window.localStorage.setItem(SHIOKONBU_SPINACH_PASTA_RECIPE_KEY, "done");
+    window.localStorage.setItem(TOMATO_STRACCIATELLA_COLD_PASTA_RECIPE_KEY, "done");
   }
 
   return nextRecipes;
