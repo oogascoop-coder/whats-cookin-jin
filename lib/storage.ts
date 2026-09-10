@@ -215,6 +215,9 @@ const DANHOBAK_BRAZIL_CHEESE_BREAD_RECIPE_KEY =
   "whats-cookin-jin-migration-instagram-DctTwxkJ5A8-v1";
 const DANHOBAK_BRAZIL_CHEESE_BREAD_SOURCE = "https://www.instagram.com/p/DctTwxkJ5A8/";
 const DANHOBAK_BRAZIL_CHEESE_BREAD_IMAGE = "/recipe-media/danhobak-brazil-cheese-bread.jpg";
+const ANKIMO_KIMBAP_RECIPE_KEY = "whats-cookin-jin-migration-instagram-DW9yhNsBxdd-v1";
+const ANKIMO_KIMBAP_SOURCE = "https://www.instagram.com/p/DW9yhNsBxdd/";
+const ANKIMO_KIMBAP_IMAGE = "/recipe-media/ankimo-kimbap.jpg";
 const SAMPLE_RECIPE_IDS = new Set(sampleRecipes.map((recipe) => recipe.id));
 
 function canUseStorage() {
@@ -3259,6 +3262,49 @@ function makeDanhobakBrazilCheeseBreadRecipe(): Recipe {
   };
 }
 
+function makeAnkimoKimbapRecipe(): Recipe {
+  const now = new Date().toISOString();
+
+  return {
+    id: `instagram-ankimo-kimbap-${Date.now()}`,
+    title: "안키모 김밥",
+    sourceUrl: ANKIMO_KIMBAP_SOURCE,
+    sourceType: "Instagram",
+    category: "한식 / 밥",
+    mealType: "Lunch",
+    dietGoal: "Balanced",
+    time: "20 min",
+    difficulty: "Easy",
+    servings: 2,
+    ingredients: [
+      "안키모",
+      "기버터",
+      "간장 1스푼",
+      "맛술 2스푼",
+      "밥 300g",
+      "단촛물 2.5스푼",
+      "김밥김",
+      "쪽파"
+    ],
+    steps: [
+      "안키모를 짜서 팬에 넣고 기버터로 볶아요.",
+      "간장 1스푼과 맛술 2스푼을 넣고 약불에서 계속 볶아요.",
+      "밥 300g에 단촛물 2.5스푼을 넣고 잘 섞어요.",
+      "김밥김 위에 밥을 펴 올리고 대충 김밥처럼 말아요.",
+      "김밥 위에 볶은 안키모를 올리고 토치질한 뒤 쪽파를 뿌려 마무리해요. 토치질은 생략해도 돼요."
+    ],
+    tags: ["안키모", "김밥", "강민경레시피", "한식", "간단요리"],
+    notes:
+      "인스타그램 공개 설명 기준으로 정리했어요. 원문 출처는 유튜브 걍밍경이며, 안키모를 볶을 때는 기버터를 사용해요. 토치가 없으면 마지막 토치질은 생략해도 괜찮아요.",
+    imageUrl: ANKIMO_KIMBAP_IMAGE,
+    favorite: false,
+    bookmarked: true,
+    deleted: false,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
 function removeSampleRecipes(recipes: Recipe[]) {
   return recipes.filter((recipe) => !SAMPLE_RECIPE_IDS.has(recipe.id));
 }
@@ -3408,6 +3454,8 @@ function migrateManagedRecipes(recipes: Recipe[]) {
   const danhobakBrazilCheeseBreadDone =
     storageAvailable &&
     window.localStorage.getItem(DANHOBAK_BRAZIL_CHEESE_BREAD_RECIPE_KEY) === "done";
+  const ankimoKimbapDone =
+    storageAvailable && window.localStorage.getItem(ANKIMO_KIMBAP_RECIPE_KEY) === "done";
   const correctTitle = "육수에 푹 적신 알배추롤 & 구운 주먹밥";
   const samplesRemoved = recipes.some((recipe) => SAMPLE_RECIPE_IDS.has(recipe.id));
   const danhobakCheeseBreadRemoved = recipes.some(
@@ -4046,6 +4094,15 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     existingDanhobakBrazilCheeseBread.deleted;
   nextRecipes = upsertManagedRecipe(nextRecipes, makeDanhobakBrazilCheeseBreadRecipe());
 
+  const existingAnkimoKimbap = nextRecipes.find(
+    (recipe) => recipe.sourceUrl === ANKIMO_KIMBAP_SOURCE || recipe.title === "안키모 김밥"
+  );
+  const ankimoKimbapNeedsUpdate =
+    !existingAnkimoKimbap ||
+    existingAnkimoKimbap.imageUrl !== ANKIMO_KIMBAP_IMAGE ||
+    existingAnkimoKimbap.deleted;
+  nextRecipes = upsertManagedRecipe(nextRecipes, makeAnkimoKimbapRecipe());
+
   if (
     storageAvailable &&
     (samplesRemoved ||
@@ -4184,7 +4241,9 @@ function migrateManagedRecipes(recipes: Recipe[]) {
       !miniDanhobakBreadDone ||
       miniDanhobakBreadNeedsUpdate ||
       !danhobakBrazilCheeseBreadDone ||
-      danhobakBrazilCheeseBreadNeedsUpdate)
+      danhobakBrazilCheeseBreadNeedsUpdate ||
+      !ankimoKimbapDone ||
+      ankimoKimbapNeedsUpdate)
   ) {
     writeJson(RECIPES_KEY, nextRecipes);
     window.localStorage.setItem(CORRECT_INSTAGRAM_RECIPE_KEY, "done");
@@ -4254,6 +4313,7 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     window.localStorage.setItem(DANHOBAK_EGG_TART_RECIPE_KEY, "done");
     window.localStorage.setItem(MINI_DANHOBAK_BREAD_RECIPE_KEY, "done");
     window.localStorage.setItem(DANHOBAK_BRAZIL_CHEESE_BREAD_RECIPE_KEY, "done");
+    window.localStorage.setItem(ANKIMO_KIMBAP_RECIPE_KEY, "done");
   }
 
   return nextRecipes;
