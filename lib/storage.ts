@@ -208,6 +208,9 @@ const COCONUT_YOGURT_CHOCOLATE_BAR_IMAGE = "/recipe-media/coconut-yogurt-chocola
 const DANHOBAK_CHEESE_BREAD_RECIPE_KEY = "whats-cookin-jin-migration-instagram-DclqeiqCvHd-v1";
 const DANHOBAK_CHEESE_BREAD_SOURCE = "https://www.instagram.com/p/DclqeiqCvHd/";
 const DANHOBAK_CHEESE_BREAD_IMAGE = "/recipe-media/danhobak-cheese-bread.jpg";
+const DANHOBAK_EGG_TART_RECIPE_KEY = "whats-cookin-jin-migration-instagram-DbjuSXozYJZ-v1";
+const DANHOBAK_EGG_TART_SOURCE = "https://www.instagram.com/p/DbjuSXozYJZ/";
+const DANHOBAK_EGG_TART_IMAGE = "/recipe-media/danhobak-egg-tart.jpg";
 const SAMPLE_RECIPE_IDS = new Set(sampleRecipes.map((recipe) => recipe.id));
 
 function canUseStorage() {
@@ -3158,6 +3161,47 @@ function makeDanhobakCheeseBreadRecipe(): Recipe {
   };
 }
 
+function makeDanhobakEggTartRecipe(): Recipe {
+  const now = new Date().toISOString();
+
+  return {
+    id: `instagram-danhobak-egg-tart-${Date.now()}`,
+    title: "단호박 에그타르트",
+    sourceUrl: DANHOBAK_EGG_TART_SOURCE,
+    sourceType: "Instagram",
+    category: "간식",
+    mealType: "Snack",
+    dietGoal: "Light",
+    time: "30 min",
+    difficulty: "Easy",
+    servings: 2,
+    ingredients: [
+      "미니 단호박 1개",
+      "우유 60ml",
+      "달걀 노른자 2개",
+      "알룰로스 1.5큰술",
+      "소금 한 꼬집",
+      "바닐라 오일 1-2방울 선택"
+    ],
+    steps: [
+      "단호박을 깨끗하게 씻어 전자레인지에 3분 돌린 뒤 뚜껑을 잘라내고 속을 파요.",
+      "볼에 우유, 달걀 노른자, 알룰로스, 소금, 바닐라 오일을 모두 넣고 섞어요.",
+      "단호박 안에 계란 필링을 부어요.",
+      "에어프라이어 170도에서 20분 구워요.",
+      "한 김 식힌 뒤 냉장고에서 약 1시간 차갑게 식혀 먹어요."
+    ],
+    tags: ["단호박", "에그타르트", "노밀가루", "아이간식", "에어프라이어"],
+    notes:
+      "인스타그램 공개 캡션 기준으로 정리했어요. 단호박 씨를 너무 깊게 파면 바닥이 뚫릴 수 있어요. 더 부드러운 커스터드 식감을 원하면 필링을 체에 한 번 걸러 주세요.",
+    imageUrl: DANHOBAK_EGG_TART_IMAGE,
+    favorite: false,
+    bookmarked: true,
+    deleted: false,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
 function removeSampleRecipes(recipes: Recipe[]) {
   return recipes.filter((recipe) => !SAMPLE_RECIPE_IDS.has(recipe.id));
 }
@@ -3302,6 +3346,8 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     storageAvailable && window.localStorage.getItem(COCONUT_YOGURT_CHOCOLATE_BAR_RECIPE_KEY) === "done";
   const danhobakCheeseBreadDone =
     storageAvailable && window.localStorage.getItem(DANHOBAK_CHEESE_BREAD_RECIPE_KEY) === "done";
+  const danhobakEggTartDone =
+    storageAvailable && window.localStorage.getItem(DANHOBAK_EGG_TART_RECIPE_KEY) === "done";
   const correctTitle = "육수에 푹 적신 알배추롤 & 구운 주먹밥";
   const samplesRemoved = recipes.some((recipe) => SAMPLE_RECIPE_IDS.has(recipe.id));
   const hadWrongRecipe = recipes.some(
@@ -3913,6 +3959,15 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     existingDanhobakCheeseBread.deleted;
   nextRecipes = upsertManagedRecipe(nextRecipes, makeDanhobakCheeseBreadRecipe());
 
+  const existingDanhobakEggTart = nextRecipes.find(
+    (recipe) => recipe.sourceUrl === DANHOBAK_EGG_TART_SOURCE || recipe.title === "단호박 에그타르트"
+  );
+  const danhobakEggTartNeedsUpdate =
+    !existingDanhobakEggTart ||
+    existingDanhobakEggTart.imageUrl !== DANHOBAK_EGG_TART_IMAGE ||
+    existingDanhobakEggTart.deleted;
+  nextRecipes = upsertManagedRecipe(nextRecipes, makeDanhobakEggTartRecipe());
+
   if (
     storageAvailable &&
     (samplesRemoved ||
@@ -4046,7 +4101,9 @@ function migrateManagedRecipes(recipes: Recipe[]) {
       !coconutYogurtChocolateBarDone ||
       coconutYogurtChocolateBarNeedsUpdate ||
       !danhobakCheeseBreadDone ||
-      danhobakCheeseBreadNeedsUpdate)
+      danhobakCheeseBreadNeedsUpdate ||
+      !danhobakEggTartDone ||
+      danhobakEggTartNeedsUpdate)
   ) {
     writeJson(RECIPES_KEY, nextRecipes);
     window.localStorage.setItem(CORRECT_INSTAGRAM_RECIPE_KEY, "done");
@@ -4114,6 +4171,7 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     window.localStorage.setItem(INJEOLMI_TOFU_CHIPS_RECIPE_KEY, "done");
     window.localStorage.setItem(COCONUT_YOGURT_CHOCOLATE_BAR_RECIPE_KEY, "done");
     window.localStorage.setItem(DANHOBAK_CHEESE_BREAD_RECIPE_KEY, "done");
+    window.localStorage.setItem(DANHOBAK_EGG_TART_RECIPE_KEY, "done");
   }
 
   return nextRecipes;
