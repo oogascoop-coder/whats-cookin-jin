@@ -214,6 +214,10 @@ const DANHOBAK_EGG_TART_IMAGE = "/recipe-media/danhobak-egg-tart.jpg";
 const MINI_DANHOBAK_BREAD_RECIPE_KEY = "whats-cookin-jin-migration-instagram-DbK8JszP6uY-v1";
 const MINI_DANHOBAK_BREAD_SOURCE = "https://www.instagram.com/p/DbK8JszP6uY/";
 const MINI_DANHOBAK_BREAD_IMAGE = "/recipe-media/mini-danhobak-bread.jpg";
+const DANHOBAK_BRAZIL_CHEESE_BREAD_RECIPE_KEY =
+  "whats-cookin-jin-migration-instagram-DctTwxkJ5A8-v1";
+const DANHOBAK_BRAZIL_CHEESE_BREAD_SOURCE = "https://www.instagram.com/p/DctTwxkJ5A8/";
+const DANHOBAK_BRAZIL_CHEESE_BREAD_IMAGE = "/recipe-media/danhobak-brazil-cheese-bread.jpg";
 const SAMPLE_RECIPE_IDS = new Set(sampleRecipes.map((recipe) => recipe.id));
 
 function canUseStorage() {
@@ -3246,6 +3250,51 @@ function makeMiniDanhobakBreadRecipe(): Recipe {
   };
 }
 
+function makeDanhobakBrazilCheeseBreadRecipe(): Recipe {
+  const now = new Date().toISOString();
+
+  return {
+    id: `instagram-danhobak-brazil-cheese-bread-${Date.now()}`,
+    title: "단호박 브라질치즈빵",
+    sourceUrl: DANHOBAK_BRAZIL_CHEESE_BREAD_SOURCE,
+    sourceType: "Instagram",
+    category: "간식",
+    mealType: "Snack",
+    dietGoal: "Light",
+    time: "30 min",
+    difficulty: "Easy",
+    servings: 2,
+    ingredients: [
+      "익힌 단호박 1/2개",
+      "타피오카 전분 180g",
+      "우유 130g",
+      "달걀 17g",
+      "소금 5g",
+      "녹인 버터 10g",
+      "모짜렐라 치즈 넉넉히",
+      "파마산 치즈 넉넉히"
+    ],
+    steps: [
+      "단호박을 익혀 한입 크기로 썰어 준비해요.",
+      "타피오카 전분과 소금을 볼에 넣고 섞어요.",
+      "우유와 녹인 버터를 따뜻하게 데워 전분에 부은 뒤 잘 섞어요.",
+      "달걀을 넣고 반죽이 한 덩어리가 될 때까지 치대요.",
+      "모짜렐라 치즈와 파마산 치즈를 넣어 고루 섞어요.",
+      "단호박을 넣고 원하는 크기로 둥글게 빚어요.",
+      "180도 오븐이나 에어프라이어에서 노릇하게 15-20분 구워요."
+    ],
+    tags: ["단호박", "브라질치즈빵", "타피오카전분", "치즈", "간식"],
+    notes:
+      "인스타그램 영상에 표시된 재료 기준으로 정리했어요. 원문에서는 버터를 10g만 넣어 덜 기름지게 만들었고, 단호박이 달달하니 소금이나 체다치즈를 넉넉히 넣는 방법도 추천해요. 굽는 시간은 오븐과 에어프라이어 출력에 따라 조절해 주세요.",
+    imageUrl: DANHOBAK_BRAZIL_CHEESE_BREAD_IMAGE,
+    favorite: false,
+    bookmarked: true,
+    deleted: false,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
 function removeSampleRecipes(recipes: Recipe[]) {
   return recipes.filter((recipe) => !SAMPLE_RECIPE_IDS.has(recipe.id));
 }
@@ -3394,6 +3443,9 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     storageAvailable && window.localStorage.getItem(DANHOBAK_EGG_TART_RECIPE_KEY) === "done";
   const miniDanhobakBreadDone =
     storageAvailable && window.localStorage.getItem(MINI_DANHOBAK_BREAD_RECIPE_KEY) === "done";
+  const danhobakBrazilCheeseBreadDone =
+    storageAvailable &&
+    window.localStorage.getItem(DANHOBAK_BRAZIL_CHEESE_BREAD_RECIPE_KEY) === "done";
   const correctTitle = "육수에 푹 적신 알배추롤 & 구운 주먹밥";
   const samplesRemoved = recipes.some((recipe) => SAMPLE_RECIPE_IDS.has(recipe.id));
   const hadWrongRecipe = recipes.some(
@@ -4023,6 +4075,17 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     existingMiniDanhobakBread.deleted;
   nextRecipes = upsertManagedRecipe(nextRecipes, makeMiniDanhobakBreadRecipe());
 
+  const existingDanhobakBrazilCheeseBread = nextRecipes.find(
+    (recipe) =>
+      recipe.sourceUrl === DANHOBAK_BRAZIL_CHEESE_BREAD_SOURCE ||
+      recipe.title === "단호박 브라질치즈빵"
+  );
+  const danhobakBrazilCheeseBreadNeedsUpdate =
+    !existingDanhobakBrazilCheeseBread ||
+    existingDanhobakBrazilCheeseBread.imageUrl !== DANHOBAK_BRAZIL_CHEESE_BREAD_IMAGE ||
+    existingDanhobakBrazilCheeseBread.deleted;
+  nextRecipes = upsertManagedRecipe(nextRecipes, makeDanhobakBrazilCheeseBreadRecipe());
+
   if (
     storageAvailable &&
     (samplesRemoved ||
@@ -4160,7 +4223,9 @@ function migrateManagedRecipes(recipes: Recipe[]) {
       !danhobakEggTartDone ||
       danhobakEggTartNeedsUpdate ||
       !miniDanhobakBreadDone ||
-      miniDanhobakBreadNeedsUpdate)
+      miniDanhobakBreadNeedsUpdate ||
+      !danhobakBrazilCheeseBreadDone ||
+      danhobakBrazilCheeseBreadNeedsUpdate)
   ) {
     writeJson(RECIPES_KEY, nextRecipes);
     window.localStorage.setItem(CORRECT_INSTAGRAM_RECIPE_KEY, "done");
@@ -4230,6 +4295,7 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     window.localStorage.setItem(DANHOBAK_CHEESE_BREAD_RECIPE_KEY, "done");
     window.localStorage.setItem(DANHOBAK_EGG_TART_RECIPE_KEY, "done");
     window.localStorage.setItem(MINI_DANHOBAK_BREAD_RECIPE_KEY, "done");
+    window.localStorage.setItem(DANHOBAK_BRAZIL_CHEESE_BREAD_RECIPE_KEY, "done");
   }
 
   return nextRecipes;
