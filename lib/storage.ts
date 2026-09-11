@@ -224,6 +224,10 @@ const TOMATO_STRACCIATELLA_COLD_PASTA_RECIPE_KEY =
   "whats-cookin-jin-migration-instagram-DcIgxppynkY-v1";
 const TOMATO_STRACCIATELLA_COLD_PASTA_SOURCE = "https://www.instagram.com/p/DcIgxppynkY/";
 const TOMATO_STRACCIATELLA_COLD_PASTA_IMAGE = "/recipe-media/tomato-stracciatella-cold-pasta.jpg";
+const CHILI_OIL_PEANUT_NOODLES_RECIPE_KEY =
+  "whats-cookin-jin-migration-instagram-DaMfg_tCK6G-v1";
+const CHILI_OIL_PEANUT_NOODLES_SOURCE = "https://www.instagram.com/p/DaMfg_tCK6G/";
+const CHILI_OIL_PEANUT_NOODLES_IMAGE = "/recipe-media/chili-oil-peanut-noodles.jpg";
 const SAMPLE_RECIPE_IDS = new Set(sampleRecipes.map((recipe) => recipe.id));
 
 function canUseStorage() {
@@ -3352,6 +3356,53 @@ function makeTomatoStracciatellaColdPastaRecipe(): Recipe {
   };
 }
 
+function makeChiliOilPeanutNoodlesRecipe(): Recipe {
+  const now = new Date().toISOString();
+
+  return {
+    id: `instagram-chili-oil-peanut-noodles-${Date.now()}`,
+    title: "칠리오일 피넛 누들",
+    sourceUrl: CHILI_OIL_PEANUT_NOODLES_SOURCE,
+    sourceType: "Instagram",
+    category: "면 / 파스타",
+    mealType: "Dinner",
+    dietGoal: "None",
+    time: "15 min",
+    difficulty: "Easy",
+    servings: 1,
+    ingredients: [
+      "마팔디네 또는 집에 있는 면 1인분",
+      "소금 약간",
+      "땅콩버터 1스푼",
+      "고춧가루 1스푼",
+      "다진 마늘 1스푼",
+      "통깨 1스푼",
+      "간장 1스푼",
+      "식초 1스푼",
+      "알룰로스 1스푼",
+      "식용유 5스푼",
+      "면수 1국자",
+      "칠리오일 약간",
+      "대파 약간"
+    ],
+    steps: [
+      "면은 소금을 넣은 물에 약 9분 삶아 준비해요.",
+      "땅콩버터, 고춧가루, 다진 마늘, 통깨, 간장, 식초, 알룰로스를 넣고 끓인 식용유 5스푼을 부어 잘 섞어요.",
+      "삶은 면과 면수 1국자를 넣고 소스가 골고루 배도록 버무려요.",
+      "그릇에 옮겨 담고 칠리오일, 대파, 통깨를 올려 마무리해요. 칠리오일은 2단계에서 소스와 함께 넣어도 좋아요."
+    ],
+    tags: ["땅콩비빔면", "땅콩버터", "칠리오일", "피넛누들", "야식"],
+    notes:
+      "인스타그램 캡션 기준으로 정리했어요. 마팔디네가 없으면 집에 있는 면으로 만들 수 있고, 칠리오일은 소스에 섞거나 마지막에 올려도 좋아요.",
+    imageUrl: CHILI_OIL_PEANUT_NOODLES_IMAGE,
+    favorite: false,
+    bookmarked: true,
+    deleted: false,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
 function removeSampleRecipes(recipes: Recipe[]) {
   return recipes.filter((recipe) => !SAMPLE_RECIPE_IDS.has(recipe.id));
 }
@@ -3506,6 +3557,8 @@ function migrateManagedRecipes(recipes: Recipe[]) {
   const tomatoStracciatellaColdPastaDone =
     storageAvailable &&
     window.localStorage.getItem(TOMATO_STRACCIATELLA_COLD_PASTA_RECIPE_KEY) === "done";
+  const chiliOilPeanutNoodlesDone =
+    storageAvailable && window.localStorage.getItem(CHILI_OIL_PEANUT_NOODLES_RECIPE_KEY) === "done";
   const correctTitle = "육수에 푹 적신 알배추롤 & 구운 주먹밥";
   const samplesRemoved = recipes.some((recipe) => SAMPLE_RECIPE_IDS.has(recipe.id));
   const danhobakCheeseBreadRemoved = recipes.some(
@@ -4171,6 +4224,17 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     existingTomatoStracciatellaColdPasta.deleted;
   nextRecipes = upsertManagedRecipe(nextRecipes, makeTomatoStracciatellaColdPastaRecipe());
 
+  const existingChiliOilPeanutNoodles = nextRecipes.find(
+    (recipe) =>
+      recipe.sourceUrl === CHILI_OIL_PEANUT_NOODLES_SOURCE ||
+      recipe.title === "칠리오일 피넛 누들"
+  );
+  const chiliOilPeanutNoodlesNeedsUpdate =
+    !existingChiliOilPeanutNoodles ||
+    existingChiliOilPeanutNoodles.imageUrl !== CHILI_OIL_PEANUT_NOODLES_IMAGE ||
+    existingChiliOilPeanutNoodles.deleted;
+  nextRecipes = upsertManagedRecipe(nextRecipes, makeChiliOilPeanutNoodlesRecipe());
+
   if (
     storageAvailable &&
     (samplesRemoved ||
@@ -4314,7 +4378,9 @@ function migrateManagedRecipes(recipes: Recipe[]) {
       !shiokonbuSpinachPastaDone ||
       shiokonbuSpinachPastaNeedsUpdate ||
       !tomatoStracciatellaColdPastaDone ||
-      tomatoStracciatellaColdPastaNeedsUpdate)
+      tomatoStracciatellaColdPastaNeedsUpdate ||
+      !chiliOilPeanutNoodlesDone ||
+      chiliOilPeanutNoodlesNeedsUpdate)
   ) {
     writeJson(RECIPES_KEY, nextRecipes);
     window.localStorage.setItem(CORRECT_INSTAGRAM_RECIPE_KEY, "done");
@@ -4386,6 +4452,7 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     window.localStorage.setItem(ANKIMO_KIMBAP_RECIPE_KEY, "done");
     window.localStorage.setItem(SHIOKONBU_SPINACH_PASTA_RECIPE_KEY, "done");
     window.localStorage.setItem(TOMATO_STRACCIATELLA_COLD_PASTA_RECIPE_KEY, "done");
+    window.localStorage.setItem(CHILI_OIL_PEANUT_NOODLES_RECIPE_KEY, "done");
   }
 
   return nextRecipes;
