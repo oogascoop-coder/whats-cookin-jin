@@ -231,6 +231,9 @@ const CHILI_OIL_PEANUT_NOODLES_IMAGE = "/recipe-media/chili-oil-peanut-noodles.j
 const GOCHUJANG_PASTA_RECIPE_KEY = "whats-cookin-jin-migration-instagram-DbAjEx3zbpY-v1";
 const GOCHUJANG_PASTA_SOURCE = "https://www.instagram.com/p/DbAjEx3zbpY/";
 const GOCHUJANG_PASTA_IMAGE = "/recipe-media/low-sugar-gochujang-pasta.jpg";
+const PERILLA_PORK_PASTA_RECIPE_KEY = "whats-cookin-jin-migration-instagram-DcvO25_pn29-v1";
+const PERILLA_PORK_PASTA_SOURCE = "https://www.instagram.com/p/DcvO25_pn29/";
+const PERILLA_PORK_PASTA_IMAGE = "/recipe-media/perilla-pork-pasta.jpg";
 const SAMPLE_RECIPE_IDS = new Set(sampleRecipes.map((recipe) => recipe.id));
 
 function canUseStorage() {
@@ -3457,6 +3460,52 @@ function makeGochujangPastaRecipe(): Recipe {
   };
 }
 
+function makePerillaPorkPastaRecipe(): Recipe {
+  const now = new Date().toISOString();
+
+  return {
+    id: `instagram-perilla-pork-pasta-${Date.now()}`,
+    title: "들깨대패파스타",
+    sourceUrl: PERILLA_PORK_PASTA_SOURCE,
+    sourceType: "Instagram",
+    category: "면 / 파스타",
+    mealType: "Dinner",
+    dietGoal: "None",
+    time: "20 min",
+    difficulty: "Easy",
+    servings: 1,
+    ingredients: [
+      "파스타면 1인분",
+      "들깨 3큰술",
+      "대패삼겹살 한 줌 (우삼겹으로 대체 가능)",
+      "버섯 한 줌 (팽이, 맛타리, 새송이)",
+      "오일 약간",
+      "마늘 약간",
+      "굴소스 1큰술",
+      "액젓 1큰술",
+      "면수 1국자",
+      "깻잎 6장",
+      "들기름 1큰술",
+      "후추 약간"
+    ],
+    steps: [
+      "팬에 오일을 두르고 마늘을 볶다가 대패삼겹살을 넣어 익혀요. 우삼겹으로 바꿔도 맛있어요.",
+      "버섯을 잘게 찢어 넣고 고기와 함께 볶아요. 팽이, 맛타리, 새송이 모두 잘 어울려요.",
+      "굴소스와 액젓을 넣고, 삶은 파스타면과 면수 1국자를 넣어 골고루 섞어요.",
+      "들깨 3큰술과 잘게 자른 깻잎을 넣고 섞은 뒤 들기름과 후추를 더해 마무리해요."
+    ],
+    tags: ["들깨파스타", "대패삼겹살", "깻잎", "초간단레시피", "집밥"],
+    notes:
+      "인스타그램 캡션 기준으로 정리했어요. 대패삼겹살은 우삼겹으로 바꿔도 되고, 버섯은 팽이·맛타리·새송이 중 집에 있는 재료를 사용하면 돼요.",
+    imageUrl: PERILLA_PORK_PASTA_IMAGE,
+    favorite: false,
+    bookmarked: true,
+    deleted: false,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
 function removeSampleRecipes(recipes: Recipe[]) {
   return recipes.filter((recipe) => !SAMPLE_RECIPE_IDS.has(recipe.id));
 }
@@ -3615,6 +3664,8 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     storageAvailable && window.localStorage.getItem(CHILI_OIL_PEANUT_NOODLES_RECIPE_KEY) === "done";
   const gochujangPastaDone =
     storageAvailable && window.localStorage.getItem(GOCHUJANG_PASTA_RECIPE_KEY) === "done";
+  const perillaPorkPastaDone =
+    storageAvailable && window.localStorage.getItem(PERILLA_PORK_PASTA_RECIPE_KEY) === "done";
   const correctTitle = "육수에 푹 적신 알배추롤 & 구운 주먹밥";
   const samplesRemoved = recipes.some((recipe) => SAMPLE_RECIPE_IDS.has(recipe.id));
   const danhobakCheeseBreadRemoved = recipes.some(
@@ -4300,6 +4351,15 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     existingGochujangPasta.deleted;
   nextRecipes = upsertManagedRecipe(nextRecipes, makeGochujangPastaRecipe());
 
+  const existingPerillaPorkPasta = nextRecipes.find(
+    (recipe) => recipe.sourceUrl === PERILLA_PORK_PASTA_SOURCE || recipe.title === "들깨대패파스타"
+  );
+  const perillaPorkPastaNeedsUpdate =
+    !existingPerillaPorkPasta ||
+    existingPerillaPorkPasta.imageUrl !== PERILLA_PORK_PASTA_IMAGE ||
+    existingPerillaPorkPasta.deleted;
+  nextRecipes = upsertManagedRecipe(nextRecipes, makePerillaPorkPastaRecipe());
+
   if (
     storageAvailable &&
     (samplesRemoved ||
@@ -4447,7 +4507,9 @@ function migrateManagedRecipes(recipes: Recipe[]) {
       !chiliOilPeanutNoodlesDone ||
       chiliOilPeanutNoodlesNeedsUpdate ||
       !gochujangPastaDone ||
-      gochujangPastaNeedsUpdate)
+      gochujangPastaNeedsUpdate ||
+      !perillaPorkPastaDone ||
+      perillaPorkPastaNeedsUpdate)
   ) {
     writeJson(RECIPES_KEY, nextRecipes);
     window.localStorage.setItem(CORRECT_INSTAGRAM_RECIPE_KEY, "done");
@@ -4521,6 +4583,7 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     window.localStorage.setItem(TOMATO_STRACCIATELLA_COLD_PASTA_RECIPE_KEY, "done");
     window.localStorage.setItem(CHILI_OIL_PEANUT_NOODLES_RECIPE_KEY, "done");
     window.localStorage.setItem(GOCHUJANG_PASTA_RECIPE_KEY, "done");
+    window.localStorage.setItem(PERILLA_PORK_PASTA_RECIPE_KEY, "done");
   }
 
   return nextRecipes;
