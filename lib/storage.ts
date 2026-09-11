@@ -234,6 +234,9 @@ const GOCHUJANG_PASTA_IMAGE = "/recipe-media/low-sugar-gochujang-pasta.jpg";
 const PERILLA_PORK_PASTA_RECIPE_KEY = "whats-cookin-jin-migration-instagram-DcvO25_pn29-v1";
 const PERILLA_PORK_PASTA_SOURCE = "https://www.instagram.com/p/DcvO25_pn29/";
 const PERILLA_PORK_PASTA_IMAGE = "/recipe-media/perilla-pork-pasta.jpg";
+const PORK_COLLAR_DOENJANG_PASTA_RECIPE_KEY = "whats-cookin-jin-migration-instagram-DBoF1RQuqT7-v1";
+const PORK_COLLAR_DOENJANG_PASTA_SOURCE = "https://www.instagram.com/p/DBoF1RQuqT7/";
+const PORK_COLLAR_DOENJANG_PASTA_IMAGE = "/recipe-media/pork-collar-doenjang-cream-pasta.jpg";
 const SAMPLE_RECIPE_IDS = new Set(sampleRecipes.map((recipe) => recipe.id));
 
 function canUseStorage() {
@@ -3506,6 +3509,54 @@ function makePerillaPorkPastaRecipe(): Recipe {
   };
 }
 
+function makePorkCollarDoenjangPastaRecipe(): Recipe {
+  const now = new Date().toISOString();
+
+  return {
+    id: `instagram-pork-collar-doenjang-pasta-${Date.now()}`,
+    title: "항정살 된장크림 파스타",
+    sourceUrl: PORK_COLLAR_DOENJANG_PASTA_SOURCE,
+    sourceType: "Instagram",
+    category: "면 / 파스타",
+    mealType: "Dinner",
+    dietGoal: "None",
+    time: "30 min",
+    difficulty: "Easy",
+    servings: 2,
+    ingredients: [
+      "스파게티면 200g",
+      "항정살 200g",
+      "양파 1/2개",
+      "마늘 3쪽",
+      "올리브유 약간",
+      "된장 1스푼",
+      "우유 200ml",
+      "생크림 100ml",
+      "파마산 치즈 가루 3스푼",
+      "면수 약간",
+      "소금, 후추",
+      "청양고추 1개",
+      "페페론치노"
+    ],
+    steps: [
+      "끓는 물에 소금을 넉넉히 넣고 스파게티면을 약 10분 삶아요.",
+      "면을 삶는 동안 마늘은 잘게 다지고, 청양고추는 씨를 빼서 잘게 썰고, 양파도 잘게 썰어요.",
+      "먹기 좋은 크기로 썬 항정살을 올리브유를 두른 팬에 노릇하게 볶아요. 마늘과 양파를 넣고 볶다가 된장을 넣어 함께 볶아요.",
+      "팬에 우유와 생크림을 넣고 약불에서 끓여 크림 소스를 만들어요. 삶은 스파게티면을 넣고 버무린 뒤 면수로 농도를 맞춰요.",
+      "파마산 치즈를 넉넉히 넣고 소금과 후추로 간을 맞춰요. 그릇에 담고 다진 청양고추와 페페론치노를 올려 마무리해요."
+    ],
+    tags: ["된장크림파스타", "항정살", "크림파스타", "청양고추", "퓨전파스타"],
+    notes:
+      "인스타그램 캡션 기준으로 정리했어요. 항정살은 삼겹살이나 베이컨으로 바꿔도 되고, 우유 대신 생크림만 사용하면 더 진한 소스가 돼요. 청양고추를 듬뿍 올리면 크림의 느끼함을 잡아줘요.",
+    imageUrl: PORK_COLLAR_DOENJANG_PASTA_IMAGE,
+    favorite: false,
+    bookmarked: true,
+    deleted: false,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
 function removeSampleRecipes(recipes: Recipe[]) {
   return recipes.filter((recipe) => !SAMPLE_RECIPE_IDS.has(recipe.id));
 }
@@ -3666,6 +3717,8 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     storageAvailable && window.localStorage.getItem(GOCHUJANG_PASTA_RECIPE_KEY) === "done";
   const perillaPorkPastaDone =
     storageAvailable && window.localStorage.getItem(PERILLA_PORK_PASTA_RECIPE_KEY) === "done";
+  const porkCollarDoenjangPastaDone =
+    storageAvailable && window.localStorage.getItem(PORK_COLLAR_DOENJANG_PASTA_RECIPE_KEY) === "done";
   const correctTitle = "육수에 푹 적신 알배추롤 & 구운 주먹밥";
   const samplesRemoved = recipes.some((recipe) => SAMPLE_RECIPE_IDS.has(recipe.id));
   const danhobakCheeseBreadRemoved = recipes.some(
@@ -4360,6 +4413,17 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     existingPerillaPorkPasta.deleted;
   nextRecipes = upsertManagedRecipe(nextRecipes, makePerillaPorkPastaRecipe());
 
+  const existingPorkCollarDoenjangPasta = nextRecipes.find(
+    (recipe) =>
+      recipe.sourceUrl === PORK_COLLAR_DOENJANG_PASTA_SOURCE ||
+      recipe.title === "항정살 된장크림 파스타"
+  );
+  const porkCollarDoenjangPastaNeedsUpdate =
+    !existingPorkCollarDoenjangPasta ||
+    existingPorkCollarDoenjangPasta.imageUrl !== PORK_COLLAR_DOENJANG_PASTA_IMAGE ||
+    existingPorkCollarDoenjangPasta.deleted;
+  nextRecipes = upsertManagedRecipe(nextRecipes, makePorkCollarDoenjangPastaRecipe());
+
   if (
     storageAvailable &&
     (samplesRemoved ||
@@ -4509,7 +4573,9 @@ function migrateManagedRecipes(recipes: Recipe[]) {
       !gochujangPastaDone ||
       gochujangPastaNeedsUpdate ||
       !perillaPorkPastaDone ||
-      perillaPorkPastaNeedsUpdate)
+      perillaPorkPastaNeedsUpdate ||
+      !porkCollarDoenjangPastaDone ||
+      porkCollarDoenjangPastaNeedsUpdate)
   ) {
     writeJson(RECIPES_KEY, nextRecipes);
     window.localStorage.setItem(CORRECT_INSTAGRAM_RECIPE_KEY, "done");
@@ -4584,6 +4650,7 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     window.localStorage.setItem(CHILI_OIL_PEANUT_NOODLES_RECIPE_KEY, "done");
     window.localStorage.setItem(GOCHUJANG_PASTA_RECIPE_KEY, "done");
     window.localStorage.setItem(PERILLA_PORK_PASTA_RECIPE_KEY, "done");
+    window.localStorage.setItem(PORK_COLLAR_DOENJANG_PASTA_RECIPE_KEY, "done");
   }
 
   return nextRecipes;
