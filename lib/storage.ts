@@ -228,6 +228,9 @@ const CHILI_OIL_PEANUT_NOODLES_RECIPE_KEY =
   "whats-cookin-jin-migration-instagram-DaMfg_tCK6G-v1";
 const CHILI_OIL_PEANUT_NOODLES_SOURCE = "https://www.instagram.com/p/DaMfg_tCK6G/";
 const CHILI_OIL_PEANUT_NOODLES_IMAGE = "/recipe-media/chili-oil-peanut-noodles.jpg";
+const GOCHUJANG_PASTA_RECIPE_KEY = "whats-cookin-jin-migration-instagram-DbAjEx3zbpY-v1";
+const GOCHUJANG_PASTA_SOURCE = "https://www.instagram.com/p/DbAjEx3zbpY/";
+const GOCHUJANG_PASTA_IMAGE = "/recipe-media/low-sugar-gochujang-pasta.jpg";
 const SAMPLE_RECIPE_IDS = new Set(sampleRecipes.map((recipe) => recipe.id));
 
 function canUseStorage() {
@@ -3403,6 +3406,57 @@ function makeChiliOilPeanutNoodlesRecipe(): Recipe {
   };
 }
 
+function makeGochujangPastaRecipe(): Recipe {
+  const now = new Date().toISOString();
+
+  return {
+    id: `instagram-gochujang-pasta-${Date.now()}`,
+    title: "인생 고추장파스타",
+    sourceUrl: GOCHUJANG_PASTA_SOURCE,
+    sourceType: "Instagram",
+    category: "면 / 파스타",
+    mealType: "Dinner",
+    dietGoal: "Low Carb",
+    time: "20 min",
+    difficulty: "Easy",
+    servings: 1,
+    ingredients: [
+      "파스타면 70g",
+      "물 1L",
+      "소금 0.5스푼",
+      "저당고추장 2스푼",
+      "저당케첩 1스푼",
+      "진간장 1스푼",
+      "치킨스톡 0.5스푼",
+      "알룰로스 1스푼",
+      "후추 취향껏",
+      "우삼겹 200g",
+      "편마늘 또는 다진 마늘 1큰술",
+      "양파 1/2개",
+      "면수 1국자",
+      "치즈 약간",
+      "깻잎 약간"
+    ],
+    steps: [
+      "물 1L에 소금 0.5스푼을 넣고 파스타면 70g을 약 8분 삶아요. 면을 삶는 동안 양념장을 만들어요.",
+      "저당고추장, 저당케첩, 진간장, 치킨스톡, 알룰로스, 후추를 섞어 양념장을 만들어요.",
+      "팬에 우삼겹을 굽다가 기름이 나오기 시작하면 편마늘 또는 다진 마늘과 채 썬 양파를 넣고 함께 구워요.",
+      "고기가 익고 양파가 투명해지면 키친타월로 기름을 닦아낸 뒤 양념장을 넣고 약 30초 볶아요.",
+      "삶은 면과 면수 1국자를 넣고 센 불에서 빠르게 볶아 소스를 골고루 입혀요.",
+      "치즈를 올려 녹이고 얇게 채 썬 깻잎을 올려 마무리해요."
+    ],
+    tags: ["고추장파스타", "다이어트레시피", "저당레시피", "우삼겹", "파스타"],
+    notes:
+      "인스타그램 캡션 기준으로 정리했어요. 저당고추장과 저당케첩을 사용하고, 편마늘이 없으면 다진 마늘로 대체할 수 있어요.",
+    imageUrl: GOCHUJANG_PASTA_IMAGE,
+    favorite: false,
+    bookmarked: true,
+    deleted: false,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
 function removeSampleRecipes(recipes: Recipe[]) {
   return recipes.filter((recipe) => !SAMPLE_RECIPE_IDS.has(recipe.id));
 }
@@ -3559,6 +3613,8 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     window.localStorage.getItem(TOMATO_STRACCIATELLA_COLD_PASTA_RECIPE_KEY) === "done";
   const chiliOilPeanutNoodlesDone =
     storageAvailable && window.localStorage.getItem(CHILI_OIL_PEANUT_NOODLES_RECIPE_KEY) === "done";
+  const gochujangPastaDone =
+    storageAvailable && window.localStorage.getItem(GOCHUJANG_PASTA_RECIPE_KEY) === "done";
   const correctTitle = "육수에 푹 적신 알배추롤 & 구운 주먹밥";
   const samplesRemoved = recipes.some((recipe) => SAMPLE_RECIPE_IDS.has(recipe.id));
   const danhobakCheeseBreadRemoved = recipes.some(
@@ -4235,6 +4291,15 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     existingChiliOilPeanutNoodles.deleted;
   nextRecipes = upsertManagedRecipe(nextRecipes, makeChiliOilPeanutNoodlesRecipe());
 
+  const existingGochujangPasta = nextRecipes.find(
+    (recipe) => recipe.sourceUrl === GOCHUJANG_PASTA_SOURCE || recipe.title === "인생 고추장파스타"
+  );
+  const gochujangPastaNeedsUpdate =
+    !existingGochujangPasta ||
+    existingGochujangPasta.imageUrl !== GOCHUJANG_PASTA_IMAGE ||
+    existingGochujangPasta.deleted;
+  nextRecipes = upsertManagedRecipe(nextRecipes, makeGochujangPastaRecipe());
+
   if (
     storageAvailable &&
     (samplesRemoved ||
@@ -4380,7 +4445,9 @@ function migrateManagedRecipes(recipes: Recipe[]) {
       !tomatoStracciatellaColdPastaDone ||
       tomatoStracciatellaColdPastaNeedsUpdate ||
       !chiliOilPeanutNoodlesDone ||
-      chiliOilPeanutNoodlesNeedsUpdate)
+      chiliOilPeanutNoodlesNeedsUpdate ||
+      !gochujangPastaDone ||
+      gochujangPastaNeedsUpdate)
   ) {
     writeJson(RECIPES_KEY, nextRecipes);
     window.localStorage.setItem(CORRECT_INSTAGRAM_RECIPE_KEY, "done");
@@ -4453,6 +4520,7 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     window.localStorage.setItem(SHIOKONBU_SPINACH_PASTA_RECIPE_KEY, "done");
     window.localStorage.setItem(TOMATO_STRACCIATELLA_COLD_PASTA_RECIPE_KEY, "done");
     window.localStorage.setItem(CHILI_OIL_PEANUT_NOODLES_RECIPE_KEY, "done");
+    window.localStorage.setItem(GOCHUJANG_PASTA_RECIPE_KEY, "done");
   }
 
   return nextRecipes;
