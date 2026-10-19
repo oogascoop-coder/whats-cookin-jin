@@ -237,6 +237,9 @@ const PERILLA_PORK_PASTA_IMAGE = "/recipe-media/perilla-pork-pasta.jpg";
 const PORK_COLLAR_DOENJANG_PASTA_RECIPE_KEY = "whats-cookin-jin-migration-instagram-DBoF1RQuqT7-v1";
 const PORK_COLLAR_DOENJANG_PASTA_SOURCE = "https://www.instagram.com/p/DBoF1RQuqT7/";
 const PORK_COLLAR_DOENJANG_PASTA_IMAGE = "/recipe-media/pork-collar-doenjang-cream-pasta.jpg";
+const YELLOWTAIL_AVOCADO_RECIPE_KEY = "whats-cookin-jin-migration-instagram-DeeAwIfE_wL-v1";
+const YELLOWTAIL_AVOCADO_SOURCE = "https://www.instagram.com/p/DeeAwIfE_wL/";
+const YELLOWTAIL_AVOCADO_IMAGE = "/recipe-media/yellowtail-avocado-izakaya.jpg";
 const SAMPLE_RECIPE_IDS = new Set(sampleRecipes.map((recipe) => recipe.id));
 
 function canUseStorage() {
@@ -3557,6 +3560,47 @@ function makePorkCollarDoenjangPastaRecipe(): Recipe {
   };
 }
 
+function makeYellowtailAvocadoRecipe(): Recipe {
+  const now = new Date().toISOString();
+
+  return {
+    id: `instagram-yellowtail-avocado-${Date.now()}`,
+    title: "잿방어 아보카도 이자카야무침",
+    sourceUrl: YELLOWTAIL_AVOCADO_SOURCE,
+    sourceType: "Instagram",
+    category: "간단 요리",
+    mealType: "Dinner",
+    dietGoal: "Light",
+    time: "5 min",
+    difficulty: "Easy",
+    servings: 1,
+    ingredients: [
+      "잿방어 회 150g",
+      "아보카도 1개",
+      "간장 2작은술",
+      "식초 1작은술",
+      "참기름 1작은술",
+      "깨 약간",
+      "쪽파 약간"
+    ],
+    steps: [
+      "잿방어 회와 아보카도를 한입 크기로 썰어요.",
+      "간장, 식초, 참기름을 섞어 간단한 소스를 만들어요.",
+      "잿방어와 아보카도에 소스를 넣고 가볍게 버무려요.",
+      "깨와 송송 썬 쪽파를 올려 바로 먹어요."
+    ],
+    tags: ["잿방어", "아보카도", "이자카야", "회무침", "5분레시피"],
+    notes:
+      "인스타그램 영상 자막과 댓글을 기준으로 정리했어요. 영상에는 간장 2작은술, 식초 1작은술, 참기름 1작은술, 깨와 쪽파가 보이고 잿방어와 아보카도를 함께 버무려요.",
+    imageUrl: YELLOWTAIL_AVOCADO_IMAGE,
+    favorite: false,
+    bookmarked: true,
+    deleted: false,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
 function removeSampleRecipes(recipes: Recipe[]) {
   return recipes.filter((recipe) => !SAMPLE_RECIPE_IDS.has(recipe.id));
 }
@@ -3719,6 +3763,8 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     storageAvailable && window.localStorage.getItem(PERILLA_PORK_PASTA_RECIPE_KEY) === "done";
   const porkCollarDoenjangPastaDone =
     storageAvailable && window.localStorage.getItem(PORK_COLLAR_DOENJANG_PASTA_RECIPE_KEY) === "done";
+  const yellowtailAvocadoDone =
+    storageAvailable && window.localStorage.getItem(YELLOWTAIL_AVOCADO_RECIPE_KEY) === "done";
   const correctTitle = "육수에 푹 적신 알배추롤 & 구운 주먹밥";
   const samplesRemoved = recipes.some((recipe) => SAMPLE_RECIPE_IDS.has(recipe.id));
   const danhobakCheeseBreadRemoved = recipes.some(
@@ -4424,6 +4470,15 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     existingPorkCollarDoenjangPasta.deleted;
   nextRecipes = upsertManagedRecipe(nextRecipes, makePorkCollarDoenjangPastaRecipe());
 
+  const existingYellowtailAvocado = nextRecipes.find(
+    (recipe) => recipe.sourceUrl === YELLOWTAIL_AVOCADO_SOURCE || recipe.title === "잿방어 아보카도 이자카야무침"
+  );
+  const yellowtailAvocadoNeedsUpdate =
+    !existingYellowtailAvocado ||
+    existingYellowtailAvocado.imageUrl !== YELLOWTAIL_AVOCADO_IMAGE ||
+    existingYellowtailAvocado.deleted;
+  nextRecipes = upsertManagedRecipe(nextRecipes, makeYellowtailAvocadoRecipe());
+
   if (
     storageAvailable &&
     (samplesRemoved ||
@@ -4575,7 +4630,9 @@ function migrateManagedRecipes(recipes: Recipe[]) {
       !perillaPorkPastaDone ||
       perillaPorkPastaNeedsUpdate ||
       !porkCollarDoenjangPastaDone ||
-      porkCollarDoenjangPastaNeedsUpdate)
+      porkCollarDoenjangPastaNeedsUpdate ||
+      !yellowtailAvocadoDone ||
+      yellowtailAvocadoNeedsUpdate)
   ) {
     writeJson(RECIPES_KEY, nextRecipes);
     window.localStorage.setItem(CORRECT_INSTAGRAM_RECIPE_KEY, "done");
@@ -4651,6 +4708,7 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     window.localStorage.setItem(GOCHUJANG_PASTA_RECIPE_KEY, "done");
     window.localStorage.setItem(PERILLA_PORK_PASTA_RECIPE_KEY, "done");
     window.localStorage.setItem(PORK_COLLAR_DOENJANG_PASTA_RECIPE_KEY, "done");
+    window.localStorage.setItem(YELLOWTAIL_AVOCADO_RECIPE_KEY, "done");
   }
 
   return nextRecipes;
