@@ -240,6 +240,9 @@ const PORK_COLLAR_DOENJANG_PASTA_IMAGE = "/recipe-media/pork-collar-doenjang-cre
 const YELLOWTAIL_AVOCADO_RECIPE_KEY = "whats-cookin-jin-migration-instagram-DeeAwIfE_wL-v1";
 const YELLOWTAIL_AVOCADO_SOURCE = "https://www.instagram.com/p/DeeAwIfE_wL/";
 const YELLOWTAIL_AVOCADO_IMAGE = "/recipe-media/yellowtail-avocado-izakaya.jpg";
+const CURRY_ROSE_NOODLES_RECIPE_KEY = "whats-cookin-jin-migration-instagram-DepFGSrTWC--v1";
+const CURRY_ROSE_NOODLES_SOURCE = "https://www.instagram.com/p/DepFGSrTWC-/";
+const CURRY_ROSE_NOODLES_IMAGE = "/recipe-media/curry-rose-glass-noodles.jpg";
 const SAMPLE_RECIPE_IDS = new Set(sampleRecipes.map((recipe) => recipe.id));
 
 function canUseStorage() {
@@ -3601,6 +3604,52 @@ function makeYellowtailAvocadoRecipe(): Recipe {
   };
 }
 
+function makeCurryRoseNoodlesRecipe(): Recipe {
+  const now = new Date().toISOString();
+
+  return {
+    id: `instagram-curry-rose-noodles-${Date.now()}`,
+    title: "카레로제당면",
+    sourceUrl: CURRY_ROSE_NOODLES_SOURCE,
+    sourceType: "Instagram",
+    category: "면 / 파스타",
+    mealType: "Late Night",
+    dietGoal: "None",
+    time: "10 min",
+    difficulty: "Easy",
+    servings: 2,
+    ingredients: [
+      "불린 넓적당면 2인분",
+      "비엔나 소시지 150g",
+      "양파 1/2개",
+      "버터 1큰술",
+      "우유 300ml",
+      "토마토소스 2큰술",
+      "고춧가루 2큰술",
+      "고형 카레 1조각",
+      "체다치즈 1장",
+      "후추 약간",
+      "파슬리 약간"
+    ],
+    steps: [
+      "당면은 미리 물에 충분히 불려두고, 양파는 채 썰고 소시지는 먹기 좋은 크기로 썰어요.",
+      "팬에 버터를 녹이고 양파와 소시지를 노릇하게 볶아요.",
+      "우유, 토마토소스, 고춧가루, 고형 카레, 후추를 넣고 섞어 소스를 끓여요.",
+      "불린 당면을 넣고 원하는 꾸덕함이 될 때까지 저어가며 끓여요.",
+      "불을 끄고 체다치즈를 올려 녹인 뒤 파슬리를 뿌려 마무리해요."
+    ],
+    tags: ["카레로제", "당면", "야식", "소시지", "10분요리"],
+    notes:
+      "인스타그램 영상과 레시피 카드 기준으로 정리했어요. 당면을 불리는 시간은 조리 시간에서 제외하고, 우유와 토마토소스의 양은 소스 농도에 맞춰 조절해요.",
+    imageUrl: CURRY_ROSE_NOODLES_IMAGE,
+    favorite: false,
+    bookmarked: true,
+    deleted: false,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
 function removeSampleRecipes(recipes: Recipe[]) {
   return recipes.filter((recipe) => !SAMPLE_RECIPE_IDS.has(recipe.id));
 }
@@ -3765,6 +3814,8 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     storageAvailable && window.localStorage.getItem(PORK_COLLAR_DOENJANG_PASTA_RECIPE_KEY) === "done";
   const yellowtailAvocadoDone =
     storageAvailable && window.localStorage.getItem(YELLOWTAIL_AVOCADO_RECIPE_KEY) === "done";
+  const curryRoseNoodlesDone =
+    storageAvailable && window.localStorage.getItem(CURRY_ROSE_NOODLES_RECIPE_KEY) === "done";
   const correctTitle = "육수에 푹 적신 알배추롤 & 구운 주먹밥";
   const samplesRemoved = recipes.some((recipe) => SAMPLE_RECIPE_IDS.has(recipe.id));
   const danhobakCheeseBreadRemoved = recipes.some(
@@ -4479,6 +4530,15 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     existingYellowtailAvocado.deleted;
   nextRecipes = upsertManagedRecipe(nextRecipes, makeYellowtailAvocadoRecipe());
 
+  const existingCurryRoseNoodles = nextRecipes.find(
+    (recipe) => recipe.sourceUrl === CURRY_ROSE_NOODLES_SOURCE || recipe.title === "카레로제당면"
+  );
+  const curryRoseNoodlesNeedsUpdate =
+    !existingCurryRoseNoodles ||
+    existingCurryRoseNoodles.imageUrl !== CURRY_ROSE_NOODLES_IMAGE ||
+    existingCurryRoseNoodles.deleted;
+  nextRecipes = upsertManagedRecipe(nextRecipes, makeCurryRoseNoodlesRecipe());
+
   if (
     storageAvailable &&
     (samplesRemoved ||
@@ -4632,7 +4692,9 @@ function migrateManagedRecipes(recipes: Recipe[]) {
       !porkCollarDoenjangPastaDone ||
       porkCollarDoenjangPastaNeedsUpdate ||
       !yellowtailAvocadoDone ||
-      yellowtailAvocadoNeedsUpdate)
+      yellowtailAvocadoNeedsUpdate ||
+      !curryRoseNoodlesDone ||
+      curryRoseNoodlesNeedsUpdate)
   ) {
     writeJson(RECIPES_KEY, nextRecipes);
     window.localStorage.setItem(CORRECT_INSTAGRAM_RECIPE_KEY, "done");
@@ -4709,6 +4771,7 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     window.localStorage.setItem(PERILLA_PORK_PASTA_RECIPE_KEY, "done");
     window.localStorage.setItem(PORK_COLLAR_DOENJANG_PASTA_RECIPE_KEY, "done");
     window.localStorage.setItem(YELLOWTAIL_AVOCADO_RECIPE_KEY, "done");
+    window.localStorage.setItem(CURRY_ROSE_NOODLES_RECIPE_KEY, "done");
   }
 
   return nextRecipes;
