@@ -254,6 +254,10 @@ const SQUASH_BEEF_POT_RICE_RECIPE_KEY =
   "whats-cookin-jin-migration-instagram-DZyxjmhPvgK-v1";
 const SQUASH_BEEF_POT_RICE_SOURCE = "https://www.instagram.com/p/DZyxjmhPvgK/";
 const SQUASH_BEEF_POT_RICE_IMAGE = "/recipe-media/squash-beef-pot-rice.jpg";
+const ROASTED_EGGPLANT_ROLL_RECIPE_KEY =
+  "whats-cookin-jin-migration-instagram-DcZ8-YevLC_-v1";
+const ROASTED_EGGPLANT_ROLL_SOURCE = "https://www.instagram.com/p/DcZ8-YevLC_/";
+const ROASTED_EGGPLANT_ROLL_IMAGE = "/recipe-media/roasted-eggplant-roll.jpg";
 const SAMPLE_RECIPE_IDS = new Set(sampleRecipes.map((recipe) => recipe.id));
 
 function canUseStorage() {
@@ -3802,6 +3806,55 @@ function makeSquashBeefPotRiceRecipe(): Recipe {
   };
 }
 
+function makeRoastedEggplantRollRecipe(): Recipe {
+  const now = new Date().toISOString();
+
+  return {
+    id: `instagram-roasted-eggplant-roll-${Date.now()}`,
+    title: "구운 가지롤",
+    sourceUrl: ROASTED_EGGPLANT_ROLL_SOURCE,
+    sourceType: "Instagram",
+    category: "간단 요리",
+    mealType: "Dinner",
+    dietGoal: "None",
+    time: "30 min",
+    difficulty: "Medium",
+    servings: 2,
+    ingredients: [
+      "가지",
+      "파르미지아노 레지아노",
+      "바질 페스토",
+      "프로볼로네 치즈",
+      "토마토",
+      "잠봉",
+      "바질",
+      "와일드루꼴라",
+      "엑스트라 버진 올리브오일",
+      "발사믹 식초",
+      "소금",
+      "후추"
+    ],
+    steps: [
+      "가지는 세로로 얇게 썰어 여러 장을 살짝 겹쳐 올려요.",
+      "가지에 엑스트라 버진 올리브오일, 소금, 후추를 뿌리고 파르미지아노 레지아노를 올려 구워요.",
+      "가지가 부드러워지고 살짝 쫀득해지면 뒤집어요.",
+      "뒤집은 가지 위에 바질 페스토를 펴 바르고 프로볼로네 치즈, 토마토, 잠봉, 바질, 와일드루꼴라를 올려요.",
+      "재료를 올린 가지를 돌돌 말아 치즈가 녹고 속까지 따뜻해질 때까지 다시 구워요.",
+      "완성된 가지롤에 발사믹 식초를 가볍게 뿌려 먹어요.",
+      "돌돌 말기가 번거롭다면 가지를 반으로 접어 샌드위치처럼 즐겨도 좋아요."
+    ],
+    tags: ["가지", "가지롤", "바질페스토", "잠봉", "프로볼로네"],
+    notes:
+      "인스타그램 캡션과 영상 자막을 바탕으로 정리했어요. 가지의 크기와 겹치는 정도에 따라 치즈와 속재료 양을 조절하면 돼요. 가지가 물컹하지 않고 살짝 쫀득하게 익도록 구워요.",
+    imageUrl: ROASTED_EGGPLANT_ROLL_IMAGE,
+    favorite: false,
+    bookmarked: true,
+    deleted: false,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
 function removeSampleRecipes(recipes: Recipe[]) {
   return recipes.filter((recipe) => !SAMPLE_RECIPE_IDS.has(recipe.id));
 }
@@ -3975,6 +4028,8 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     window.localStorage.getItem(PISTACHIO_BURRATA_SANDWICH_RECIPE_KEY) === "done";
   const squashBeefPotRiceDone =
     storageAvailable && window.localStorage.getItem(SQUASH_BEEF_POT_RICE_RECIPE_KEY) === "done";
+  const roastedEggplantRollDone =
+    storageAvailable && window.localStorage.getItem(ROASTED_EGGPLANT_ROLL_RECIPE_KEY) === "done";
   const correctTitle = "육수에 푹 적신 알배추롤 & 구운 주먹밥";
   const samplesRemoved = recipes.some((recipe) => SAMPLE_RECIPE_IDS.has(recipe.id));
   const danhobakCheeseBreadRemoved = recipes.some(
@@ -4728,6 +4783,15 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     existingSquashBeefPotRice.deleted;
   nextRecipes = upsertManagedRecipe(nextRecipes, makeSquashBeefPotRiceRecipe());
 
+  const existingRoastedEggplantRoll = nextRecipes.find(
+    (recipe) => recipe.sourceUrl === ROASTED_EGGPLANT_ROLL_SOURCE || recipe.title === "구운 가지롤"
+  );
+  const roastedEggplantRollNeedsUpdate =
+    !existingRoastedEggplantRoll ||
+    existingRoastedEggplantRoll.imageUrl !== ROASTED_EGGPLANT_ROLL_IMAGE ||
+    existingRoastedEggplantRoll.deleted;
+  nextRecipes = upsertManagedRecipe(nextRecipes, makeRoastedEggplantRollRecipe());
+
   if (
     storageAvailable &&
     (samplesRemoved ||
@@ -4889,7 +4953,9 @@ function migrateManagedRecipes(recipes: Recipe[]) {
       !pistachioBurrataSandwichDone ||
       pistachioBurrataSandwichNeedsUpdate ||
       !squashBeefPotRiceDone ||
-      squashBeefPotRiceNeedsUpdate)
+      squashBeefPotRiceNeedsUpdate ||
+      !roastedEggplantRollDone ||
+      roastedEggplantRollNeedsUpdate)
   ) {
     writeJson(RECIPES_KEY, nextRecipes);
     window.localStorage.setItem(CORRECT_INSTAGRAM_RECIPE_KEY, "done");
@@ -4970,6 +5036,7 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     window.localStorage.setItem(NO_ROLL_CABBAGE_RECIPE_KEY, "done");
     window.localStorage.setItem(PISTACHIO_BURRATA_SANDWICH_RECIPE_KEY, "done");
     window.localStorage.setItem(SQUASH_BEEF_POT_RICE_RECIPE_KEY, "done");
+    window.localStorage.setItem(ROASTED_EGGPLANT_ROLL_RECIPE_KEY, "done");
   }
 
   return nextRecipes;
