@@ -243,6 +243,9 @@ const YELLOWTAIL_AVOCADO_IMAGE = "/recipe-media/yellowtail-avocado-izakaya.jpg";
 const CURRY_ROSE_NOODLES_RECIPE_KEY = "whats-cookin-jin-migration-instagram-DepFGSrTWC--v1";
 const CURRY_ROSE_NOODLES_SOURCE = "https://www.instagram.com/p/DepFGSrTWC-/";
 const CURRY_ROSE_NOODLES_IMAGE = "/recipe-media/curry-rose-glass-noodles.jpg";
+const NO_ROLL_CABBAGE_RECIPE_KEY = "whats-cookin-jin-migration-instagram-DdtsErfJa1y-v1";
+const NO_ROLL_CABBAGE_SOURCE = "https://www.instagram.com/p/DdtsErfJa1y/";
+const NO_ROLL_CABBAGE_IMAGE = "/recipe-media/no-roll-cabbage.jpg";
 const SAMPLE_RECIPE_IDS = new Set(sampleRecipes.map((recipe) => recipe.id));
 
 function canUseStorage() {
@@ -3650,6 +3653,52 @@ function makeCurryRoseNoodlesRecipe(): Recipe {
   };
 }
 
+function makeNoRollCabbageRecipe(): Recipe {
+  const now = new Date().toISOString();
+
+  return {
+    id: `instagram-no-roll-cabbage-${Date.now()}`,
+    title: "폭속 안 말아도 되는 롤캐비지",
+    sourceUrl: NO_ROLL_CABBAGE_SOURCE,
+    sourceType: "Instagram",
+    category: "간단 요리",
+    mealType: "Dinner",
+    dietGoal: "None",
+    time: "12 min",
+    difficulty: "Easy",
+    servings: 2,
+    ingredients: [
+      "양배추 1/2통",
+      "다진 고기 200-300g",
+      "양파 1/2개",
+      "당근 1/2개",
+      "피자치즈 60g",
+      "계란 1개",
+      "빵가루 4큰술",
+      "콘소메 1-2작은술",
+      "케첩 약간",
+      "소금, 후추 약간"
+    ],
+    steps: [
+      "양배추는 밑동을 가로로 두고 세로로 반을 자른 뒤, 속이 들어갈 자리를 조심스럽게 파내요.",
+      "양파와 당근은 잘게 다지고, 다진 고기와 계란, 빵가루, 소금, 후추, 콘소메를 넣어 끈기가 생길 때까지 섞어요.",
+      "파낸 양배추 속에 피자치즈를 먼저 넣고 그 위에 고기 반죽을 빈틈없이 채워요.",
+      "양배추를 종이 포일이나 종이호일로 단단히 감싸 냉동 보관용으로 준비해요. 먹을 때 바로 조리해도 돼요.",
+      "냉동 상태 그대로 내열 접시에 올려 600W 전자레인지에서 약 12분 익혀요. 고기 중심까지 완전히 익었는지 확인하고, 덜 익었으면 1분씩 더 가열해요.",
+      "완성된 롤캐비지에 후추나 케첩을 취향대로 곁들여 따뜻할 때 먹어요."
+    ],
+    tags: ["롤캐비지", "냉동스톡", "전자레인지", "양배추", "초간단"],
+    notes:
+      "인스타그램 영상 기준으로 정리했어요. 양배추 속에 고기와 치즈를 채워 냉동해두고, 먹을 때 전자레인지 600W에서 약 12분 익히는 냉동 스톡 레시피예요. 양배추와 고기의 크기에 따라 가열 시간은 꼭 조절해요.",
+    imageUrl: NO_ROLL_CABBAGE_IMAGE,
+    favorite: false,
+    bookmarked: true,
+    deleted: false,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
 function removeSampleRecipes(recipes: Recipe[]) {
   return recipes.filter((recipe) => !SAMPLE_RECIPE_IDS.has(recipe.id));
 }
@@ -3816,6 +3865,8 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     storageAvailable && window.localStorage.getItem(YELLOWTAIL_AVOCADO_RECIPE_KEY) === "done";
   const curryRoseNoodlesDone =
     storageAvailable && window.localStorage.getItem(CURRY_ROSE_NOODLES_RECIPE_KEY) === "done";
+  const noRollCabbageDone =
+    storageAvailable && window.localStorage.getItem(NO_ROLL_CABBAGE_RECIPE_KEY) === "done";
   const correctTitle = "육수에 푹 적신 알배추롤 & 구운 주먹밥";
   const samplesRemoved = recipes.some((recipe) => SAMPLE_RECIPE_IDS.has(recipe.id));
   const danhobakCheeseBreadRemoved = recipes.some(
@@ -4539,6 +4590,15 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     existingCurryRoseNoodles.deleted;
   nextRecipes = upsertManagedRecipe(nextRecipes, makeCurryRoseNoodlesRecipe());
 
+  const existingNoRollCabbage = nextRecipes.find(
+    (recipe) => recipe.sourceUrl === NO_ROLL_CABBAGE_SOURCE || recipe.title === "폭속 안 말아도 되는 롤캐비지"
+  );
+  const noRollCabbageNeedsUpdate =
+    !existingNoRollCabbage ||
+    existingNoRollCabbage.imageUrl !== NO_ROLL_CABBAGE_IMAGE ||
+    existingNoRollCabbage.deleted;
+  nextRecipes = upsertManagedRecipe(nextRecipes, makeNoRollCabbageRecipe());
+
   if (
     storageAvailable &&
     (samplesRemoved ||
@@ -4694,7 +4754,9 @@ function migrateManagedRecipes(recipes: Recipe[]) {
       !yellowtailAvocadoDone ||
       yellowtailAvocadoNeedsUpdate ||
       !curryRoseNoodlesDone ||
-      curryRoseNoodlesNeedsUpdate)
+      curryRoseNoodlesNeedsUpdate ||
+      !noRollCabbageDone ||
+      noRollCabbageNeedsUpdate)
   ) {
     writeJson(RECIPES_KEY, nextRecipes);
     window.localStorage.setItem(CORRECT_INSTAGRAM_RECIPE_KEY, "done");
@@ -4772,6 +4834,7 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     window.localStorage.setItem(PORK_COLLAR_DOENJANG_PASTA_RECIPE_KEY, "done");
     window.localStorage.setItem(YELLOWTAIL_AVOCADO_RECIPE_KEY, "done");
     window.localStorage.setItem(CURRY_ROSE_NOODLES_RECIPE_KEY, "done");
+    window.localStorage.setItem(NO_ROLL_CABBAGE_RECIPE_KEY, "done");
   }
 
   return nextRecipes;
