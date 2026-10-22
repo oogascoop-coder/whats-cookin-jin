@@ -250,6 +250,10 @@ const PISTACHIO_BURRATA_SANDWICH_RECIPE_KEY =
   "whats-cookin-jin-migration-instagram-DcVxjizzKuw-v1";
 const PISTACHIO_BURRATA_SANDWICH_SOURCE = "https://www.instagram.com/p/DcVxjizzKuw/";
 const PISTACHIO_BURRATA_SANDWICH_IMAGE = "/recipe-media/pistachio-burrata-sandwich.jpg";
+const SQUASH_BEEF_POT_RICE_RECIPE_KEY =
+  "whats-cookin-jin-migration-instagram-DZyxjmhPvgK-v1";
+const SQUASH_BEEF_POT_RICE_SOURCE = "https://www.instagram.com/p/DZyxjmhPvgK/";
+const SQUASH_BEEF_POT_RICE_IMAGE = "/recipe-media/squash-beef-pot-rice.jpg";
 const SAMPLE_RECIPE_IDS = new Set(sampleRecipes.map((recipe) => recipe.id));
 
 function canUseStorage() {
@@ -3749,6 +3753,55 @@ function makePistachioBurrataSandwichRecipe(): Recipe {
   };
 }
 
+function makeSquashBeefPotRiceRecipe(): Recipe {
+  const now = new Date().toISOString();
+
+  return {
+    id: `instagram-squash-beef-pot-rice-${Date.now()}`,
+    title: "애호박 소고기 솥밥",
+    sourceUrl: SQUASH_BEEF_POT_RICE_SOURCE,
+    sourceType: "Instagram",
+    category: "한식 / 밥",
+    mealType: "Dinner",
+    dietGoal: "None",
+    time: "30 min",
+    difficulty: "Easy",
+    servings: 2,
+    ingredients: [
+      "애호박 1개",
+      "소고기 다짐육 300g",
+      "불린 쌀 2인분",
+      "간마늘",
+      "진간장",
+      "쯔유",
+      "알룰로스",
+      "맛술",
+      "참기름",
+      "후추",
+      "김"
+    ],
+    steps: [
+      "애호박은 길쭉하게 채 썰어 준비해요.",
+      "소고기 다짐육 300g에 간마늘, 진간장, 쯔유, 알룰로스, 맛술, 참기름, 후추를 넣고 섞어요.",
+      "솥이나 깊은 팬에서 양념한 소고기를 볶아 양념이 고기에 배도록 익힌 뒤 잠시 덜어둬요.",
+      "같은 솥에 애호박을 넣고 부드러워질 때까지 볶아요.",
+      "애호박 위에 불린 쌀을 넣고, 쌀에 맞는 양의 물을 부어요.",
+      "뚜껑을 덮고 쌀이 익을 때까지 솥밥을 지어요.",
+      "밥이 익으면 볶아둔 소고기를 올리고 가볍게 섞어요.",
+      "김을 한 장 올려 함께 먹어요. 다른 양념 없이도 충분히 맛있어요."
+    ],
+    tags: ["애호박", "소고기", "솥밥", "집밥", "2인분"],
+    notes:
+      "인스타그램 영상과 캡션을 바탕으로 정리했어요. 소고기 다짐육은 300g으로 소개되어 있고, 나머지 양념은 영상 자막에 나온 재료를 기준으로 2인분에 맞춰 조절하면 돼요. 쯔유가 없다면 진간장으로 간을 맞춰요.",
+    imageUrl: SQUASH_BEEF_POT_RICE_IMAGE,
+    favorite: false,
+    bookmarked: true,
+    deleted: false,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
 function removeSampleRecipes(recipes: Recipe[]) {
   return recipes.filter((recipe) => !SAMPLE_RECIPE_IDS.has(recipe.id));
 }
@@ -3920,6 +3973,8 @@ function migrateManagedRecipes(recipes: Recipe[]) {
   const pistachioBurrataSandwichDone =
     storageAvailable &&
     window.localStorage.getItem(PISTACHIO_BURRATA_SANDWICH_RECIPE_KEY) === "done";
+  const squashBeefPotRiceDone =
+    storageAvailable && window.localStorage.getItem(SQUASH_BEEF_POT_RICE_RECIPE_KEY) === "done";
   const correctTitle = "육수에 푹 적신 알배추롤 & 구운 주먹밥";
   const samplesRemoved = recipes.some((recipe) => SAMPLE_RECIPE_IDS.has(recipe.id));
   const danhobakCheeseBreadRemoved = recipes.some(
@@ -4663,6 +4718,16 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     existingPistachioBurrataSandwich.deleted;
   nextRecipes = upsertManagedRecipe(nextRecipes, makePistachioBurrataSandwichRecipe());
 
+  const existingSquashBeefPotRice = nextRecipes.find(
+    (recipe) =>
+      recipe.sourceUrl === SQUASH_BEEF_POT_RICE_SOURCE || recipe.title === "애호박 소고기 솥밥"
+  );
+  const squashBeefPotRiceNeedsUpdate =
+    !existingSquashBeefPotRice ||
+    existingSquashBeefPotRice.imageUrl !== SQUASH_BEEF_POT_RICE_IMAGE ||
+    existingSquashBeefPotRice.deleted;
+  nextRecipes = upsertManagedRecipe(nextRecipes, makeSquashBeefPotRiceRecipe());
+
   if (
     storageAvailable &&
     (samplesRemoved ||
@@ -4822,7 +4887,9 @@ function migrateManagedRecipes(recipes: Recipe[]) {
       !noRollCabbageDone ||
       noRollCabbageNeedsUpdate ||
       !pistachioBurrataSandwichDone ||
-      pistachioBurrataSandwichNeedsUpdate)
+      pistachioBurrataSandwichNeedsUpdate ||
+      !squashBeefPotRiceDone ||
+      squashBeefPotRiceNeedsUpdate)
   ) {
     writeJson(RECIPES_KEY, nextRecipes);
     window.localStorage.setItem(CORRECT_INSTAGRAM_RECIPE_KEY, "done");
@@ -4902,6 +4969,7 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     window.localStorage.setItem(CURRY_ROSE_NOODLES_RECIPE_KEY, "done");
     window.localStorage.setItem(NO_ROLL_CABBAGE_RECIPE_KEY, "done");
     window.localStorage.setItem(PISTACHIO_BURRATA_SANDWICH_RECIPE_KEY, "done");
+    window.localStorage.setItem(SQUASH_BEEF_POT_RICE_RECIPE_KEY, "done");
   }
 
   return nextRecipes;
