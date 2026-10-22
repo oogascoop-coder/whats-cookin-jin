@@ -246,6 +246,10 @@ const CURRY_ROSE_NOODLES_IMAGE = "/recipe-media/curry-rose-glass-noodles.jpg";
 const NO_ROLL_CABBAGE_RECIPE_KEY = "whats-cookin-jin-migration-instagram-DdtsErfJa1y-v1";
 const NO_ROLL_CABBAGE_SOURCE = "https://www.instagram.com/p/DdtsErfJa1y/";
 const NO_ROLL_CABBAGE_IMAGE = "/recipe-media/no-roll-cabbage.jpg";
+const PISTACHIO_BURRATA_SANDWICH_RECIPE_KEY =
+  "whats-cookin-jin-migration-instagram-DcVxjizzKuw-v1";
+const PISTACHIO_BURRATA_SANDWICH_SOURCE = "https://www.instagram.com/p/DcVxjizzKuw/";
+const PISTACHIO_BURRATA_SANDWICH_IMAGE = "/recipe-media/pistachio-burrata-sandwich.jpg";
 const SAMPLE_RECIPE_IDS = new Set(sampleRecipes.map((recipe) => recipe.id));
 
 function canUseStorage() {
@@ -3699,6 +3703,52 @@ function makeNoRollCabbageRecipe(): Recipe {
   };
 }
 
+function makePistachioBurrataSandwichRecipe(): Recipe {
+  const now = new Date().toISOString();
+
+  return {
+    id: `instagram-pistachio-burrata-sandwich-${Date.now()}`,
+    title: "피스타치오 부라타 샌드위치",
+    sourceUrl: PISTACHIO_BURRATA_SANDWICH_SOURCE,
+    sourceType: "Instagram",
+    category: "간단 요리",
+    mealType: "Brunch",
+    dietGoal: "None",
+    time: "15 min",
+    difficulty: "Easy",
+    servings: 1,
+    ingredients: [
+      "사워도우 빵 2장",
+      "구운 피스타치오 200g",
+      "올리브오일 2-3큰술",
+      "소금 두세 꼬집",
+      "루꼴라 한 줌",
+      "모르타델라 햄 2-3장",
+      "부라타치즈 1개",
+      "부순 견과류 약간",
+      "꿀 약간",
+      "후추 약간"
+    ],
+    steps: [
+      "구운 피스타치오는 더 고소한 맛을 위해 팬이나 오븐에 한 번 더 구워 식혀요.",
+      "피스타치오와 올리브오일, 소금을 믹서에 넣고 원하는 질감이 될 때까지 갈아 피스타치오 버터를 만들어요.",
+      "빵은 치아바타, 깜빠뉴, 슬랩, 포카치아 같은 사워도우 종류를 준비해 가볍게 구워요.",
+      "빵 한 장에 피스타치오 버터, 루꼴라, 모르타델라 햄, 부라타치즈, 부순 견과류를 순서대로 올려요.",
+      "꿀을 살짝 두르고 소금과 후추를 뿌린 뒤 남은 빵으로 덮어요.",
+      "먹기 좋은 크기로 잘라 바로 완성해요."
+    ],
+    tags: ["피스타치오", "부라타", "샌드위치", "모르타델라", "브런치"],
+    notes:
+      "인스타그램 공개 레시피 기준으로 정리했어요. 직접 만든 피스타치오 버터는 냉장 보관하고 3-4주 이내에 먹는 것을 권장해요. 피스타치오 버터의 오일 양은 원하는 농도에 맞춰 조절하면 돼요.",
+    imageUrl: PISTACHIO_BURRATA_SANDWICH_IMAGE,
+    favorite: false,
+    bookmarked: true,
+    deleted: false,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
 function removeSampleRecipes(recipes: Recipe[]) {
   return recipes.filter((recipe) => !SAMPLE_RECIPE_IDS.has(recipe.id));
 }
@@ -3867,6 +3917,9 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     storageAvailable && window.localStorage.getItem(CURRY_ROSE_NOODLES_RECIPE_KEY) === "done";
   const noRollCabbageDone =
     storageAvailable && window.localStorage.getItem(NO_ROLL_CABBAGE_RECIPE_KEY) === "done";
+  const pistachioBurrataSandwichDone =
+    storageAvailable &&
+    window.localStorage.getItem(PISTACHIO_BURRATA_SANDWICH_RECIPE_KEY) === "done";
   const correctTitle = "육수에 푹 적신 알배추롤 & 구운 주먹밥";
   const samplesRemoved = recipes.some((recipe) => SAMPLE_RECIPE_IDS.has(recipe.id));
   const danhobakCheeseBreadRemoved = recipes.some(
@@ -4599,6 +4652,17 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     existingNoRollCabbage.deleted;
   nextRecipes = upsertManagedRecipe(nextRecipes, makeNoRollCabbageRecipe());
 
+  const existingPistachioBurrataSandwich = nextRecipes.find(
+    (recipe) =>
+      recipe.sourceUrl === PISTACHIO_BURRATA_SANDWICH_SOURCE ||
+      recipe.title === "피스타치오 부라타 샌드위치"
+  );
+  const pistachioBurrataSandwichNeedsUpdate =
+    !existingPistachioBurrataSandwich ||
+    existingPistachioBurrataSandwich.imageUrl !== PISTACHIO_BURRATA_SANDWICH_IMAGE ||
+    existingPistachioBurrataSandwich.deleted;
+  nextRecipes = upsertManagedRecipe(nextRecipes, makePistachioBurrataSandwichRecipe());
+
   if (
     storageAvailable &&
     (samplesRemoved ||
@@ -4756,7 +4820,9 @@ function migrateManagedRecipes(recipes: Recipe[]) {
       !curryRoseNoodlesDone ||
       curryRoseNoodlesNeedsUpdate ||
       !noRollCabbageDone ||
-      noRollCabbageNeedsUpdate)
+      noRollCabbageNeedsUpdate ||
+      !pistachioBurrataSandwichDone ||
+      pistachioBurrataSandwichNeedsUpdate)
   ) {
     writeJson(RECIPES_KEY, nextRecipes);
     window.localStorage.setItem(CORRECT_INSTAGRAM_RECIPE_KEY, "done");
@@ -4835,6 +4901,7 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     window.localStorage.setItem(YELLOWTAIL_AVOCADO_RECIPE_KEY, "done");
     window.localStorage.setItem(CURRY_ROSE_NOODLES_RECIPE_KEY, "done");
     window.localStorage.setItem(NO_ROLL_CABBAGE_RECIPE_KEY, "done");
+    window.localStorage.setItem(PISTACHIO_BURRATA_SANDWICH_RECIPE_KEY, "done");
   }
 
   return nextRecipes;
