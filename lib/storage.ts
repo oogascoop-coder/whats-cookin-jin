@@ -258,6 +258,9 @@ const ROASTED_EGGPLANT_ROLL_RECIPE_KEY =
   "whats-cookin-jin-migration-instagram-DcZ8-YevLC_-v1";
 const ROASTED_EGGPLANT_ROLL_SOURCE = "https://www.instagram.com/p/DcZ8-YevLC_/";
 const ROASTED_EGGPLANT_ROLL_IMAGE = "/recipe-media/roasted-eggplant-roll.jpg";
+const TUNA_SANDWICH_RECIPE_KEY = "whats-cookin-jin-migration-instagram-DVfwFl-ky0M-v1";
+const TUNA_SANDWICH_SOURCE = "https://www.instagram.com/p/DVfwFl-ky0M/";
+const TUNA_SANDWICH_IMAGE = "/recipe-media/tuna-sandwich.jpg";
 const SAMPLE_RECIPE_IDS = new Set(sampleRecipes.map((recipe) => recipe.id));
 
 function canUseStorage() {
@@ -3855,6 +3858,60 @@ function makeRoastedEggplantRollRecipe(): Recipe {
   };
 }
 
+function makeTunaSandwichRecipe(): Recipe {
+  const now = new Date().toISOString();
+
+  return {
+    id: `instagram-tuna-sandwich-${Date.now()}`,
+    title: "절대 못 참치샌드위치",
+    sourceUrl: TUNA_SANDWICH_SOURCE,
+    sourceType: "Instagram",
+    category: "간단 요리",
+    mealType: "Lunch",
+    dietGoal: "None",
+    time: "25 min",
+    difficulty: "Easy",
+    servings: 4,
+    ingredients: [
+      "캔참치 500g",
+      "오이 1개",
+      "양파 1/2개",
+      "저당 마요네즈 150g",
+      "레몬 1/2개",
+      "무염버터 70g",
+      "홀그레인 머스터드 40g",
+      "꿀 40g",
+      "베이컨 크럼블 15g",
+      "미원 3g",
+      "와일드루꼴라 30g",
+      "스위스 치즈 6장",
+      "케이퍼 5g",
+      "소금",
+      "후추",
+      "샌드위치 빵"
+    ],
+    steps: [
+      "오이는 씨를 제거하고 양파와 같은 크기로 썰어 소금에 30분 절여요.",
+      "절인 오이와 양파의 물기를 꼭 짜고, 참치도 물기를 제거해 포슬포슬하게 준비해요.",
+      "상온에서 부드러워진 무염버터에 홀그레인 머스터드와 꿀을 섞어 머스터드 버터를 만들어요.",
+      "큰 볼에 참치, 오이, 양파, 저당 마요네즈, 레몬즙, 머스터드 버터, 베이컨 크럼블, 미원, 후추를 넣고 섞어요.",
+      "빵을 반으로 가르고 양쪽에 머스터드 버터를 발라요.",
+      "빵 위에 스위스 치즈를 올리고 180도 오븐에서 5-7분 구워 치즈를 녹여요.",
+      "참치 속재료와 와일드루꼴라, 케이퍼를 차례로 올리고 빵을 덮어요.",
+      "먹기 좋은 크기로 잘라 바로 즐겨요."
+    ],
+    tags: ["참치", "샌드위치", "오이", "스위스치즈", "브런치"],
+    notes:
+      "인스타그램 공개 레시피를 바탕으로 정리했어요. 참치와 채소의 물기를 충분히 제거해야 속재료가 묽어지지 않아요. 오이와 양파는 30분 절인 뒤 물기를 꼭 짜고, 머스터드 버터는 버터가 부드러워진 상태에서 섞어요.",
+    imageUrl: TUNA_SANDWICH_IMAGE,
+    favorite: false,
+    bookmarked: true,
+    deleted: false,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
 function removeSampleRecipes(recipes: Recipe[]) {
   return recipes.filter((recipe) => !SAMPLE_RECIPE_IDS.has(recipe.id));
 }
@@ -4030,6 +4087,8 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     storageAvailable && window.localStorage.getItem(SQUASH_BEEF_POT_RICE_RECIPE_KEY) === "done";
   const roastedEggplantRollDone =
     storageAvailable && window.localStorage.getItem(ROASTED_EGGPLANT_ROLL_RECIPE_KEY) === "done";
+  const tunaSandwichDone =
+    storageAvailable && window.localStorage.getItem(TUNA_SANDWICH_RECIPE_KEY) === "done";
   const correctTitle = "육수에 푹 적신 알배추롤 & 구운 주먹밥";
   const samplesRemoved = recipes.some((recipe) => SAMPLE_RECIPE_IDS.has(recipe.id));
   const danhobakCheeseBreadRemoved = recipes.some(
@@ -4792,6 +4851,15 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     existingRoastedEggplantRoll.deleted;
   nextRecipes = upsertManagedRecipe(nextRecipes, makeRoastedEggplantRollRecipe());
 
+  const existingTunaSandwich = nextRecipes.find(
+    (recipe) => recipe.sourceUrl === TUNA_SANDWICH_SOURCE || recipe.title === "절대 못 참치샌드위치"
+  );
+  const tunaSandwichNeedsUpdate =
+    !existingTunaSandwich ||
+    existingTunaSandwich.imageUrl !== TUNA_SANDWICH_IMAGE ||
+    existingTunaSandwich.deleted;
+  nextRecipes = upsertManagedRecipe(nextRecipes, makeTunaSandwichRecipe());
+
   if (
     storageAvailable &&
     (samplesRemoved ||
@@ -4955,7 +5023,9 @@ function migrateManagedRecipes(recipes: Recipe[]) {
       !squashBeefPotRiceDone ||
       squashBeefPotRiceNeedsUpdate ||
       !roastedEggplantRollDone ||
-      roastedEggplantRollNeedsUpdate)
+      roastedEggplantRollNeedsUpdate ||
+      !tunaSandwichDone ||
+      tunaSandwichNeedsUpdate)
   ) {
     writeJson(RECIPES_KEY, nextRecipes);
     window.localStorage.setItem(CORRECT_INSTAGRAM_RECIPE_KEY, "done");
@@ -5037,6 +5107,7 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     window.localStorage.setItem(PISTACHIO_BURRATA_SANDWICH_RECIPE_KEY, "done");
     window.localStorage.setItem(SQUASH_BEEF_POT_RICE_RECIPE_KEY, "done");
     window.localStorage.setItem(ROASTED_EGGPLANT_ROLL_RECIPE_KEY, "done");
+    window.localStorage.setItem(TUNA_SANDWICH_RECIPE_KEY, "done");
   }
 
   return nextRecipes;
