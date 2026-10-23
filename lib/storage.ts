@@ -261,6 +261,10 @@ const ROASTED_EGGPLANT_ROLL_IMAGE = "/recipe-media/roasted-eggplant-roll.jpg";
 const TUNA_SANDWICH_RECIPE_KEY = "whats-cookin-jin-migration-instagram-DVfwFl-ky0M-v1";
 const TUNA_SANDWICH_SOURCE = "https://www.instagram.com/p/DVfwFl-ky0M/";
 const TUNA_SANDWICH_IMAGE = "/recipe-media/tuna-sandwich.jpg";
+const GREEK_YOGURT_DIP_TOAST_RECIPE_KEY =
+  "whats-cookin-jin-migration-instagram-DSDGPUQkuma-v1";
+const GREEK_YOGURT_DIP_TOAST_SOURCE = "https://www.instagram.com/p/DSDGPUQkuma/";
+const GREEK_YOGURT_DIP_TOAST_IMAGE = "/recipe-media/greek-yogurt-dip-toast.jpg";
 const SAMPLE_RECIPE_IDS = new Set(sampleRecipes.map((recipe) => recipe.id));
 
 function canUseStorage() {
@@ -3912,6 +3916,53 @@ function makeTunaSandwichRecipe(): Recipe {
   };
 }
 
+function makeGreekYogurtDipToastRecipe(): Recipe {
+  const now = new Date().toISOString();
+
+  return {
+    id: `instagram-greek-yogurt-dip-toast-${Date.now()}`,
+    title: "그릭요거트 딥 토스트",
+    sourceUrl: GREEK_YOGURT_DIP_TOAST_SOURCE,
+    sourceType: "Instagram",
+    category: "간단 요리",
+    mealType: "Breakfast",
+    dietGoal: "None",
+    time: "15 min",
+    difficulty: "Easy",
+    servings: 2,
+    ingredients: [
+      "꾸덕한 그릭요거트 300g",
+      "빵",
+      "달걀 2개",
+      "올리브오일 듬뿍",
+      "소금 3꼬집",
+      "후추 넉넉히",
+      "다진 마늘 1/2큰술",
+      "화이트 발사믹 식초 2바퀴",
+      "크러쉬드 레드페퍼홀",
+      "꿀",
+      "두유 요거트 선택"
+    ],
+    steps: [
+      "꾸덕한 그릭요거트에 올리브오일, 소금, 후추, 다진 마늘, 화이트 발사믹 식초를 넣어요.",
+      "요거트 딥을 잘 섞고 크러쉬드 레드페퍼홀을 넣어요.",
+      "마지막에 꿀을 넣어 취향에 맞게 단맛을 조절해요.",
+      "물이 끓으면 달걀을 넣고 7분간 익혀 반숙란을 만들어요.",
+      "빵은 취향에 따라 따뜻하게 구워 준비해요.",
+      "빵 위에 요거트 딥을 올리고 반숙란을 곁들여 먹어요."
+    ],
+    tags: ["그릭요거트", "요거트딥", "반숙란", "토스트", "브런치"],
+    notes:
+      "인스타그램 캡션을 바탕으로 정리했어요. 원문에서는 그릭요거트 300g을 사용했고, 두유 요거트로 만들어도 맛있다고 소개해요. 반숙란은 물이 끓은 뒤 7분 익히는 방식이에요.",
+    imageUrl: GREEK_YOGURT_DIP_TOAST_IMAGE,
+    favorite: false,
+    bookmarked: true,
+    deleted: false,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
 function removeSampleRecipes(recipes: Recipe[]) {
   return recipes.filter((recipe) => !SAMPLE_RECIPE_IDS.has(recipe.id));
 }
@@ -4089,6 +4140,8 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     storageAvailable && window.localStorage.getItem(ROASTED_EGGPLANT_ROLL_RECIPE_KEY) === "done";
   const tunaSandwichDone =
     storageAvailable && window.localStorage.getItem(TUNA_SANDWICH_RECIPE_KEY) === "done";
+  const greekYogurtDipToastDone =
+    storageAvailable && window.localStorage.getItem(GREEK_YOGURT_DIP_TOAST_RECIPE_KEY) === "done";
   const correctTitle = "육수에 푹 적신 알배추롤 & 구운 주먹밥";
   const samplesRemoved = recipes.some((recipe) => SAMPLE_RECIPE_IDS.has(recipe.id));
   const danhobakCheeseBreadRemoved = recipes.some(
@@ -4860,6 +4913,16 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     existingTunaSandwich.deleted;
   nextRecipes = upsertManagedRecipe(nextRecipes, makeTunaSandwichRecipe());
 
+  const existingGreekYogurtDipToast = nextRecipes.find(
+    (recipe) =>
+      recipe.sourceUrl === GREEK_YOGURT_DIP_TOAST_SOURCE || recipe.title === "그릭요거트 딥 토스트"
+  );
+  const greekYogurtDipToastNeedsUpdate =
+    !existingGreekYogurtDipToast ||
+    existingGreekYogurtDipToast.imageUrl !== GREEK_YOGURT_DIP_TOAST_IMAGE ||
+    existingGreekYogurtDipToast.deleted;
+  nextRecipes = upsertManagedRecipe(nextRecipes, makeGreekYogurtDipToastRecipe());
+
   if (
     storageAvailable &&
     (samplesRemoved ||
@@ -5025,7 +5088,9 @@ function migrateManagedRecipes(recipes: Recipe[]) {
       !roastedEggplantRollDone ||
       roastedEggplantRollNeedsUpdate ||
       !tunaSandwichDone ||
-      tunaSandwichNeedsUpdate)
+      tunaSandwichNeedsUpdate ||
+      !greekYogurtDipToastDone ||
+      greekYogurtDipToastNeedsUpdate)
   ) {
     writeJson(RECIPES_KEY, nextRecipes);
     window.localStorage.setItem(CORRECT_INSTAGRAM_RECIPE_KEY, "done");
@@ -5108,6 +5173,7 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     window.localStorage.setItem(SQUASH_BEEF_POT_RICE_RECIPE_KEY, "done");
     window.localStorage.setItem(ROASTED_EGGPLANT_ROLL_RECIPE_KEY, "done");
     window.localStorage.setItem(TUNA_SANDWICH_RECIPE_KEY, "done");
+    window.localStorage.setItem(GREEK_YOGURT_DIP_TOAST_RECIPE_KEY, "done");
   }
 
   return nextRecipes;
