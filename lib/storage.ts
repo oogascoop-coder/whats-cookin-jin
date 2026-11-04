@@ -265,6 +265,9 @@ const GREEK_YOGURT_DIP_TOAST_RECIPE_KEY =
   "whats-cookin-jin-migration-instagram-DSDGPUQkuma-v1";
 const GREEK_YOGURT_DIP_TOAST_SOURCE = "https://www.instagram.com/p/DSDGPUQkuma/";
 const GREEK_YOGURT_DIP_TOAST_IMAGE = "/recipe-media/greek-yogurt-dip-toast.jpg";
+const PUMPKIN_PIE_RECIPE_KEY = "whats-cookin-jin-migration-instagram-DeuCUkiPcfF-v1";
+const PUMPKIN_PIE_SOURCE = "https://www.instagram.com/p/DeuCUkiPcfF/";
+const PUMPKIN_PIE_IMAGE = "/recipe-media/pumpkin-pie.jpg";
 const SAMPLE_RECIPE_IDS = new Set(sampleRecipes.map((recipe) => recipe.id));
 
 function canUseStorage() {
@@ -3963,6 +3966,65 @@ function makeGreekYogurtDipToastRecipe(): Recipe {
   };
 }
 
+function makePumpkinPieRecipe(): Recipe {
+  const now = new Date().toISOString();
+
+  return {
+    id: `instagram-pumpkin-pie-${Date.now()}`,
+    title: "펌킨파이",
+    sourceUrl: PUMPKIN_PIE_SOURCE,
+    sourceType: "Instagram",
+    category: "간식",
+    mealType: "Dessert",
+    dietGoal: "None",
+    time: "2 days + 2 hr",
+    difficulty: "Hard",
+    servings: 8,
+    ingredients: [
+      "중력분 190g",
+      "무염버터 130g",
+      "물 50g",
+      "식초 3g",
+      "설탕 7g",
+      "파이지용 소금 4g",
+      "수분을 날린 호박 퓌레 480g",
+      "필링용 소금 2g",
+      "시나몬 1g",
+      "넛맥 0.25g",
+      "백설탕 70g",
+      "흑설탕 80g",
+      "계란 2개",
+      "생크림 170g",
+      "녹인 버터 35g",
+      "필링용 버번 위스키 25g",
+      "바닐라 5g",
+      "전분 7g",
+      "메이플시럽 35g",
+      "글레이즈용 버번 위스키 7g"
+    ],
+    steps: [
+      "차가운 버터를 중력분, 소금, 설탕과 함께 소보루 상태로 만들어요.",
+      "물과 식초를 넣어 반죽을 뭉친 뒤 냉장고에서 하루 동안 휴지시켜요.",
+      "호박을 190도 오븐에서 50분 굽고, 팬에서 수분을 충분히 날린 뒤 푸드 프로세서나 블렌더로 부드럽게 갈아 호박 퓌레를 만들어요.",
+      "백설탕, 흑설탕, 소금, 시나몬, 넛맥을 섞고 호박 퓌레에 넣어요.",
+      "계란, 생크림, 녹인 버터, 버번 위스키, 바닐라, 전분을 넣고 필링을 고르게 섞어요.",
+      "숙성한 파이지를 파이 팬에 성형하고 누름돌을 올려 190도에서 20분 구워요.",
+      "누름돌을 제거하고 180도에서 8분 더 구워 파이 쉘을 완성해요.",
+      "미리 구운 파이 쉘에 필링을 붓고 175도에서 약 40분 구워요.",
+      "메이플시럽과 버번 위스키를 섞어 글레이즈를 만들고, 파이가 충분히 식은 뒤 가볍게 발라요."
+    ],
+    tags: ["펌킨파이", "호박파이", "파이", "홈베이킹", "디저트"],
+    notes:
+      "인스타그램 공개 레시피를 바탕으로 정리했어요. 파이지는 하루 숙성이 필요하고, 호박은 오븐에 구운 뒤 팬에서 수분을 충분히 날려야 해요. 마지막 굽기 시간은 오븐과 파이 크기에 따라 조절하고, 버번 위스키가 들어가는 레시피예요.",
+    imageUrl: PUMPKIN_PIE_IMAGE,
+    favorite: false,
+    bookmarked: true,
+    deleted: false,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
 function removeSampleRecipes(recipes: Recipe[]) {
   return recipes.filter((recipe) => !SAMPLE_RECIPE_IDS.has(recipe.id));
 }
@@ -4142,6 +4204,8 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     storageAvailable && window.localStorage.getItem(TUNA_SANDWICH_RECIPE_KEY) === "done";
   const greekYogurtDipToastDone =
     storageAvailable && window.localStorage.getItem(GREEK_YOGURT_DIP_TOAST_RECIPE_KEY) === "done";
+  const pumpkinPieDone =
+    storageAvailable && window.localStorage.getItem(PUMPKIN_PIE_RECIPE_KEY) === "done";
   const correctTitle = "육수에 푹 적신 알배추롤 & 구운 주먹밥";
   const samplesRemoved = recipes.some((recipe) => SAMPLE_RECIPE_IDS.has(recipe.id));
   const danhobakCheeseBreadRemoved = recipes.some(
@@ -4923,6 +4987,15 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     existingGreekYogurtDipToast.deleted;
   nextRecipes = upsertManagedRecipe(nextRecipes, makeGreekYogurtDipToastRecipe());
 
+  const existingPumpkinPie = nextRecipes.find(
+    (recipe) => recipe.sourceUrl === PUMPKIN_PIE_SOURCE || recipe.title === "펌킨파이"
+  );
+  const pumpkinPieNeedsUpdate =
+    !existingPumpkinPie ||
+    existingPumpkinPie.imageUrl !== PUMPKIN_PIE_IMAGE ||
+    existingPumpkinPie.deleted;
+  nextRecipes = upsertManagedRecipe(nextRecipes, makePumpkinPieRecipe());
+
   if (
     storageAvailable &&
     (samplesRemoved ||
@@ -5090,7 +5163,9 @@ function migrateManagedRecipes(recipes: Recipe[]) {
       !tunaSandwichDone ||
       tunaSandwichNeedsUpdate ||
       !greekYogurtDipToastDone ||
-      greekYogurtDipToastNeedsUpdate)
+      greekYogurtDipToastNeedsUpdate ||
+      !pumpkinPieDone ||
+      pumpkinPieNeedsUpdate)
   ) {
     writeJson(RECIPES_KEY, nextRecipes);
     window.localStorage.setItem(CORRECT_INSTAGRAM_RECIPE_KEY, "done");
@@ -5174,6 +5249,7 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     window.localStorage.setItem(ROASTED_EGGPLANT_ROLL_RECIPE_KEY, "done");
     window.localStorage.setItem(TUNA_SANDWICH_RECIPE_KEY, "done");
     window.localStorage.setItem(GREEK_YOGURT_DIP_TOAST_RECIPE_KEY, "done");
+    window.localStorage.setItem(PUMPKIN_PIE_RECIPE_KEY, "done");
   }
 
   return nextRecipes;
