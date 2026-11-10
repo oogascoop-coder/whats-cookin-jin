@@ -268,6 +268,9 @@ const GREEK_YOGURT_DIP_TOAST_IMAGE = "/recipe-media/greek-yogurt-dip-toast.jpg";
 const PUMPKIN_PIE_RECIPE_KEY = "whats-cookin-jin-migration-instagram-DeuCUkiPcfF-v1";
 const PUMPKIN_PIE_SOURCE = "https://www.instagram.com/p/DeuCUkiPcfF/";
 const PUMPKIN_PIE_IMAGE = "/recipe-media/pumpkin-pie.jpg";
+const CREAM_CLAM_UDON_RECIPE_KEY = "whats-cookin-jin-migration-instagram-DdtZe73pdF4-v1";
+const CREAM_CLAM_UDON_SOURCE = "https://www.instagram.com/p/DdtZe73pdF4/";
+const CREAM_CLAM_UDON_IMAGE = "/recipe-media/cream-clam-udon.jpg";
 const SAMPLE_RECIPE_IDS = new Set(sampleRecipes.map((recipe) => recipe.id));
 
 function canUseStorage() {
@@ -4025,6 +4028,51 @@ function makePumpkinPieRecipe(): Recipe {
   };
 }
 
+function makeCreamClamUdonRecipe(): Recipe {
+  const now = new Date().toISOString();
+
+  return {
+    id: `instagram-cream-clam-udon-${Date.now()}`,
+    title: "크림조개술찜 우동",
+    sourceUrl: CREAM_CLAM_UDON_SOURCE,
+    sourceType: "Instagram",
+    category: "면 / 파스타",
+    mealType: "Dinner",
+    dietGoal: "None",
+    time: "25 min",
+    difficulty: "Easy",
+    servings: 2,
+    ingredients: [
+      "모시조개 1kg",
+      "홍가리비 500g",
+      "우동면 2개",
+      "생크림 400ml",
+      "다진 마늘",
+      "맛술",
+      "오일",
+      "청고추",
+      "조개육수"
+    ],
+    steps: [
+      "모시조개와 홍가리비는 깨끗하게 씻어 준비해요.",
+      "팬에 조개와 다진 마늘, 맛술, 오일을 넣고 뚜껑을 덮어 조개가 입을 열 때까지 익혀 육수를 내요.",
+      "조개육수는 생각보다 짤 수 있으니 일부를 덜어두고, 나중에 간을 보며 조금씩 넣어요.",
+      "우동면 2개와 생크림 400ml를 넣고 끓여요.",
+      "덜어둔 조개육수를 조금씩 추가하면서 원하는 간과 농도로 맞춰요.",
+      "청고추를 썰어 넣고 크림 소스가 우동면에 배도록 한 번 더 끓여 완성해요."
+    ],
+    tags: ["조개", "홍가리비", "우동", "크림우동", "술찜"],
+    notes:
+      "인스타그램 공개 레시피를 바탕으로 정리했어요. 모시조개 1kg과 홍가리비 500g을 사용하고, 조개육수는 짤 수 있으니 처음부터 전부 넣지 말고 조금씩 추가해 간을 맞춰요. 청고추를 넣으면 칼칼한 맛이 더해져요.",
+    imageUrl: CREAM_CLAM_UDON_IMAGE,
+    favorite: false,
+    bookmarked: true,
+    deleted: false,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
 function removeSampleRecipes(recipes: Recipe[]) {
   return recipes.filter((recipe) => !SAMPLE_RECIPE_IDS.has(recipe.id));
 }
@@ -4206,6 +4254,8 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     storageAvailable && window.localStorage.getItem(GREEK_YOGURT_DIP_TOAST_RECIPE_KEY) === "done";
   const pumpkinPieDone =
     storageAvailable && window.localStorage.getItem(PUMPKIN_PIE_RECIPE_KEY) === "done";
+  const creamClamUdonDone =
+    storageAvailable && window.localStorage.getItem(CREAM_CLAM_UDON_RECIPE_KEY) === "done";
   const correctTitle = "육수에 푹 적신 알배추롤 & 구운 주먹밥";
   const samplesRemoved = recipes.some((recipe) => SAMPLE_RECIPE_IDS.has(recipe.id));
   const danhobakCheeseBreadRemoved = recipes.some(
@@ -4996,6 +5046,16 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     existingPumpkinPie.deleted;
   nextRecipes = upsertManagedRecipe(nextRecipes, makePumpkinPieRecipe());
 
+  const existingCreamClamUdon = nextRecipes.find(
+    (recipe) =>
+      recipe.sourceUrl === CREAM_CLAM_UDON_SOURCE || recipe.title === "크림조개술찜 우동"
+  );
+  const creamClamUdonNeedsUpdate =
+    !existingCreamClamUdon ||
+    existingCreamClamUdon.imageUrl !== CREAM_CLAM_UDON_IMAGE ||
+    existingCreamClamUdon.deleted;
+  nextRecipes = upsertManagedRecipe(nextRecipes, makeCreamClamUdonRecipe());
+
   if (
     storageAvailable &&
     (samplesRemoved ||
@@ -5165,7 +5225,9 @@ function migrateManagedRecipes(recipes: Recipe[]) {
       !greekYogurtDipToastDone ||
       greekYogurtDipToastNeedsUpdate ||
       !pumpkinPieDone ||
-      pumpkinPieNeedsUpdate)
+      pumpkinPieNeedsUpdate ||
+      !creamClamUdonDone ||
+      creamClamUdonNeedsUpdate)
   ) {
     writeJson(RECIPES_KEY, nextRecipes);
     window.localStorage.setItem(CORRECT_INSTAGRAM_RECIPE_KEY, "done");
@@ -5250,6 +5312,7 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     window.localStorage.setItem(TUNA_SANDWICH_RECIPE_KEY, "done");
     window.localStorage.setItem(GREEK_YOGURT_DIP_TOAST_RECIPE_KEY, "done");
     window.localStorage.setItem(PUMPKIN_PIE_RECIPE_KEY, "done");
+    window.localStorage.setItem(CREAM_CLAM_UDON_RECIPE_KEY, "done");
   }
 
   return nextRecipes;
