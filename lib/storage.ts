@@ -277,6 +277,9 @@ const CHADOL_UDON_IMAGE = "/recipe-media/chadol-udon.jpg";
 const LEMON_BUTTER_PASTA_RECIPE_KEY = "whats-cookin-jin-migration-instagram-DbvCErjTIHn-v1";
 const LEMON_BUTTER_PASTA_SOURCE = "https://www.instagram.com/p/DbvCErjTIHn/";
 const LEMON_BUTTER_PASTA_IMAGE = "/recipe-media/lemon-butter-pasta.jpg";
+const SHIITAKE_MUSHROOM_RICE_RECIPE_KEY = "whats-cookin-jin-migration-youtube-VpkV6fWDxJg-v1";
+const SHIITAKE_MUSHROOM_RICE_SOURCE = "https://www.youtube.com/shorts/VpkV6fWDxJg";
+const SHIITAKE_MUSHROOM_RICE_IMAGE = "/recipe-media/shiitake-mushroom-rice.jpg";
 const SAMPLE_RECIPE_IDS = new Set(sampleRecipes.map((recipe) => recipe.id));
 
 function canUseStorage() {
@@ -4179,6 +4182,57 @@ function makeLemonButterPastaRecipe(): Recipe {
   };
 }
 
+function makeShiitakeMushroomRiceRecipe(): Recipe {
+  const now = new Date().toISOString();
+
+  return {
+    id: `youtube-shiitake-mushroom-rice-${Date.now()}`,
+    title: "표고버섯 밥",
+    sourceUrl: SHIITAKE_MUSHROOM_RICE_SOURCE,
+    sourceType: "YouTube",
+    category: "한식 / 밥",
+    mealType: "Lunch",
+    dietGoal: "None",
+    time: "15 min",
+    difficulty: "Easy",
+    servings: 2,
+    ingredients: [
+      "표고버섯 6개",
+      "느타리버섯 150g",
+      "쪽파 50g",
+      "부추 100g",
+      "올리브유",
+      "다진 마늘 0.5스푼",
+      "간장 1.5스푼",
+      "맛술 1스푼",
+      "액젓 0.5스푼",
+      "뜨거운 밥 2공기",
+      "후추",
+      "버터 1조각",
+      "들기름 0.5스푼"
+    ],
+    steps: [
+      "표고버섯은 채 썰고, 느타리버섯은 먹기 좋게 찢어요.",
+      "쪽파와 부추는 잘게 썰어 준비해요.",
+      "팬에 올리브유와 다진 마늘을 넣고 마늘 향이 올라올 정도로 살짝 볶아요.",
+      "표고버섯과 느타리버섯을 넣고 센 불에서 볶아요.",
+      "버섯이 노릇해지면 간장, 맛술, 액젓을 넣고 빠르게 볶아 향을 입혀요.",
+      "뜨거운 밥 2공기와 후추를 넣고 가볍게 섞어요.",
+      "불을 끄거나 약불로 줄인 뒤 쪽파와 부추를 듬뿍 올리고 버터를 얹어요.",
+      "뚜껑을 덮어 채소의 숨을 살짝 죽인 뒤 잘 비비고, 마지막에 들기름을 둘러 완성해요."
+    ],
+    tags: ["표고버섯", "버섯밥", "한그릇요리", "집밥", "담백한요리"],
+    notes:
+      "유튜브 쇼츠 자동 자막을 바탕으로 정리했어요. 표고버섯과 느타리버섯을 센 불에 노릇하게 볶고, 밥과 쪽파, 부추, 버터를 넣어 비벼 먹는 레시피예요. 영상 자막의 양념 표기는 간장 1.5스푼, 맛술 1스푼, 액젓 0.5스푼으로 정리했어요.",
+    imageUrl: SHIITAKE_MUSHROOM_RICE_IMAGE,
+    favorite: false,
+    bookmarked: true,
+    deleted: false,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
 function removeSampleRecipes(recipes: Recipe[]) {
   return recipes.filter((recipe) => !SAMPLE_RECIPE_IDS.has(recipe.id));
 }
@@ -4366,6 +4420,8 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     storageAvailable && window.localStorage.getItem(CHADOL_UDON_RECIPE_KEY) === "done";
   const lemonButterPastaDone =
     storageAvailable && window.localStorage.getItem(LEMON_BUTTER_PASTA_RECIPE_KEY) === "done";
+  const shiitakeMushroomRiceDone =
+    storageAvailable && window.localStorage.getItem(SHIITAKE_MUSHROOM_RICE_RECIPE_KEY) === "done";
   const correctTitle = "육수에 푹 적신 알배추롤 & 구운 주먹밥";
   const samplesRemoved = recipes.some((recipe) => SAMPLE_RECIPE_IDS.has(recipe.id));
   const danhobakCheeseBreadRemoved = recipes.some(
@@ -5184,6 +5240,15 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     existingLemonButterPasta.deleted;
   nextRecipes = upsertManagedRecipe(nextRecipes, makeLemonButterPastaRecipe());
 
+  const existingShiitakeMushroomRice = nextRecipes.find(
+    (recipe) => recipe.sourceUrl === SHIITAKE_MUSHROOM_RICE_SOURCE || recipe.title === "표고버섯 밥"
+  );
+  const shiitakeMushroomRiceNeedsUpdate =
+    !existingShiitakeMushroomRice ||
+    existingShiitakeMushroomRice.imageUrl !== SHIITAKE_MUSHROOM_RICE_IMAGE ||
+    existingShiitakeMushroomRice.deleted;
+  nextRecipes = upsertManagedRecipe(nextRecipes, makeShiitakeMushroomRiceRecipe());
+
   if (
     storageAvailable &&
     (samplesRemoved ||
@@ -5359,7 +5424,9 @@ function migrateManagedRecipes(recipes: Recipe[]) {
       !chadolUdonDone ||
       chadolUdonNeedsUpdate ||
       !lemonButterPastaDone ||
-      lemonButterPastaNeedsUpdate)
+      lemonButterPastaNeedsUpdate ||
+      !shiitakeMushroomRiceDone ||
+      shiitakeMushroomRiceNeedsUpdate)
   ) {
     writeJson(RECIPES_KEY, nextRecipes);
     window.localStorage.setItem(CORRECT_INSTAGRAM_RECIPE_KEY, "done");
@@ -5447,6 +5514,7 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     window.localStorage.setItem(CREAM_CLAM_UDON_RECIPE_KEY, "done");
     window.localStorage.setItem(CHADOL_UDON_RECIPE_KEY, "done");
     window.localStorage.setItem(LEMON_BUTTER_PASTA_RECIPE_KEY, "done");
+    window.localStorage.setItem(SHIITAKE_MUSHROOM_RICE_RECIPE_KEY, "done");
   }
 
   return nextRecipes;
