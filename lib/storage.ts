@@ -274,6 +274,9 @@ const CREAM_CLAM_UDON_IMAGE = "/recipe-media/cream-clam-udon.jpg";
 const CHADOL_UDON_RECIPE_KEY = "whats-cookin-jin-migration-instagram-DfKOMeFzOsH-v1";
 const CHADOL_UDON_SOURCE = "https://www.instagram.com/p/DfKOMeFzOsH/";
 const CHADOL_UDON_IMAGE = "/recipe-media/chadol-udon.jpg";
+const LEMON_BUTTER_PASTA_RECIPE_KEY = "whats-cookin-jin-migration-instagram-DbvCErjTIHn-v1";
+const LEMON_BUTTER_PASTA_SOURCE = "https://www.instagram.com/p/DbvCErjTIHn/";
+const LEMON_BUTTER_PASTA_IMAGE = "/recipe-media/lemon-butter-pasta.jpg";
 const SAMPLE_RECIPE_IDS = new Set(sampleRecipes.map((recipe) => recipe.id));
 
 function canUseStorage() {
@@ -4131,6 +4134,51 @@ function makeChadolUdonRecipe(): Recipe {
   };
 }
 
+function makeLemonButterPastaRecipe(): Recipe {
+  const now = new Date().toISOString();
+
+  return {
+    id: `instagram-lemon-butter-pasta-${Date.now()}`,
+    title: "레몬버터 파스타",
+    sourceUrl: LEMON_BUTTER_PASTA_SOURCE,
+    sourceType: "Instagram",
+    category: "면 / 파스타",
+    mealType: "Dinner",
+    dietGoal: "None",
+    time: "15 min",
+    difficulty: "Easy",
+    servings: 1,
+    ingredients: [
+      "레몬 2개",
+      "파르미지아노 치즈 또는 페코리노 치즈",
+      "치킨스톡 0.8스푼",
+      "스파게티니",
+      "무염버터",
+      "굵게 다진 마늘",
+      "소금",
+      "면수"
+    ],
+    steps: [
+      "레몬 한 개의 노란 껍질만 곱게 갈고, 치즈도 넉넉하게 갈아 준비해요.",
+      "소금을 넣은 끓는 물에 스파게티니를 5분만 삶아요. 팬에서 더 익힐 거라 알단테보다 덜 익힌 상태로 준비해요.",
+      "약불 팬에 버터 한 덩이와 굵게 다진 마늘을 넣고 색이 나지 않도록 천천히 볶아요.",
+      "레몬 제스트 반, 치킨스톡, 레몬 반 개의 즙을 넣고 섞어요.",
+      "5분 삶은 스파게티니와 면수 2국자를 넣고 중불에서 2~3분 익혀요.",
+      "불을 끄고 버터 한 덩이를 넣어 소스가 면에 고르게 유화되도록 섞어요.",
+      "그릇에 담고 치즈, 남은 레몬 제스트, 레몬 슬라이스를 올려 마무리해요."
+    ],
+    tags: ["레몬", "버터", "파스타", "스파게티니", "홈파스타"],
+    notes:
+      "인스타그램 공개 레시피를 바탕으로 정리했어요. 레몬의 흰 부분은 쓴맛이 날 수 있어 노란 껍질만 사용하고, 면 양이 많아지면 치즈와 면수도 함께 늘려요. 치킨스톡과 소금의 양은 제품과 입자에 따라 조절해요.",
+    imageUrl: LEMON_BUTTER_PASTA_IMAGE,
+    favorite: false,
+    bookmarked: true,
+    deleted: false,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
 function removeSampleRecipes(recipes: Recipe[]) {
   return recipes.filter((recipe) => !SAMPLE_RECIPE_IDS.has(recipe.id));
 }
@@ -4316,6 +4364,8 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     storageAvailable && window.localStorage.getItem(CREAM_CLAM_UDON_RECIPE_KEY) === "done";
   const chadolUdonDone =
     storageAvailable && window.localStorage.getItem(CHADOL_UDON_RECIPE_KEY) === "done";
+  const lemonButterPastaDone =
+    storageAvailable && window.localStorage.getItem(LEMON_BUTTER_PASTA_RECIPE_KEY) === "done";
   const correctTitle = "육수에 푹 적신 알배추롤 & 구운 주먹밥";
   const samplesRemoved = recipes.some((recipe) => SAMPLE_RECIPE_IDS.has(recipe.id));
   const danhobakCheeseBreadRemoved = recipes.some(
@@ -5125,6 +5175,15 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     existingChadolUdon.deleted;
   nextRecipes = upsertManagedRecipe(nextRecipes, makeChadolUdonRecipe());
 
+  const existingLemonButterPasta = nextRecipes.find(
+    (recipe) => recipe.sourceUrl === LEMON_BUTTER_PASTA_SOURCE || recipe.title === "레몬버터 파스타"
+  );
+  const lemonButterPastaNeedsUpdate =
+    !existingLemonButterPasta ||
+    existingLemonButterPasta.imageUrl !== LEMON_BUTTER_PASTA_IMAGE ||
+    existingLemonButterPasta.deleted;
+  nextRecipes = upsertManagedRecipe(nextRecipes, makeLemonButterPastaRecipe());
+
   if (
     storageAvailable &&
     (samplesRemoved ||
@@ -5298,7 +5357,9 @@ function migrateManagedRecipes(recipes: Recipe[]) {
       !creamClamUdonDone ||
       creamClamUdonNeedsUpdate ||
       !chadolUdonDone ||
-      chadolUdonNeedsUpdate)
+      chadolUdonNeedsUpdate ||
+      !lemonButterPastaDone ||
+      lemonButterPastaNeedsUpdate)
   ) {
     writeJson(RECIPES_KEY, nextRecipes);
     window.localStorage.setItem(CORRECT_INSTAGRAM_RECIPE_KEY, "done");
@@ -5385,6 +5446,7 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     window.localStorage.setItem(PUMPKIN_PIE_RECIPE_KEY, "done");
     window.localStorage.setItem(CREAM_CLAM_UDON_RECIPE_KEY, "done");
     window.localStorage.setItem(CHADOL_UDON_RECIPE_KEY, "done");
+    window.localStorage.setItem(LEMON_BUTTER_PASTA_RECIPE_KEY, "done");
   }
 
   return nextRecipes;
