@@ -271,6 +271,9 @@ const PUMPKIN_PIE_IMAGE = "/recipe-media/pumpkin-pie.jpg";
 const CREAM_CLAM_UDON_RECIPE_KEY = "whats-cookin-jin-migration-instagram-DdtZe73pdF4-v1";
 const CREAM_CLAM_UDON_SOURCE = "https://www.instagram.com/p/DdtZe73pdF4/";
 const CREAM_CLAM_UDON_IMAGE = "/recipe-media/cream-clam-udon.jpg";
+const CHADOL_UDON_RECIPE_KEY = "whats-cookin-jin-migration-instagram-DfKOMeFzOsH-v1";
+const CHADOL_UDON_SOURCE = "https://www.instagram.com/p/DfKOMeFzOsH/";
+const CHADOL_UDON_IMAGE = "/recipe-media/chadol-udon.jpg";
 const SAMPLE_RECIPE_IDS = new Set(sampleRecipes.map((recipe) => recipe.id));
 
 function canUseStorage() {
@@ -4073,6 +4076,61 @@ function makeCreamClamUdonRecipe(): Recipe {
   };
 }
 
+function makeChadolUdonRecipe(): Recipe {
+  const now = new Date().toISOString();
+
+  return {
+    id: `instagram-chadol-udon-${Date.now()}`,
+    title: "차돌우동 & 날치알죽",
+    sourceUrl: CHADOL_UDON_SOURCE,
+    sourceType: "Instagram",
+    category: "면 / 파스타",
+    mealType: "Dinner",
+    dietGoal: "None",
+    time: "30 min",
+    difficulty: "Easy",
+    servings: 2,
+    ingredients: [
+      "차돌박이",
+      "알배추",
+      "양파",
+      "대파",
+      "표고버섯",
+      "마늘",
+      "우동면 2개",
+      "우니간장 또는 진간장",
+      "참깨소스",
+      "청고추",
+      "라이스페이퍼 선택",
+      "밥 1-2공기",
+      "차돌우동 국물",
+      "날치알",
+      "치즈",
+      "빵",
+      "크림치즈",
+      "포도잼"
+    ],
+    steps: [
+      "알배추, 양파, 대파, 표고버섯, 마늘을 먹기 좋은 크기로 썰어요.",
+      "냄비에 채소와 물 또는 육수를 넣고 우니간장이나 진간장으로 간을 맞춰 끓여요.",
+      "차돌박이를 넣고 익힌 뒤 우동면을 넣어 국물이 배도록 끓여요.",
+      "참깨소스와 다진 청고추를 곁들여 먹어요. 라이스페이퍼에 우동과 채소를 싸서 월남쌈처럼 먹어도 좋아요.",
+      "우동을 먹고 남은 국물은 냄비에 덜어 밥을 넣고 자작하게 끓여 죽처럼 만들어요.",
+      "죽이 걸쭉해지면 치즈를 넣고 섞은 뒤 날치알을 올려 마무리해요.",
+      "빵은 따뜻하게 구워 크림치즈와 포도잼을 발라 곁들여요."
+    ],
+    tags: ["차돌박이", "우동", "날치알죽", "냉털요리", "월남쌈"],
+    notes:
+      "인스타그램 영상을 바탕으로 정리했어요. 차돌우동을 먼저 먹고 남은 국물에 밥과 치즈, 날치알을 넣어 죽으로 이어 먹는 구성이고, 라이스페이퍼 월남쌈과 크림치즈 포도잼 빵은 선택 곁들임이에요. 간장과 참깨소스의 양은 재료 양에 맞춰 조절해요.",
+    imageUrl: CHADOL_UDON_IMAGE,
+    favorite: false,
+    bookmarked: true,
+    deleted: false,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
 function removeSampleRecipes(recipes: Recipe[]) {
   return recipes.filter((recipe) => !SAMPLE_RECIPE_IDS.has(recipe.id));
 }
@@ -4256,6 +4314,8 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     storageAvailable && window.localStorage.getItem(PUMPKIN_PIE_RECIPE_KEY) === "done";
   const creamClamUdonDone =
     storageAvailable && window.localStorage.getItem(CREAM_CLAM_UDON_RECIPE_KEY) === "done";
+  const chadolUdonDone =
+    storageAvailable && window.localStorage.getItem(CHADOL_UDON_RECIPE_KEY) === "done";
   const correctTitle = "육수에 푹 적신 알배추롤 & 구운 주먹밥";
   const samplesRemoved = recipes.some((recipe) => SAMPLE_RECIPE_IDS.has(recipe.id));
   const danhobakCheeseBreadRemoved = recipes.some(
@@ -5056,6 +5116,15 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     existingCreamClamUdon.deleted;
   nextRecipes = upsertManagedRecipe(nextRecipes, makeCreamClamUdonRecipe());
 
+  const existingChadolUdon = nextRecipes.find(
+    (recipe) => recipe.sourceUrl === CHADOL_UDON_SOURCE || recipe.title === "차돌우동 & 날치알죽"
+  );
+  const chadolUdonNeedsUpdate =
+    !existingChadolUdon ||
+    existingChadolUdon.imageUrl !== CHADOL_UDON_IMAGE ||
+    existingChadolUdon.deleted;
+  nextRecipes = upsertManagedRecipe(nextRecipes, makeChadolUdonRecipe());
+
   if (
     storageAvailable &&
     (samplesRemoved ||
@@ -5227,7 +5296,9 @@ function migrateManagedRecipes(recipes: Recipe[]) {
       !pumpkinPieDone ||
       pumpkinPieNeedsUpdate ||
       !creamClamUdonDone ||
-      creamClamUdonNeedsUpdate)
+      creamClamUdonNeedsUpdate ||
+      !chadolUdonDone ||
+      chadolUdonNeedsUpdate)
   ) {
     writeJson(RECIPES_KEY, nextRecipes);
     window.localStorage.setItem(CORRECT_INSTAGRAM_RECIPE_KEY, "done");
@@ -5313,6 +5384,7 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     window.localStorage.setItem(GREEK_YOGURT_DIP_TOAST_RECIPE_KEY, "done");
     window.localStorage.setItem(PUMPKIN_PIE_RECIPE_KEY, "done");
     window.localStorage.setItem(CREAM_CLAM_UDON_RECIPE_KEY, "done");
+    window.localStorage.setItem(CHADOL_UDON_RECIPE_KEY, "done");
   }
 
   return nextRecipes;
