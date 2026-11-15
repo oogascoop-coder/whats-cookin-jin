@@ -280,6 +280,9 @@ const LEMON_BUTTER_PASTA_IMAGE = "/recipe-media/lemon-butter-pasta.jpg";
 const SHIITAKE_MUSHROOM_RICE_RECIPE_KEY = "whats-cookin-jin-migration-youtube-VpkV6fWDxJg-v1";
 const SHIITAKE_MUSHROOM_RICE_SOURCE = "https://www.youtube.com/shorts/VpkV6fWDxJg";
 const SHIITAKE_MUSHROOM_RICE_IMAGE = "/recipe-media/shiitake-mushroom-rice.jpg";
+const APPLE_ARUGULA_SALAD_RECIPE_KEY = "whats-cookin-jin-migration-youtube-dtovtm4yyzw-v1";
+const APPLE_ARUGULA_SALAD_SOURCE = "https://www.youtube.com/shorts/dtovtm4yyzw";
+const APPLE_ARUGULA_SALAD_IMAGE = "/recipe-media/apple-arugula-salad.jpg";
 const SAMPLE_RECIPE_IDS = new Set(sampleRecipes.map((recipe) => recipe.id));
 
 function canUseStorage() {
@@ -4233,6 +4236,54 @@ function makeShiitakeMushroomRiceRecipe(): Recipe {
   };
 }
 
+function makeAppleArugulaSaladRecipe(): Recipe {
+  const now = new Date().toISOString();
+
+  return {
+    id: `youtube-apple-arugula-salad-${Date.now()}`,
+    title: "사과 루꼴라 샐러드",
+    sourceUrl: APPLE_ARUGULA_SALAD_SOURCE,
+    sourceType: "YouTube",
+    category: "샐러드",
+    mealType: "Lunch",
+    dietGoal: "Light",
+    time: "10 min",
+    difficulty: "Easy",
+    servings: 2,
+    ingredients: [
+      "사과 175g",
+      "루꼴라 50g",
+      "적양파 55g",
+      "캐슈넛 한 줌",
+      "물 500ml",
+      "설탕 2스푼",
+      "엑스트라 버진 올리브오일 4스푼",
+      "알룰로스 1스푼",
+      "레몬즙 1스푼",
+      "홀그레인 머스타드 1스푼",
+      "다진 마늘 1티스푼",
+      "소금, 후추 한 꼬집씩"
+    ],
+    steps: [
+      "사과는 깨끗이 씻고 4등분해 씨를 제거한 뒤 껍질째 얇게 썰어요.",
+      "적양파는 얇게 채 썰어요.",
+      "물 500ml에 설탕 2스푼을 녹이고 사과와 적양파를 5분간 담갔다가 건져 물기를 털어요. 사과의 갈변을 막고 양파의 매운맛을 줄여줘요.",
+      "루꼴라는 깨끗이 씻어 찬물에 5분간 담갔다가 반으로 자르고 물기를 털어요.",
+      "올리브오일, 알룰로스, 레몬즙, 홀그레인 머스타드, 다진 마늘, 소금, 후추를 섞어 드레싱을 만들어요.",
+      "믹싱볼에 사과, 루꼴라, 적양파, 잘게 부순 캐슈넛을 담고 먹기 직전에 드레싱을 취향껏 뿌려 버무려요."
+    ],
+    tags: ["사과", "루꼴라", "샐러드", "다이어트", "저당요리"],
+    notes:
+      "유튜브 영상 설명을 바탕으로 정리했어요. 사과와 양파는 설탕물에 잠깐 담갔다가 사용하고, 드레싱은 먹기 직전에 버무려야 샐러드가 신선해요. 드레싱의 단맛과 산미는 입맛에 맞춰 조절해요.",
+    imageUrl: APPLE_ARUGULA_SALAD_IMAGE,
+    favorite: false,
+    bookmarked: true,
+    deleted: false,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
 function removeSampleRecipes(recipes: Recipe[]) {
   return recipes.filter((recipe) => !SAMPLE_RECIPE_IDS.has(recipe.id));
 }
@@ -4422,6 +4473,8 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     storageAvailable && window.localStorage.getItem(LEMON_BUTTER_PASTA_RECIPE_KEY) === "done";
   const shiitakeMushroomRiceDone =
     storageAvailable && window.localStorage.getItem(SHIITAKE_MUSHROOM_RICE_RECIPE_KEY) === "done";
+  const appleArugulaSaladDone =
+    storageAvailable && window.localStorage.getItem(APPLE_ARUGULA_SALAD_RECIPE_KEY) === "done";
   const correctTitle = "육수에 푹 적신 알배추롤 & 구운 주먹밥";
   const samplesRemoved = recipes.some((recipe) => SAMPLE_RECIPE_IDS.has(recipe.id));
   const danhobakCheeseBreadRemoved = recipes.some(
@@ -5249,6 +5302,15 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     existingShiitakeMushroomRice.deleted;
   nextRecipes = upsertManagedRecipe(nextRecipes, makeShiitakeMushroomRiceRecipe());
 
+  const existingAppleArugulaSalad = nextRecipes.find(
+    (recipe) => recipe.sourceUrl === APPLE_ARUGULA_SALAD_SOURCE || recipe.title === "사과 루꼴라 샐러드"
+  );
+  const appleArugulaSaladNeedsUpdate =
+    !existingAppleArugulaSalad ||
+    existingAppleArugulaSalad.imageUrl !== APPLE_ARUGULA_SALAD_IMAGE ||
+    existingAppleArugulaSalad.deleted;
+  nextRecipes = upsertManagedRecipe(nextRecipes, makeAppleArugulaSaladRecipe());
+
   if (
     storageAvailable &&
     (samplesRemoved ||
@@ -5426,7 +5488,9 @@ function migrateManagedRecipes(recipes: Recipe[]) {
       !lemonButterPastaDone ||
       lemonButterPastaNeedsUpdate ||
       !shiitakeMushroomRiceDone ||
-      shiitakeMushroomRiceNeedsUpdate)
+      shiitakeMushroomRiceNeedsUpdate ||
+      !appleArugulaSaladDone ||
+      appleArugulaSaladNeedsUpdate)
   ) {
     writeJson(RECIPES_KEY, nextRecipes);
     window.localStorage.setItem(CORRECT_INSTAGRAM_RECIPE_KEY, "done");
@@ -5515,6 +5579,7 @@ function migrateManagedRecipes(recipes: Recipe[]) {
     window.localStorage.setItem(CHADOL_UDON_RECIPE_KEY, "done");
     window.localStorage.setItem(LEMON_BUTTER_PASTA_RECIPE_KEY, "done");
     window.localStorage.setItem(SHIITAKE_MUSHROOM_RICE_RECIPE_KEY, "done");
+    window.localStorage.setItem(APPLE_ARUGULA_SALAD_RECIPE_KEY, "done");
   }
 
   return nextRecipes;
